@@ -1,0 +1,185 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-nav-v) var(--space-nav-h);
+  background: transparent;
+  transition: background 0.45s ease, box-shadow 0.45s ease;
+}
+
+/* Cream background — inner-page grid sections */
+.navbarWithBg {
+  background: var(--color-off-white);
+  box-shadow: 0 1px 0 rgba(58, 52, 47, 0.08);
+}
+
+/* ── Logo ───────────────────────────────────────────────────────────────────── */
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo img {
+  width: clamp(28px, 3vw, 40px) !important;
+  height: auto !important;
+  filter: brightness(0) invert(1);
+  transition:
+    opacity 0.3s var(--ease-smooth),
+    filter 0.5s ease;
+}
+
+.logo:hover img {
+  opacity: 0.7;
+}
+
+/* Logo dark — applied directly to the <Link> when logoDark is true */
+.logoDark img {
+  filter: brightness(0);
+}
+
+/* ── Desktop nav ────────────────────────────────────────────────────────────── */
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 3.5vw, 52px);
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* Fade out when minimal */
+.navbarMinimal .desktopNav {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.navItem {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  opacity: 1;
+  position: relative;
+  padding-bottom: 2px;
+  white-space: nowrap;
+  transition: color 0.5s ease;
+}
+
+.navItem::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.navItem:hover::after {
+  transform: scaleX(1);
+}
+
+/* Dark theme: near-black nav text */
+.navbarDark .navItem {
+  color: #29241D;
+}
+
+/* ── Hamburger ──────────────────────────────────────────────────────────────── */
+.hamburger {
+  /* Absolutely positioned — never in the flex flow, so the desktop nav
+     never shifts position when the hamburger appears/disappears */
+  position: absolute;
+  right: var(--space-nav-h);
+  top: 50%;
+  margin-top: -14px; /* -half of 28px — no CSS transform so GSAP X works cleanly */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  z-index: calc(var(--z-nav) + 1);
+  /* Hidden by default; revealed by .navbarMinimal */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.15s, visibility 0.4s ease 0.15s;
+}
+
+/* Fade in when minimal (slight delay so nav fades out first) */
+.navbarMinimal .hamburger {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--color-white);
+  transform-origin: center;
+  transition:
+    transform 0.35s var(--ease-in-out-quart),
+    opacity  0.25s ease,
+    background 0.5s ease;
+}
+
+/* Hamburger dark — applied directly to <button> when hamburgerDark is true */
+.hamburgerDark .bar {
+  background: #29241D;
+}
+
+.hamburgerOpen .bar:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.hamburgerOpen .bar:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+/* ── Mobile overlay ─────────────────────────────────────────────────────────── */
+.mobileOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-nav) - 1);
+  background: var(--color-warm-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 var(--space-nav-h);
+  clip-path: inset(0 0 100% 0);
+}
+
+.mobileNavItem {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 8vw, 56px);
+  color: var(--color-white);
+  line-height: 1.2;
+  margin-bottom: clamp(16px, 3vh, 28px);
+  opacity: 0;
+  display: block;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .desktopNav { display: none; }
+  /* On mobile the hamburger is always visible — override the hidden default */
+  .hamburger {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: none; /* no transition needed — it's always shown on mobile */
+  }
+}

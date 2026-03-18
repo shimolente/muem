@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // When Supabase Storage is wired up, add its hostname here:
+  // images: { remotePatterns: [{ hostname: '*.supabase.co' }] },
 };
 
 export default nextConfig;

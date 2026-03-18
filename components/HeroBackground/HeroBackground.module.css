@@ -1,0 +1,31 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gradientOverlay,
+.flatOverlay {
+  position: absolute;
+  inset: 0;
+}
+
+.gradientOverlay {
+  /* Permanent bottom-to-top gradient for hero headline legibility */
+  z-index: 1;
+}
+
+.flatOverlay {
+  /* Solid warm tint — opacity driven by scroll/section state */
+  background: #3A342F;
+  z-index: 2;
+  will-change: opacity;
+  transition: none; /* GSAP handles transitions */
+}

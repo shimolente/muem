@@ -1,0 +1,171 @@
+/* ── Trigger ─────────────────────────────────────────────────────────────── */
+.trigger {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: clamp(14px, 1.8vh, 20px) clamp(20px, 2.2vw, 32px);
+  padding-right: clamp(40px, 3.5vw, 52px); /* room for chevron */
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  border-right: 1px solid rgba(58, 52, 47, 0.14);
+  transition: background 0.2s ease;
+  outline: none; /* keyboard focus handled via :focus-visible below */
+}
+.trigger:focus-visible {
+  outline: 2px solid rgba(58, 52, 47, 0.35);
+  outline-offset: -2px;
+}
+.trigger:last-child {
+  border-right: none;
+}
+.trigger:hover,
+.triggerOpen {
+  background: rgba(58, 52, 47, 0.03);
+}
+
+/* Subtle dot to indicate an active filter */
+.triggerFiltered .triggerValue {
+  color: var(--color-warm-dark);
+  font-weight: 500;
+}
+
+/* ── Trigger text ────────────────────────────────────────────────────────── */
+.triggerLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.45);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.triggerValue {
+  font-family: var(--font-body);
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 400;
+  color: var(--color-warm-dark);
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chevron ─────────────────────────────────────────────────────────────── */
+.chevron {
+  position: absolute;
+  right: clamp(16px, 1.6vw, 22px);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+
+  /* Hairline chevron drawn with CSS borders */
+  width: 8px;
+  height: 5px;
+  border-left:  1.5px solid rgba(58, 52, 47, 0.4);
+  border-bottom: 1.5px solid rgba(58, 52, 47, 0.4);
+  transform: translateY(-60%) rotate(-45deg);
+  transition: transform 0.22s ease;
+}
+.triggerOpen .chevron {
+  transform: translateY(-40%) rotate(135deg);
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 100%;
+  width: 220px;
+  background: var(--color-off-white, #F5F3EF);
+  border: 1px solid rgba(58, 52, 47, 0.12);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.07);
+  padding: 6px;
+  z-index: 200;
+}
+
+/* ── Separator ───────────────────────────────────────────────────────────── */
+.separator {
+  height: 1px;
+  background: rgba(58, 52, 47, 0.08);
+  margin: 4px 8px;
+}
+
+/* ── Rows ────────────────────────────────────────────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 7px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.14s ease;
+  gap: 8px;
+}
+.row:hover {
+  background: rgba(58, 52, 47, 0.055);
+}
+.rowActive {
+  background: rgba(58, 52, 47, 0.07);
+}
+
+.rowLabel {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-warm-dark);
+  line-height: 1;
+}
+.rowActive .rowLabel {
+  font-weight: 500;
+}
+
+/* Group heading — muted, slightly uppercase feel */
+.rowGroup .rowLabel {
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.5);
+  font-weight: 400;
+}
+.rowGroup.rowActive .rowLabel {
+  color: var(--color-warm-dark);
+  font-weight: 500;
+}
+
+/* Indented child */
+.rowChild {
+  padding-left: 20px;
+}
+.rowChild .rowLabel {
+  font-size: 13px;
+  color: var(--color-warm-dark);
+}
+
+/* ── Check icon ──────────────────────────────────────────────────────────── */
+.checkIcon {
+  color: var(--color-warm-dark);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .panel {
+    /* On mobile, panels can be wider — let them fill the filter item */
+    width: calc(100vw - 40px);
+    max-width: 320px;
+  }
+}

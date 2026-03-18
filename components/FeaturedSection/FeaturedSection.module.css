@@ -1,0 +1,238 @@
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.section {
+  position: relative;
+  z-index: 2;
+  height: 100svh;
+  min-height: 600px;
+  background: var(--color-off-white);
+  display: flex;
+  align-items: stretch;
+  padding: clamp(6px, 0.55vw, 10px);
+}
+
+/* ── Bento grid — 3 equal cols × 3 equal rows ────────────────────────────── */
+.grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "a b b"
+    "c t d"
+    "e e f";
+  gap: clamp(6px, 0.55vw, 10px);
+}
+
+/* ── Image cards ──────────────────────────────────────────────────────────── */
+.cell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  display: block;
+  text-decoration: none;
+}
+
+/* Grid-area assignments */
+.cellA { grid-area: a; }
+.cellB { grid-area: b; }
+.cellC { grid-area: c; }
+.cellD { grid-area: d; }
+.cellE { grid-area: e; }
+.cellF { grid-area: f; }
+
+/* Background image — scales on hover */
+.cellImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #b5a898; /* warm fallback while images load */
+  transform: scale(1);
+  transition: transform 0.85s var(--ease-out-expo);
+  will-change: transform;
+}
+.cell:hover .cellImage { transform: scale(1.05); }
+
+/* Bottom gradient — hidden by default, fades in on hover with the meta text */
+.cellOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(20, 16, 13, 0.68) 0%,
+    rgba(20, 16, 13, 0.12) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.cell:hover .cellOverlay { opacity: 1; }
+
+/* Top-to-bottom gradient on first-row cards — keeps nav hamburger legible */
+.cellA::after,
+.cellB::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    to bottom,
+    rgba(20, 16, 13, 0.45) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Location + project title — hidden by default, reveals on card hover */
+.cellMeta {
+  position: absolute;
+  bottom: clamp(12px, 1.6vh, 20px);
+  left: clamp(14px, 1.2vw, 20px);
+  right: clamp(14px, 1.2vw, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.cell:hover .cellMeta {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cellLocation {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1;
+}
+.cellTitle {
+  font-family: var(--font-body);
+  font-size: clamp(13px, 1.1vw, 18px);
+  font-weight: 500;
+  color: var(--color-white);
+  line-height: var(--leading-snug);
+  letter-spacing: 0.01em;
+}
+
+/* ── Centre text cell ─────────────────────────────────────────────────────── */
+.textCell {
+  grid-area: t;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0; /* controlled via margins on children for precise hierarchy spacing */
+  text-align: center;
+  padding: clamp(14px, 1.8vw, 28px);
+  border-radius: 6px;
+  border: 1px solid rgba(58, 52, 47, 0.1);
+  /* no background — sits against the section's off-white */
+}
+
+/* Tier 1 — micro label ("CREATE") */
+.textLabel {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.4);
+  line-height: 1;
+  margin-bottom: clamp(10px, 1.4vh, 18px);
+}
+/* Tier 2 — display name ("Studio") — the hero element */
+.textTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 2.6vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-warm-dark);
+  margin: 0 0 clamp(10px, 1.4vh, 18px);
+}
+/* Tier 3 — supporting tagline */
+.textTagline {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(58, 52, 47, 0.5);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(14px, 2vh, 24px);
+}
+
+/* Pagination dots — large transparent hit area, small visual dot */
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+/* Each button is 24×24 transparent — large hit area */
+.dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+/* Visual dot via pseudo-element — grows on hover to signal interactivity */
+.dot::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(58, 52, 47, 0.22);
+  transition: background 0.25s ease, width 0.25s ease, height 0.25s ease;
+  flex-shrink: 0;
+}
+.dot:hover::before {
+  background: rgba(58, 52, 47, 0.5);
+  width: 8px;
+  height: 8px;
+}
+.dotActive::before {
+  background: var(--color-warm-dark);
+  width: 7px;
+  height: 7px;
+}
+
+/* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .section {
+    height: auto;
+    min-height: unset;
+    padding: 14px;
+  }
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "a a"
+      "b b"
+      "c d"
+      "t t"
+      "e e"
+      "f f";
+  }
+  /* Give each image cell a fixed aspect ratio on mobile */
+  .cell { aspect-ratio: 4 / 3; }
+  .textCell {
+    aspect-ratio: unset;
+    padding: 28px 20px;
+  }
+}

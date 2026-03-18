@@ -1,0 +1,265 @@
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.section {
+  position: relative;
+  z-index: 2;
+  height: 100svh;
+  min-height: 500px;
+  display: flex;
+  background: var(--color-off-white); /* covers the fixed video behind */
+  padding: clamp(6px, 0.55vw, 10px);
+  gap: clamp(6px, 0.55vw, 10px);
+}
+
+/* ── Column ──────────────────────────────────────────────────────────────── */
+.column {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  cursor: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Hover image clip (outer container — slides up from below) ───────────── */
+.imageClip {
+  position: absolute;
+  top: -1px; /* extends 1px above column — always clipped by overflow:hidden, eliminates sub-pixel edge artifact */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  transform: translateY(101%);
+  will-change: transform;
+  z-index: 1;
+  background: var(--color-off-white);
+}
+
+/* ── Hover image (static inside clip) ───────────────────────────────────── */
+.hoverImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #b5a898;
+}
+
+/* Dark overlay — real div so GSAP can keep it column-width during expansion */
+.darkOverlay {
+  position: absolute;
+  inset: 0;
+  background: #1F1A16;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Curtain (sits above image inside clip, lifts away with delay) ───────── */
+.curtain {
+  position: absolute;
+  inset: 0;
+  background: var(--color-off-white);
+  z-index: 1;
+  will-change: transform;
+}
+
+/* ── Labels ──────────────────────────────────────────────────────────────── */
+.label {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 76px);
+  color: var(--color-warm-dark);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  pointer-events: none;
+  transition: color 0.7s ease;
+}
+
+.name {
+  position: absolute;
+  z-index: 2;
+  /* Centered — sits below the serif label */
+  top: 57%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(13px, 1.1vw, 17px);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-warm-dark);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: color 0.7s ease;
+}
+
+/* Text turns white while overlay is active — delay syncs with curtain lift */
+.columnHovered .label,
+.columnHovered .name {
+  color: var(--color-white);
+  transition: color 0.3s ease 0.35s;
+}
+
+/* ── Expanded overlay ────────────────────────────────────────────────────── */
+.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 8; /* above sections (2), below navbar (10) */
+  display: flex;
+  will-change: clip-path;
+}
+
+/* Column-pinned panel — holds gradient, blur, and all text for the clicked column */
+.expandedPanel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 33.33%;
+  z-index: 2;
+}
+.expandedPanelLeft   { left: 0; }
+.expandedPanelCenter { left: 33.33%; }
+.expandedPanelRight  { left: 66.66%; }
+
+/* Frosted-glass layer — fills the column panel */
+.expandedBlur {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  pointer-events: none;
+}
+
+/* Content sits above blur + gradient */
+.expandedContent {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+/* Label: final position upper area — same font as hover .label */
+.expandedLabel {
+  position: absolute;
+  top: clamp(48px, 8vh, 96px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 76px);
+  color: var(--color-white);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Body + CTA wrapper: appears between label and name */
+.expandedMiddle {
+  position: absolute;
+  top: 38%;
+  left: clamp(24px, 4vw, 52px);
+  right: clamp(24px, 4vw, 52px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.5vh, 24px);
+  text-align: center;
+}
+
+.expandedBody {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: rgba(255, 255, 255, 0.72);
+  line-height: var(--leading-normal);
+}
+
+.expandedCta {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-white);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  width: fit-content;
+}
+.expandedCta::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: white;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease-out-expo);
+}
+.expandedCta:hover::after { transform: scaleX(1); }
+
+/* Name: final position bottom — same font as hover .name */
+.expandedName {
+  position: absolute;
+  bottom: clamp(32px, 5vh, 64px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(13px, 1.1vw, 17px);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-white);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Close button ────────────────────────────────────────────────────────── */
+.closeBtn {
+  position: absolute;
+  top: clamp(20px, 3vh, 36px);
+  right: clamp(24px, 4vw, 56px);
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+.closeBtn span {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.8);
+  transition: background 0.2s ease;
+}
+.closeBtn span:first-child { transform: rotate(45deg); }
+.closeBtn span:last-child  { transform: rotate(-45deg); }
+.closeBtn:hover span { background: white; }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .section {
+    flex-direction: column;
+    height: auto;
+    min-height: 100svh;
+  }
+  .column {
+    flex: none;
+    height: 33.33svh;
+  }
+  .expandedPanel  { width: 100%; left: 0 !important; }
+  .expandedMiddle { left: clamp(20px, 6vw, 40px); right: clamp(20px, 6vw, 40px); }
+}

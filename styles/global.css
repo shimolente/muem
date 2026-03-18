@@ -1,0 +1,115 @@
+/* ─── Reset & Base ─────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Colors */
+  --color-warm-dark: #3A342F;
+  --color-white: #ffffff;
+  --color-off-white: #f5f2ee;
+  --color-muted: rgba(255, 255, 255, 0.45);
+
+  /* ── Typefaces ───────────────────────────────────────────────────────────── */
+  /*
+   * Display (headings, statements): Aire Pro family — self-hosted
+   *   Light        → hero-scale headlines     ("Roots of Living")
+   *   Light Italic → section statements       ("For those who seek…")
+   *   Roman        → mid-weight display text
+   *   Roman Italic → pull quotes, emphasis
+   *
+   * UI (nav, body, labels): Brandon Grotesque via Adobe Typekit
+   */
+  --font-display:               'Aire Roman Pro',        Georgia, serif;
+  --font-display-light:         'Aire Light Pro',        Georgia, serif;
+  --font-display-bold:          'Aire Bold Pro',         Georgia, serif;
+  --font-display-italic:        'Aire Light Italic Pro', Georgia, serif;
+  --font-display-roman-italic:  'Aire Roman Italic Pro', Georgia, serif;
+  --font-body: 'brandon-grotesque', 'Brandon Grotesque', Helvetica, sans-serif;
+
+  /* ── Type scale (fluid) ──────────────────────────────────────────────────── */
+  --text-hero:    clamp(48px, 7.5vw, 120px);  /* hero headline          */
+  --text-display: clamp(28px, 4.2vw,  64px);  /* section statements     */
+  --text-heading: clamp(18px, 1.8vw,  28px);  /* section titles         */
+  --text-body:    clamp(15px, 1.2vw,  18px);  /* paragraphs             */
+  --text-label:   clamp(12px, 0.9vw,  14px);  /* nav, captions, labels  */
+
+  /* ── Type rhythm ─────────────────────────────────────────────────────────── */
+  --leading-tight:  1.05;
+  --leading-snug:   1.2;
+  --leading-normal: 1.6;
+  --leading-loose:  1.85;
+  --tracking-wide:  0.08em;
+  --tracking-wider: 0.18em;
+
+  /* Spacing */
+  --space-nav-h: clamp(24px, 4vw, 56px);
+  --space-nav-v: clamp(20px, 3vh, 36px);
+
+  /* Motion */
+  --ease-smooth:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-expo:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart:  cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* Z-index scale */
+  --z-video:   0;
+  --z-overlay: 1;
+  --z-content: 2;
+  --z-nav:     10;
+  --z-cursor:  100;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-snap-type: y mandatory;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-warm-dark);
+  color: var(--color-white);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CSS scroll snap — each data-snap-section locks to viewport top */
+[data-snap-section] {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Allow default cursor on touch-only devices */
+@media (hover: none) {
+  body { cursor: auto; }
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: none;
+  font-family: inherit;
+}
+
+@media (hover: none) {
+  button { cursor: auto; }
+}

@@ -1,0 +1,45 @@
+/* Aire Pro — self-hosted */
+@font-face {
+  font-family: 'Aire Light Pro';
+  src: url('/fonts/AireLightPro.woff2') format('woff2'),
+       url('/fonts/AireLightPro.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aire Roman Pro';
+  src: url('/fonts/AireRomanPro.woff2') format('woff2'),
+       url('/fonts/AireRomanPro.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aire Roman Italic Pro';
+  src: url('/fonts/AireRomanItalicPro.woff2') format('woff2'),
+       url('/fonts/AireRomanItalicPro.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aire Bold Pro';
+  src: url('/fonts/AireBoldPro.woff2') format('woff2'),
+       url('/fonts/AireBoldPro.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aire Light Italic Pro';
+  src: url('/fonts/AireLightItalicPro.woff2') format('woff2'),
+       url('/fonts/AireLightItalicPro.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
