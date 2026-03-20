@@ -5,15 +5,8 @@ import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import { setLenis } from '@/lib/lenis';
 
-const SNAP_DURATION    = 0.42; // seconds for the snap-to animation
-const SETTLE_DELAY     = 30;   // ms after Lenis scroll stops before snapping
-/* Only snap when within this distance of a target section.
-   55 % of the viewport height keeps homepage 100svh sections snapping correctly
-   (they're always ≤50vh apart) while preventing inner pages (Studio etc.) from
-   snapping back when the user is browsing deep inside a scrollable section. */
-/* 60 % keeps homepage sections (≤50vh apart) snapping, without firing
-   prematurely when the user is barely scrolling on a longer inner page.      */
-const MAX_SNAP_DISTANCE = () => window.innerHeight * 0.6;
+const SNAP_DURATION = 0.72; // seconds — smooth but purposeful
+const SNAP_COOLDOWN = 900;  // ms — minimum time between snaps (covers animation + settling)
 
 function getSections() {
   return Array.from(
@@ -21,24 +14,16 @@ function getSections() {
   );
 }
 
-function getNearestSection(sections: HTMLElement[]) {
-  const scrollY = window.scrollY;
-  return sections.reduce((prev, curr) =>
-    Math.abs(curr.offsetTop - scrollY) < Math.abs(prev.offsetTop - scrollY)
-      ? curr
-      : prev,
-  );
-}
-
 /**
- * Creates Lenis, drives the RAF loop, and handles section snapping.
+ * LenisProvider
  *
- * Strategy:
- *  - Lenis smoothWheel: true  → smooth, natural feel on mouse + trackpad
- *  - On every Lenis scroll event we reset a short debounce timer
- *  - When the timer fires (scroll settled) we snap to the nearest
- *    [data-snap-section] via lenis.scrollTo() with GSAP-style easing
- *  - No wheel interception, no CSS snap — Lenis owns everything
+ * - Mounts Lenis smooth-scroll on ALL portfolio pages.
+ * - Snap logic runs ONLY on the homepage ( pathname === '/' ):
+ *     • Intercepts wheel events, prevents native scroll
+ *     • Determines direction (deltaY) → finds next/prev [data-snap-section]
+ *     • Calls lenis.scrollTo() for a smooth snap — one section per gesture
+ *     • SNAP_COOLDOWN prevents rapid-firing during the animation
+ * - Inner pages (Studio, Habitus, Residences) scroll freely with Lenis inertia.
  */
 export function LenisProvider() {
   const pathname   = usePathname();
@@ -48,67 +33,77 @@ export function LenisProvider() {
     const isTouch = !window.matchMedia('(hover: hover)').matches;
 
     const lenis = new Lenis({
-      duration:    0.7,   // inertia length — shorter = snappier feel
+      duration:    0.9,
       smoothWheel: !isTouch,
     });
 
     setLenis(lenis);
 
+    // ── RAF loop ────────────────────────────────────────────────────────────
     let raf: number;
-    let snapTimer: ReturnType<typeof setTimeout>;
-    let snapping = false;
-
-    /* Snap logic runs only on the homepage — inner pages scroll freely */
-    if (!isTouch && isHomepage) {
-      lenis.on('scroll', () => {
-        if (snapping) return;
-        clearTimeout(snapTimer);
-
-        snapTimer = setTimeout(() => {
-          if (snapping) return;
-          const sections = getSections();
-          if (!sections.length) return;
-
-          const nearest  = getNearestSection(sections);
-          const distance = Math.abs(nearest.offsetTop - window.scrollY);
-          if (distance < 5) return;                         // already there
-          if (distance > MAX_SNAP_DISTANCE()) return;       // too far — no snap
-
-          /* One-way sections (data-snap-one-way="down") snap INTO the section
-             from above, but never pull the user BACK to the section top when
-             they are already browsing inside it (scrollY > section top).     */
-          if (
-            nearest instanceof HTMLElement &&
-            nearest.dataset.snapOneWay === 'down' &&
-            window.scrollY > nearest.offsetTop
-          ) return;
-
-          snapping = true;
-          lenis.scrollTo(nearest, {
-            duration: SNAP_DURATION,
-            easing:   (t: number) => 1 - Math.pow(1 - t, 3), // ease-out-cubic
-            onComplete: () => { snapping = false; },
-          });
-
-          // Fallback reset in case onComplete doesn't fire
-          setTimeout(() => { snapping = false; }, (SNAP_DURATION + 0.2) * 1000);
-        }, SETTLE_DELAY);
-      });
-    }
-
     const tick = (time: number) => {
       lenis.raf(time);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
 
+    // ── Snap (homepage only) ─────────────────────────────────────────────────
+    let snapping    = false;
+    let lastSnap    = 0;
+
+    function handleWheel(e: WheelEvent) {
+      if (!isHomepage || isTouch) return;
+
+      const sections = getSections();
+      if (!sections.length) return;
+
+      const now = Date.now();
+      if (snapping || now - lastSnap < SNAP_COOLDOWN) return;
+
+      // Find which section we're currently at (closest to top of viewport)
+      const scrollY = window.scrollY;
+      let currentIdx = 0;
+      let minDist = Infinity;
+      sections.forEach((s, i) => {
+        const d = Math.abs(s.offsetTop - scrollY);
+        if (d < minDist) { minDist = d; currentIdx = i; }
+      });
+
+      const goingDown = e.deltaY > 0;
+      const targetIdx = goingDown
+        ? Math.min(currentIdx + 1, sections.length - 1)
+        : Math.max(currentIdx - 1, 0);
+
+      const target = sections[targetIdx];
+      // Already at section top (within 4px) and no further section in this direction
+      if (targetIdx === currentIdx && minDist < 4) return;
+
+      e.preventDefault();
+      snapping  = true;
+      lastSnap  = now;
+
+      lenis.scrollTo(target, {
+        duration: SNAP_DURATION,
+        easing:   (t: number) => 1 - Math.pow(1 - t, 4), // ease-out-quart
+        onComplete: () => { snapping = false; },
+      });
+
+      // Safety reset in case onComplete doesn't fire
+      setTimeout(() => { snapping = false; }, (SNAP_DURATION + 0.3) * 1000);
+    }
+
+    if (!isTouch && isHomepage) {
+      // passive: false is required to call preventDefault()
+      window.addEventListener('wheel', handleWheel, { passive: false });
+    }
+
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(snapTimer);
+      window.removeEventListener('wheel', handleWheel);
       lenis.destroy();
       setLenis(null as never);
     };
-  // Re-run when route changes: tears down Lenis and rebuilds without snap on inner pages
+  // Re-run when navigating between homepage ↔ inner pages
   }, [isHomepage]);
 
   return null;
