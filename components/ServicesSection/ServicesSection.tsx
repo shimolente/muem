@@ -18,7 +18,8 @@ export function ServicesSection() {
   const hasAnimated = useRef(false);
 
   // Sidebar item refs — same pattern as Navbar
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const itemRefs   = useRef<(HTMLButtonElement | null)[]>([]);
+  const activeIdRef = useRef(SERVICES[0].id); // avoids stale closure in callbacks
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
   const setNavStyle = useUIStore(s => s.setNavStyle);
@@ -37,12 +38,34 @@ export function ServicesSection() {
     });
   }, []);
 
+  const DIM = 0.38; // resting opacity for non-active items
+
   const handleListLeave = useCallback(() => {
-    itemRefs.current.forEach(el => {
+    itemRefs.current.forEach((el, i) => {
       if (!el) return;
-      gsap.to(el, { opacity: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
+      gsap.to(el, {
+        opacity: SERVICES[i].id === activeIdRef.current ? 1 : DIM,
+        duration: 0.4,
+        ease: 'power2.out',
+        overwrite: true,
+      });
     });
   }, []);
+
+  /* ── Keep resting dim state in sync with active selection ───────────────── */
+  useEffect(() => {
+    activeIdRef.current = active.id;
+    if (!hasAnimated.current) return; // don't fight the entrance animation
+    itemRefs.current.forEach((el, i) => {
+      if (!el) return;
+      gsap.to(el, {
+        opacity: SERVICES[i].id === active.id ? 1 : DIM,
+        duration: 0.35,
+        ease: 'power2.out',
+        overwrite: true,
+      });
+    });
+  }, [active.id]);
 
   /* ── Entrance animation ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -64,7 +87,7 @@ export function ServicesSection() {
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
 
-          // Sidebar items stagger in
+          // Sidebar items stagger in, then settle to resting dim state
           gsap.to(itemRefs.current.filter(Boolean), {
             opacity: 1,
             x: 0,
@@ -72,6 +95,16 @@ export function ServicesSection() {
             ease: 'power3.out',
             stagger: 0.07,
             delay: 0.1,
+            onComplete: () => {
+              itemRefs.current.forEach((el, i) => {
+                if (!el) return;
+                gsap.to(el, {
+                  opacity: SERVICES[i].id === activeIdRef.current ? 1 : DIM,
+                  duration: 0.4,
+                  ease: 'power2.out',
+                });
+              });
+            },
           });
 
           // Content fades up
