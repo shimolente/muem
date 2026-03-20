@@ -1,0 +1,174 @@
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.section {
+  background: #0E0C0A;   /* very dark warm black — distinct from warm-dark sections */
+  min-height: 100svh;
+  display: flex;
+  align-items: stretch;
+  padding: clamp(80px, 10vh, 120px) var(--space-nav-h) clamp(64px, 8vh, 100px);
+}
+
+/* ── Two-column grid ─────────────────────────────────────────────────────── */
+.inner {
+  width: 100%;
+  display: grid;
+  grid-template-columns: clamp(180px, 22vw, 280px) 1fr;
+  gap: clamp(40px, 6vw, 100px);
+  align-items: start;
+}
+
+/* ── Left sidebar ─────────────────────────────────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: clamp(80px, 10vh, 120px); /* clear navbar */
+  opacity: 0; /* GSAP entrance */
+  will-change: opacity, transform;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.2vh, 28px);
+}
+
+/* ── Sidebar items ────────────────────────────────────────────────────────── */
+.sidebarItem {
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.4vw, 20px);
+  font-weight: 400;
+  line-height: var(--leading-snug);
+  color: var(--color-white);
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: none;
+
+  /* Base: full opacity */
+  opacity: 1;
+  transition: opacity 0.35s var(--ease-smooth);
+  will-change: opacity;
+}
+
+/*
+ * Hover behaviour — "like the navbar":
+ * When hovering anywhere on the sidebar list, all non-hovered items fade out.
+ * The hovered item (and always the active item) stay at full opacity.
+ */
+.list:hover .sidebarItem {
+  opacity: 0.22;
+}
+.list:hover .sidebarItem:hover,
+.list:hover .sidebarItemActive {
+  opacity: 1;
+}
+
+/* Active indicator: subtle left bar */
+.sidebarItemActive {
+  opacity: 1;
+}
+.sidebarItemActive::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--color-white);
+  vertical-align: middle;
+  margin-right: 10px;
+  margin-bottom: 2px;
+  opacity: 0.55;
+}
+
+/* ── Right content ─────────────────────────────────────────────────────────── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  will-change: opacity, transform;
+}
+
+/* ── Tagline ──────────────────────────────────────────────────────────────── */
+.tagline {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: clamp(16px, 2.4vh, 28px);
+  will-change: opacity, transform;
+}
+
+/* ── Title ────────────────────────────────────────────────────────────────── */
+.title {
+  font-family: var(--font-display-light);
+  font-size: var(--text-display);
+  font-weight: 300;
+  line-height: var(--leading-tight);
+  color: var(--color-white);
+  margin-bottom: clamp(28px, 4vh, 48px);
+  will-change: opacity, transform;
+}
+
+/* ── Description ─────────────────────────────────────────────────────────── */
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vh, 22px);
+  max-width: clamp(480px, 58vw, 780px);
+  margin-bottom: clamp(40px, 5vh, 64px);
+  will-change: opacity, transform;
+}
+
+.description p {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: var(--leading-loose);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Image ────────────────────────────────────────────────────────────────── */
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: 8px;
+  overflow: hidden;
+  will-change: opacity, transform;
+}
+
+.image {
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+
+  .sidebarItem {
+    font-size: 14px;
+  }
+
+  .sidebarItemActive::before {
+    display: none;
+  }
+
+  .imageWrap {
+    aspect-ratio: 4 / 3;
+  }
+}
