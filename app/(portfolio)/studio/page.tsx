@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { CategoryHero }    from '@/components/CategoryHero/CategoryHero';
 import { ServicesSection } from '@/components/ServicesSection/ServicesSection';
 import { StudioGrid }      from '@/components/StudioGrid/StudioGrid';
+import { FooterSection }   from '@/components/FooterSection/FooterSection';
 
 export const metadata: Metadata = { title: 'Studio' };
 
@@ -16,6 +17,7 @@ export default function StudioPage() {
       />
       <StudioGrid />
       <ServicesSection />
+      <FooterSection />
     </>
   );
 }
