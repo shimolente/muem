@@ -7,6 +7,7 @@ import { PhilosophySection }   from '@/components/PhilosophySection/PhilosophySe
 import { ContactSection }      from '@/components/ContactSection/ContactSection';
 import { FooterSection }       from '@/components/FooterSection/FooterSection';
 import { FloatingCTA }         from '@/components/FloatingCTA/FloatingCTA';
+import { SnapEnabler }         from '@/components/SnapEnabler/SnapEnabler';
 
 /**
  * Homepage — sections stack on the root scroll.
@@ -17,6 +18,7 @@ import { FloatingCTA }         from '@/components/FloatingCTA/FloatingCTA';
 export default function HomePage() {
   return (
     <>
+      <SnapEnabler />
       <HeroBackground />
       <HeroSection />
       <AboutSection />
