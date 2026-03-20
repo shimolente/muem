@@ -17,11 +17,11 @@
   gap: clamp(40px, 5vw, 80px);
 }
 
-/* ── Left sidebar — vertically centred ───────────────────────────────────── */
+/* ── Left sidebar — top-anchored ─────────────────────────────────────────── */
 .sidebar {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .list {
@@ -33,7 +33,7 @@
 
 /* ── Sidebar items ────────────────────────────────────────────────────────── */
 .sidebarItem {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: clamp(14px, 1.3vw, 18px);
   font-weight: 400;
   line-height: var(--leading-snug);
@@ -49,11 +49,12 @@
   transition: none; /* GSAP handles transitions */
 }
 
-/* Active indicator — short dash to the left of the label */
+/* Active indicator — short dash to the left, bold weight */
 .sidebarItemActive {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-weight: 700;
 }
 
 .sidebarItemActive::before {

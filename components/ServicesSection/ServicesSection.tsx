@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { SERVICES, type Service } from '@/content/services';
+import { useUIStore } from '@/store/ui';
 import styles from './ServicesSection.module.css';
 
 /* ─── Main component ──────────────────────────────────────────────────────── */
@@ -18,6 +19,10 @@ export function ServicesSection() {
 
   // Sidebar item refs — same pattern as Navbar
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const setNavTheme = useUIStore(s => s.setNavTheme);
+  const setNavStyle = useUIStore(s => s.setNavStyle);
+  const setNavBg    = useUIStore(s => s.setNavBg);
 
   /* ── Sidebar hover — exact Navbar pattern ───────────────────────────────── */
   const handleItemEnter = useCallback((index: number) => {
@@ -50,6 +55,12 @@ export function ServicesSection() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (entry.isIntersecting) {
+          // Navbar: light text, no background fill (dark section)
+          setNavTheme('light');
+          setNavStyle('full');
+          setNavBg('transparent');
+        }
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
 
@@ -78,7 +89,7 @@ export function ServicesSection() {
 
     observer.observe(section);
     return () => observer.disconnect();
-  }, []);
+  }, [setNavTheme, setNavStyle, setNavBg]);
 
   /* ── Service switch ─────────────────────────────────────────────────────── */
   const handleSelect = useCallback((service: Service) => {
@@ -105,7 +116,7 @@ export function ServicesSection() {
   }, [active.id, animating]);
 
   return (
-    <section ref={sectionRef} className={styles.section}>
+    <section id="services" ref={sectionRef} className={styles.section}>
       <div className={styles.inner}>
 
         {/* ── Left sidebar ────────────────────────────────────────────────── */}

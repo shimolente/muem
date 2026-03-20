@@ -186,9 +186,12 @@ export function StudioGrid() {
         </div>
         <div className={styles.introRight}>
           <p className={styles.introBody}>{STUDIO_INTRO.body}</p>
-          <a href={STUDIO_INTRO.cta.href} className={styles.introCta}>
+          <button
+            className={styles.introCta}
+            onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+          >
             {STUDIO_INTRO.cta.label} ↗
-          </a>
+          </button>
         </div>
       </div>
 
