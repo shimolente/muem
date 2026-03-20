@@ -14,8 +14,8 @@ export default function StudioPage() {
         tagline="We help the most discerning individuals and brands to cut through complexity, enhance lifestyles and exceed business goals."
         imageSrc="/images/studio-cover.jpg"
       />
-      <ServicesSection />
       <StudioGrid />
+      <ServicesSection />
     </>
   );
 }

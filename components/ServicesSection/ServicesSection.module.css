@@ -1,40 +1,40 @@
-/* ── Section ──────────────────────────────────────────────────────────────── */
+/* ── Section — locked to exactly one viewport ────────────────────────────── */
 .section {
-  background: #0E0C0A;   /* very dark warm black — distinct from warm-dark sections */
-  min-height: 100svh;
+  background: #0E0C0A;
+  height: 100svh;
+  overflow: hidden;
   display: flex;
-  align-items: stretch;
-  padding: clamp(80px, 10vh, 120px) var(--space-nav-h) clamp(64px, 8vh, 100px);
+  flex-direction: column;
+  padding: clamp(72px, 9vh, 108px) var(--space-nav-h) clamp(40px, 5vh, 60px);
 }
 
-/* ── Two-column grid ─────────────────────────────────────────────────────── */
+/* ── Two-column grid — fills remaining height ─────────────────────────────── */
 .inner {
-  width: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: clamp(180px, 22vw, 280px) 1fr;
-  gap: clamp(40px, 6vw, 100px);
-  align-items: start;
+  grid-template-columns: clamp(180px, 20vw, 260px) 1fr;
+  gap: clamp(40px, 5vw, 80px);
 }
 
-/* ── Left sidebar ─────────────────────────────────────────────────────────── */
+/* ── Left sidebar — vertically centred ───────────────────────────────────── */
 .sidebar {
-  position: sticky;
-  top: clamp(80px, 10vh, 120px); /* clear navbar */
-  opacity: 0; /* GSAP entrance */
-  will-change: opacity, transform;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2.2vh, 28px);
+  gap: clamp(12px, 1.8vh, 22px);
 }
 
 /* ── Sidebar items ────────────────────────────────────────────────────────── */
 .sidebarItem {
   font-family: var(--font-display);
-  font-size: clamp(15px, 1.4vw, 20px);
+  font-size: clamp(14px, 1.3vw, 18px);
   font-weight: 400;
   line-height: var(--leading-snug);
   color: var(--color-white);
@@ -44,46 +44,33 @@
   padding: 0;
   cursor: none;
 
-  /* Base: full opacity */
-  opacity: 1;
-  transition: opacity 0.35s var(--ease-smooth);
-  will-change: opacity;
+  /* opacity set to 0 initially via GSAP; GSAP also drives hover dim */
+  will-change: opacity, transform;
+  transition: none; /* GSAP handles transitions */
 }
 
-/*
- * Hover behaviour — "like the navbar":
- * When hovering anywhere on the sidebar list, all non-hovered items fade out.
- * The hovered item (and always the active item) stay at full opacity.
- */
-.list:hover .sidebarItem {
-  opacity: 0.22;
-}
-.list:hover .sidebarItem:hover,
-.list:hover .sidebarItemActive {
-  opacity: 1;
-}
-
-/* Active indicator: subtle left bar */
+/* Active indicator — short dash to the left of the label */
 .sidebarItemActive {
-  opacity: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+
 .sidebarItemActive::before {
   content: '';
   display: inline-block;
-  width: 20px;
+  width: 18px;
   height: 1px;
-  background: var(--color-white);
-  vertical-align: middle;
-  margin-right: 10px;
-  margin-bottom: 2px;
-  opacity: 0.55;
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+  margin-bottom: 1px; /* optical alignment */
 }
 
-/* ── Right content ─────────────────────────────────────────────────────────── */
+/* ── Right content — fills full column height ─────────────────────────────── */
 .content {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0;
   will-change: opacity, transform;
 }
 
@@ -94,9 +81,8 @@
   font-weight: 400;
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: clamp(16px, 2.4vh, 28px);
-  will-change: opacity, transform;
+  color: rgba(255, 255, 255, 0.38);
+  margin-bottom: clamp(12px, 1.8vh, 20px);
 }
 
 /* ── Title ────────────────────────────────────────────────────────────────── */
@@ -106,18 +92,16 @@
   font-weight: 300;
   line-height: var(--leading-tight);
   color: var(--color-white);
-  margin-bottom: clamp(28px, 4vh, 48px);
-  will-change: opacity, transform;
+  margin-bottom: clamp(20px, 3vh, 36px);
 }
 
 /* ── Description ─────────────────────────────────────────────────────────── */
 .description {
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2vh, 22px);
-  max-width: clamp(480px, 58vw, 780px);
-  margin-bottom: clamp(40px, 5vh, 64px);
-  will-change: opacity, transform;
+  gap: clamp(12px, 1.6vh, 18px);
+  max-width: clamp(440px, 56vw, 720px);
+  margin-bottom: clamp(24px, 3.5vh, 44px);
 }
 
 .description p {
@@ -125,43 +109,47 @@
   font-size: var(--text-body);
   font-weight: 400;
   line-height: var(--leading-loose);
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.52);
 }
 
-/* ── Image ────────────────────────────────────────────────────────────────── */
+/* ── Image — flex-fills all remaining vertical space ─────────────────────── */
 .imageWrap {
+  flex: 1;
+  min-height: 0;         /* critical: lets flex child shrink below its content size */
   position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 7;
   border-radius: 8px;
   overflow: hidden;
-  will-change: opacity, transform;
 }
 
 .image {
   object-fit: cover;
-  transition: opacity 0.3s ease;
 }
 
 /* ── Mobile ───────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .section {
+    height: auto;
+    min-height: 100svh;
+    padding: 80px 20px 48px;
+  }
+
   .inner {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
   }
 
   .sidebar {
-    position: static;
+    justify-content: flex-start;
   }
 
   .list {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 12px 20px;
+    gap: 10px 16px;
   }
 
   .sidebarItem {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .sidebarItemActive::before {
@@ -169,6 +157,8 @@
   }
 
   .imageWrap {
+    flex: unset;
     aspect-ratio: 4 / 3;
+    min-height: unset;
   }
 }
