@@ -77,12 +77,12 @@ body {
   cursor: none;
 }
 
-/* ── Snap scroll — homepage only (toggled by <SnapEnabler>) ─────────────── */
-body.snap-scroll {
+/* ── Snap scroll — homepage only (toggled by <SnapEnabler> on <html>) ────── */
+html.snap-scroll {
   scroll-snap-type: y mandatory;
 }
 
-body.snap-scroll [data-snap-section] {
+html.snap-scroll [data-snap-section] {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }

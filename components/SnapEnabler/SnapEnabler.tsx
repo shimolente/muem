@@ -9,8 +9,8 @@ import { useEffect } from 'react';
  */
 export function SnapEnabler() {
   useEffect(() => {
-    document.body.classList.add('snap-scroll');
-    return () => { document.body.classList.remove('snap-scroll'); };
+    document.documentElement.classList.add('snap-scroll');
+    return () => { document.documentElement.classList.remove('snap-scroll'); };
   }, []);
 
   return null;
