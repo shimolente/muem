@@ -69,22 +69,12 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html {
-  scroll-snap-type: y mandatory;
-}
-
 body {
   font-family: var(--font-body);
   background-color: var(--color-warm-dark);
   color: var(--color-white);
   overflow-x: hidden;
   cursor: none;
-}
-
-/* CSS scroll snap — each data-snap-section locks to viewport top */
-[data-snap-section] {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 /* Allow default cursor on touch-only devices */
