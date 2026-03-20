@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import { setLenis } from '@/lib/lenis';
 
@@ -40,6 +41,9 @@ function getNearestSection(sections: HTMLElement[]) {
  *  - No wheel interception, no CSS snap — Lenis owns everything
  */
 export function LenisProvider() {
+  const pathname   = usePathname();
+  const isHomepage = pathname === '/';
+
   useEffect(() => {
     const isTouch = !window.matchMedia('(hover: hover)').matches;
 
@@ -54,7 +58,8 @@ export function LenisProvider() {
     let snapTimer: ReturnType<typeof setTimeout>;
     let snapping = false;
 
-    if (!isTouch) {
+    /* Snap logic runs only on the homepage — inner pages scroll freely */
+    if (!isTouch && isHomepage) {
       lenis.on('scroll', () => {
         if (snapping) return;
         clearTimeout(snapTimer);
@@ -103,7 +108,8 @@ export function LenisProvider() {
       lenis.destroy();
       setLenis(null as never);
     };
-  }, []);
+  // Re-run when route changes: tears down Lenis and rebuilds without snap on inner pages
+  }, [isHomepage]);
 
   return null;
 }
