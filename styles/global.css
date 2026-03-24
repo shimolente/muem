@@ -31,6 +31,15 @@
   --font-display-roman-italic:  'Aire Roman Italic Pro', Georgia, serif;
   --font-body: 'brandon-grotesque', 'Brandon Grotesque', Helvetica, sans-serif;
 
+  /*
+   * ── Display font stroke ───────────────────────────────────────────────────
+   * Adds a hair-thin outline to Aire display text, making the strokes appear
+   * slightly heavier without switching to a bolder weight.
+   * Adjust --aire-stroke to taste: 0 = off, 0.3px = subtle, 0.6px = visible.
+   * paint-order ensures the stroke renders behind the fill so text stays crisp.
+   */
+  --aire-stroke: 0.4px;
+
   /* ── Type scale (fluid) ──────────────────────────────────────────────────── */
   --text-hero:    clamp(48px, 7.5vw, 120px);  /* hero headline          */
   --text-display: clamp(28px, 4.2vw,  64px);  /* section statements     */
@@ -85,6 +94,16 @@ html.snap-scroll {
 html.snap-scroll [data-snap-section] {
   scroll-snap-align: start;
   scroll-snap-stop: always;
+}
+
+/*
+ * ── Aire display font stroke ──────────────────────────────────────────────
+ * h1–h4 all use an Aire variant. paint-order: stroke fill renders the stroke
+ * behind the fill so letterforms stay sharp. Tune --aire-stroke in :root.
+ */
+h1, h2, h3, h4 {
+  -webkit-text-stroke: var(--aire-stroke) currentColor;
+  paint-order: stroke fill;
 }
 
 /* Allow default cursor on touch-only devices */
