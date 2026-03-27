@@ -11,7 +11,7 @@
 }
 
 .content {
-  padding: clamp(32px, 6vh, 64px) clamp(24px, 5vw, 72px);
+  padding: clamp(32px, 6vh, 64px) var(--space-nav-h);
   padding-bottom: clamp(48px, 8vh, 96px);
 }
 
