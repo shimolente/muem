@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
+import { revealUp } from '@/lib/animation';
 import { SERVICES, type Service } from '@/content/services';
 import { useUIStore } from '@/store/ui';
 import styles from './ServicesSection.module.css';
@@ -74,7 +75,7 @@ export function ServicesSection() {
 
     // Set initial states
     gsap.set(itemRefs.current.filter(Boolean), { opacity: 0, x: -12 });
-    gsap.set(contentRef.current, { opacity: 0, y: 20 });
+    gsap.set(contentRef.current, { opacity: 0 });
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -107,14 +108,8 @@ export function ServicesSection() {
             },
           });
 
-          // Content fades up
-          gsap.to(contentRef.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: 'power3.out',
-            delay: 0.35,
-          });
+          // Content reveals up (rounded → sharp)
+          revealUp(contentRef.current, { delay: 0.35 });
         }
       },
       { threshold: 0.15 }
@@ -195,7 +190,7 @@ export function ServicesSection() {
 
           {/* Image — fills remaining vertical space */}
           {/* TODO: swap each service's image path in content/services.ts */}
-          <div className={styles.imageWrap}>
+          <div className={styles.imageWrap} data-card>
             <Image
               src={active.image}
               alt={active.name}

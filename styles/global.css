@@ -38,7 +38,7 @@
    * Adjust --aire-stroke to taste: 0 = off, 0.3px = subtle, 0.6px = visible.
    * paint-order ensures the stroke renders behind the fill so text stays crisp.
    */
-  --aire-stroke: 0.4px;
+  --aire-stroke: 1px;
 
   /* ── Type scale (fluid) ──────────────────────────────────────────────────── */
   --text-hero:    clamp(48px, 7.5vw, 120px);  /* hero headline          */
@@ -56,8 +56,16 @@
   --tracking-wider: 0.18em;
 
   /* Spacing */
-  --space-nav-h: clamp(24px, 4vw, 56px);
+  --space-nav-h: clamp(48px, 8vw, 112px);
   --space-nav-v: clamp(20px, 3vh, 36px);
+
+  /* ── Reveal animation radii ──────────────────────────────────────────────
+   * Cards/images enter with --radius-enter, snap to 0 on arrival.
+   * On hover, sharp elements round to --radius-hover.
+   * Tune here to adjust site-wide.
+   */
+  --radius-enter: 20px;   /* border-radius at start of entrance animation  */
+  --radius-hover: 14px;   /* border-radius when hovering a sharp card/image */
 
   /* Motion */
   --ease-smooth:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -104,6 +112,23 @@ html.snap-scroll [data-snap-section] {
 h1, h2, h3, h4 {
   -webkit-text-stroke: var(--aire-stroke) currentColor;
   paint-order: stroke fill;
+}
+
+/*
+ * ── Card / image hover rounding ───────────────────────────────────────────
+ * Add data-card to any card or image wrapper.
+ * Resting state is always sharp (border-radius: 0).
+ * On hover, corners round to --radius-hover.
+ * The entrance animation (lib/animation.ts revealUp) handles
+ * the rounded → sharp transition as elements arrive.
+ */
+[data-card] {
+  border-radius: 0;
+  overflow: hidden;
+  transition: border-radius 0.55s var(--ease-smooth);
+}
+[data-card]:hover {
+  border-radius: var(--radius-hover);
 }
 
 /* Allow default cursor on touch-only devices */

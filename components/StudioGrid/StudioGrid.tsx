@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { revealUp } from '@/lib/animation';
 import {
   STUDIO_PROJECTS, STUDIO_INTRO, YEARS,
   matchSizeRange, matchLocation,
@@ -58,7 +59,7 @@ const YEAR_OPTIONS: DropdownOption[] = YEARS
 /* ── Project card ─────────────────────────────────────────────────────────── */
 function ProjectCard({ project }: { project: StudioProject }) {
   return (
-    <Link href={project.href} className={styles.card}>
+    <Link href={project.href} className={styles.card} data-card>
       <Image
         src={project.imageSrc}
         alt={project.title}
@@ -137,11 +138,7 @@ export function StudioGrid() {
   const animateCards = useCallback(() => {
     const cards = gridRef.current?.querySelectorAll<HTMLElement>(`.${styles.card}`);
     if (!cards || cards.length === 0) return;
-    gsap.fromTo(
-      Array.from(cards),
-      { opacity: 0, y: 32 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, ease: 'power3.out' },
-    );
+    revealUp(Array.from(cards), { stagger: 0.06 });
   }, []);
 
   /* Fire entrance once when section first enters viewport */
