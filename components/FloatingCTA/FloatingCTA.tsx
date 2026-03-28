@@ -10,6 +10,7 @@ type State = 'arrow' | 'pill' | 'snapped' | 'hidden';
 
 export function FloatingCTA() {
   const ctaRef            = useRef<HTMLAnchorElement>(null);
+  const iconRef           = useRef<HTMLElement>(null);
   const [state, setState] = useState<State>('arrow');
   const [visible, setVisible] = useState(false);
   const stateRef          = useRef<State>('arrow');
@@ -19,8 +20,27 @@ export function FloatingCTA() {
   const navStyleRef       = useRef(navStyle);
 
   /* Keep refs in sync (stale-closure guards) */
-  useEffect(() => { stateRef.current  = state;    }, [state]);
+  useEffect(() => { stateRef.current   = state;    }, [state]);
   useEffect(() => { navStyleRef.current = navStyle; }, [navStyle]);
+
+  /* ── Bounce icon when arrow state is visible, stop otherwise ─────────── */
+  useEffect(() => {
+    const icon = iconRef.current;
+    if (!icon) return;
+
+    if (state === 'arrow' && visible) {
+      gsap.to(icon, {
+        y: 5,
+        duration: 0.75,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true,
+      });
+    } else {
+      gsap.killTweensOf(icon);
+      gsap.set(icon, { y: 0 });
+    }
+  }, [state, visible]);
 
   /* ── Delayed entrance: show button 1.5s after mount ─────────────────── */
   useEffect(() => {
@@ -128,7 +148,7 @@ export function FloatingCTA() {
       {isPill && (
         <span className={styles.ctaLabel}>Let's talk</span>
       )}
-      <i className={styles.ctaIcon}>{isPill ? '↗' : '↓'}</i>
+      <i ref={iconRef} className={styles.ctaIcon}>{isPill ? '↗' : '↓'}</i>
     </Link>
   );
 }

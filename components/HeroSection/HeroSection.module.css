@@ -49,27 +49,10 @@
   margin-bottom: -0.08em;
 }
 
-/* ── Scroll arrow — bottom-right, bounces ───────────────────────────────── */
-.scrollIndicator {
-  position: absolute;
-  bottom: clamp(28px, 4vh, 52px);
-  right: var(--space-nav-h);
-  z-index: 3;
-  will-change: opacity, transform;
-}
-
-.scrollArrow {
-  display: block;
-  color: rgba(255, 255, 255, 0.65);
-  width: clamp(18px, 1.6vw, 24px);
-  height: clamp(18px, 1.6vw, 24px);
-}
-
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .headline  { font-size: clamp(38px, 10vw, 72px); }
-  .content   { padding: 32px 24px 72px; }
-  .scrollIndicator { right: 20px; bottom: 24px; }
+  .headline { font-size: clamp(38px, 10vw, 72px); }
+  .content  { padding: 32px 24px 72px; }
 }
 
 @media (max-width: 480px) {

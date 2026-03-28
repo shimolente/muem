@@ -11,9 +11,8 @@ import styles from './HeroSection.module.css';
  * Video background is handled by <HeroBackground /> (fixed, outside this component).
  */
 export function HeroSection() {
-  const sectionRef   = useRef<HTMLElement>(null);
-  const headlineRef  = useRef<HTMLHeadingElement>(null);
-  const scrollIndRef = useRef<HTMLDivElement>(null);
+  const sectionRef  = useRef<HTMLElement>(null);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
   const setNavStyle = useUIStore(s => s.setNavStyle);
@@ -47,44 +46,9 @@ export function HeroSection() {
         { y: '0%', opacity: 1, stagger: 0.1, duration: 1.1, ease: 'power3.out', delay: 0.2 },
       );
 
-      // Scroll arrow: fade in then bounce continuously
-      gsap.fromTo(
-        scrollIndRef.current,
-        { opacity: 0, y: 8 },
-        {
-          opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 1.2,
-          onComplete: () => {
-            gsap.to(scrollIndRef.current, {
-              y: 7,
-              duration: 0.9,
-              ease: 'power1.inOut',
-              repeat: -1,
-              yoyo: true,
-            });
-          },
-        },
-      );
     }, sectionRef);
 
-    // Fade out scroll indicator once the user scrolls away from hero
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        gsap.to(scrollIndRef.current, {
-          opacity: entry.isIntersecting ? 1 : 0,
-          y: entry.isIntersecting ? 0 : -12,
-          duration: 0.4,
-          ease: 'power2.out',
-        });
-      },
-      { threshold: 0.5 },
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-
-    return () => {
-      ctx.revert();
-      observer.disconnect();
-    };
+    return () => { ctx.revert(); };
   }, []);
 
   const words = HERO.headline.split(' ');
@@ -109,23 +73,6 @@ export function HeroSection() {
         </h1>
       </div>
 
-      {/* Scroll arrow — bounces to invite scroll, no text */}
-      <div ref={scrollIndRef} className={styles.scrollIndicator} aria-label="Scroll down">
-        <svg
-          className={styles.scrollArrow}
-          width="20" height="20" viewBox="0 0 20 20"
-          fill="none" xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M10 4v12M4 10l6 6 6-6"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
     </section>
   );
 }
