@@ -9,8 +9,10 @@ import { useUIStore } from '@/store/ui';
 import styles from './Navbar.module.css';
 
 export function Navbar() {
-  const itemRefs   = useRef<(HTMLAnchorElement | null)[]>([]);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const itemRefs    = useRef<(HTMLAnchorElement | null)[]>([]);
+  const overlayRef  = useRef<HTMLDivElement>(null);
+  const logoRef     = useRef<HTMLAnchorElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
 
   const navTheme          = useUIStore(s => s.navTheme);
@@ -19,6 +21,48 @@ export function Navbar() {
   const navHamburgerLight = useUIStore(s => s.navHamburgerLight);
   const navBg             = useUIStore(s => s.navBg);
   const preloaderDone     = useUIStore(s => s.preloaderDone);
+
+  // ── Navbar entrance — fires once when preloader finishes ──────────────────
+  useEffect(() => {
+    if (!preloaderDone) return;
+
+    const logo      = logoRef.current;
+    const items     = itemRefs.current.filter(Boolean);
+    const hamburger = hamburgerRef.current;
+
+    // Set starting state
+    gsap.set([logo, ...items, hamburger].filter(Boolean), {
+      opacity: 0,
+      y: -12,
+    });
+
+    // Logo slides in first
+    gsap.to(logo, {
+      opacity: 1,
+      y: 0,
+      duration: 0.55,
+      ease: 'power3.out',
+    });
+
+    // Nav items stagger in shortly after
+    gsap.to(items, {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: 'power3.out',
+      stagger: 0.07,
+      delay: 0.1,
+    });
+
+    // Hamburger (mobile) matches last item timing
+    gsap.to(hamburger, {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: 'power3.out',
+      delay: 0.2,
+    });
+  }, [preloaderDone]);
 
   // ── Hover dim siblings ─────────────────────────────────────────────────────
   const handleItemEnter = (index: number) => {
@@ -79,16 +123,13 @@ export function Navbar() {
         hasBg     ? styles.navbarWithBg  : '',
       ].filter(Boolean).join(' ')}>
 
-        {/* data-nav-logo — targeted by Preloader to calculate fly-to coordinates */}
         <Link
+          ref={logoRef}
           href={LOGO.href}
           className={`${styles.logo} ${logoDark ? styles.logoDark : ''}`}
           aria-label={LOGO.alt}
           data-nav-logo
-          style={{
-            opacity:    preloaderDone ? 1 : 0,
-            transition: 'opacity 0.3s ease',
-          }}
+          style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
           <Image src={LOGO.src} alt={LOGO.alt} width={36} height={36} priority />
         </Link>
@@ -112,6 +153,7 @@ export function Navbar() {
         </nav>
 
         <button
+          ref={hamburgerRef}
           className={[
             styles.hamburger,
             hamburgerDark ? styles.hamburgerDark : '',
@@ -120,6 +162,7 @@ export function Navbar() {
           onClick={() => setOpen(v => !v)}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
+          style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
           <span className={styles.bar} />
           <span className={styles.bar} />
