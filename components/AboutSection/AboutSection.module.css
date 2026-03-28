@@ -11,11 +11,13 @@
   padding: clamp(100px, 13vh, 140px) var(--space-nav-h) clamp(56px, 7vh, 88px);
 }
 
-/* ── Top: headline + body — centred ────────────────────────────────────── */
+/* ── Top: headline + body — grows to fill space and self-centres ─────── */
 .content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: clamp(16px, 2.5vh, 32px);
 }
@@ -69,9 +71,9 @@
 }
 
 .statValue {
-  font-family: var(--font-display-light);
-  font-size: clamp(36px, 5vw, 72px);
-  font-weight: 300;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 400;
   line-height: 1;
   color: var(--color-white);
   letter-spacing: -0.02em;
@@ -93,5 +95,4 @@
   .body     { max-width: 100%; }
   .stats    { gap: 32px; flex-wrap: wrap; justify-content: center; }
   .stat     { min-width: 120px; }
-  .statValue { font-size: clamp(32px, 8vw, 52px); }
 }
