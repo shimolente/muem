@@ -1,3 +1,4 @@
+/* ── Section — full viewport, headline top-centred, stats bottom ────────── */
 .section {
   position: relative;
   z-index: 2;
@@ -5,30 +6,30 @@
   min-height: 500px;
   background: transparent;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(100px, 13vh, 140px) var(--space-nav-h) clamp(56px, 7vh, 88px);
 }
 
+/* ── Top: headline + body — centred ────────────────────────────────────── */
 .content {
-  text-align: center;
-  padding: 0 var(--space-nav-h);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(20px, 3vh, 40px);
+  text-align: center;
+  gap: clamp(16px, 2.5vh, 32px);
 }
 
-/* ── Headline — Aire Light Pro, display scale ────────────────────────────────── */
+/* ── Headline ────────────────────────────────────────────────────────────── */
 .headline {
   font-family: var(--font-display);
   font-weight: 400;
-  font-style: normal;
   font-size: var(--text-display);
   line-height: var(--leading-snug);
   color: var(--color-white);
   display: flex;
   flex-direction: column;
-  gap: 0.08em;
+  gap: 0.06em;
   max-width: 760px;
 }
 
@@ -37,19 +38,60 @@
   will-change: transform, opacity;
 }
 
-/* ── Body — Brandon Grotesque, body scale ───────────────────────────────────── */
+/* ── Body ────────────────────────────────────────────────────────────────── */
 .body {
   font-family: var(--font-body);
   font-size: var(--text-body);
   font-weight: 400;
   line-height: var(--leading-normal);
   letter-spacing: 0.01em;
-  color: rgba(255, 255, 255, 0.65);
-  max-width: 520px;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 480px;
   will-change: transform, opacity;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────────── */
+/* ── Stats row — bottom, full width, separated by a hairline ────────────── */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: clamp(40px, 7vw, 120px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: clamp(28px, 4vh, 44px);
+}
+
+/* ── Individual stat ────────────────────────────────────────────────────── */
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1vh, 10px);
+  will-change: transform, opacity;
+}
+
+.statValue {
+  font-family: var(--font-display-light);
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--color-white);
+  letter-spacing: -0.02em;
+}
+
+.statLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .body { max-width: 100%; }
+  .section  { padding: 88px 24px 48px; }
+  .body     { max-width: 100%; }
+  .stats    { gap: 32px; flex-wrap: wrap; justify-content: center; }
+  .stat     { min-width: 120px; }
+  .statValue { font-size: clamp(32px, 8vw, 52px); }
 }
