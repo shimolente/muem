@@ -18,6 +18,7 @@ export function Navbar() {
   const navLogoLight      = useUIStore(s => s.navLogoLight);
   const navHamburgerLight = useUIStore(s => s.navHamburgerLight);
   const navBg             = useUIStore(s => s.navBg);
+  const preloaderDone     = useUIStore(s => s.preloaderDone);
 
   // ── Hover dim siblings ─────────────────────────────────────────────────────
   const handleItemEnter = (index: number) => {
@@ -78,10 +79,16 @@ export function Navbar() {
         hasBg     ? styles.navbarWithBg  : '',
       ].filter(Boolean).join(' ')}>
 
+        {/* data-nav-logo — targeted by Preloader to calculate fly-to coordinates */}
         <Link
           href={LOGO.href}
           className={`${styles.logo} ${logoDark ? styles.logoDark : ''}`}
           aria-label={LOGO.alt}
+          data-nav-logo
+          style={{
+            opacity:    preloaderDone ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}
         >
           <Image src={LOGO.src} alt={LOGO.alt} width={36} height={36} priority />
         </Link>
