@@ -6,15 +6,31 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  /* transparent — video shows through from fixed backdrop */
   background: transparent;
 }
 
+/* ── Content — bottom-anchored, horizontally centred ────────────────────── */
 .content {
-  padding: clamp(32px, 6vh, 64px) var(--space-nav-h);
-  padding-bottom: clamp(48px, 8vh, 96px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(32px, 6vh, 64px) var(--space-nav-h) clamp(48px, 8vh, 96px);
 }
 
+/* ── Small label above headline ─────────────────────────────────────────── */
+.label {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: clamp(12px, 2vh, 20px);
+  will-change: opacity;
+}
+
+/* ── Headline ────────────────────────────────────────────────────────────── */
 .headline {
   font-family: var(--font-display-light);
   font-weight: 300;
@@ -22,6 +38,7 @@
   line-height: var(--leading-tight);
   letter-spacing: -0.01em;
   color: var(--color-white);
+  text-align: center;
 }
 
 .wordClip {
@@ -32,56 +49,27 @@
   margin-bottom: -0.08em;
 }
 
-/* ── Scroll indicator ───────────────────────────────────────────────────────── */
+/* ── Scroll arrow — bottom-right, bounces ───────────────────────────────── */
 .scrollIndicator {
   position: absolute;
-  bottom: clamp(24px, 4vh, 48px);
+  bottom: clamp(28px, 4vh, 52px);
   right: var(--space-nav-h);
   z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
   will-change: opacity, transform;
 }
 
-.scrollLabel {
-  font-family: var(--font-body);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-  writing-mode: vertical-rl;
+.scrollArrow {
+  display: block;
+  color: rgba(255, 255, 255, 0.65);
+  width: clamp(18px, 1.6vw, 24px);
+  height: clamp(18px, 1.6vw, 24px);
 }
 
-.scrollLine {
-  width: 1px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.2);
-  overflow: hidden;
-  border-radius: 1px;
-}
-
-.scrollLineFill {
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  animation: scrollPulse 1.8s ease-in-out infinite;
-}
-
-@keyframes scrollPulse {
-  0%   { transform: translateY(-100%); }
-  50%  { transform: translateY(0%); }
-  100% { transform: translateY(100%); }
-}
-
-/* ── Responsive ─────────────────────────────────────────────────────────────── */
+/* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .headline { font-size: clamp(38px, 10vw, 72px); }
-  .content  { padding: 32px 24px 72px; }
+  .headline  { font-size: clamp(38px, 10vw, 72px); }
+  .content   { padding: 32px 24px 72px; }
   .scrollIndicator { right: 20px; bottom: 24px; }
-  .scrollLabel     { display: none; }
-  .scrollLine      { height: 36px; }
 }
 
 @media (max-width: 480px) {

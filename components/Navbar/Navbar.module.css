@@ -60,7 +60,7 @@
 
 .navItem {
   font-family: var(--font-body);
-  font-size: var(--text-label);
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: var(--tracking-wide);
   color: var(--color-white);

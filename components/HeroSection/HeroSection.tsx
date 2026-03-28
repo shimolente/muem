@@ -47,11 +47,22 @@ export function HeroSection() {
         { y: '0%', opacity: 1, stagger: 0.1, duration: 1.1, ease: 'power3.out', delay: 0.2 },
       );
 
-      // Scroll indicator fade in
+      // Scroll arrow: fade in then bounce continuously
       gsap.fromTo(
         scrollIndRef.current,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 1.1 },
+        { opacity: 0, y: 8 },
+        {
+          opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 1.2,
+          onComplete: () => {
+            gsap.to(scrollIndRef.current, {
+              y: 7,
+              duration: 0.9,
+              ease: 'power1.inOut',
+              repeat: -1,
+              yoyo: true,
+            });
+          },
+        },
       );
     }, sectionRef);
 
@@ -81,6 +92,12 @@ export function HeroSection() {
   return (
     <section ref={sectionRef} className={styles.section} data-snap-section="hero">
       <div className={styles.content}>
+
+        {/* Small label above headline */}
+        {HERO.label && (
+          <p className={styles.label}>{HERO.label}</p>
+        )}
+
         <h1 ref={headlineRef} className={styles.headline}>
           {words.map((word, i) => (
             <span key={i} className={styles.wordClip}>
@@ -92,11 +109,22 @@ export function HeroSection() {
         </h1>
       </div>
 
+      {/* Scroll arrow — bounces to invite scroll, no text */}
       <div ref={scrollIndRef} className={styles.scrollIndicator} aria-label="Scroll down">
-        <span className={styles.scrollLabel}>{HERO.scrollLabel}</span>
-        <div className={styles.scrollLine}>
-          <div className={styles.scrollLineFill} />
-        </div>
+        <svg
+          className={styles.scrollArrow}
+          width="20" height="20" viewBox="0 0 20 20"
+          fill="none" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M10 4v12M4 10l6 6 6-6"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
     </section>
   );
