@@ -1,29 +1,36 @@
-/* ── Overlay — sits above everything ─────────────────────────────────────── */
+/* ── Full-viewport dark overlay ───────────────────────────────────────────── */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #0E0C0A;   /* warm near-black — matches ServicesSection dark */
+  background: #0E0C0A;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: all;
+
+  /* Scale zooms from the centre — critical for the camera push-through */
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 
-/* ── Logo wrapper — centred, GSAP moves it to nav position ───────────────── */
+/* ── Logo wrapper — centred, GSAP drives all animation ───────────────────── */
 .logoWrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* opacity starts at 0, GSAP fades in */
+
+  /* Start hidden — GSAP fades in */
   opacity: 0;
-  /* transform-origin defaults to centre — intentional for the fly animation */
+
+  /* Scale from centre so the rush-toward-camera reads correctly */
+  transform-origin: center center;
   will-change: transform, opacity;
 }
 
-/* Keep Next.js Image from adding unwanted layout */
 .logoWrap img {
   display: block;
-  width: 72px !important;
-  height: 72px !important;
+  width: 80px !important;
+  height: 80px !important;
+  /* Keep logo crisp at large scales during zoom */
+  image-rendering: high-quality;
 }

@@ -8,13 +8,13 @@ import { useUIStore } from '@/store/ui';
 import styles from './Preloader.module.css';
 
 export function Preloader() {
-  const [visible, setVisible]    = useState(true);
-  const overlayRef               = useRef<HTMLDivElement>(null);
-  const logoRef                  = useRef<HTMLDivElement>(null);
-  const setPreloaderDone         = useUIStore(s => s.setPreloaderDone);
+  const [visible, setVisible] = useState(true);
+  const overlayRef            = useRef<HTMLDivElement>(null);
+  const logoRef               = useRef<HTMLDivElement>(null);
+  const setPreloaderDone      = useUIStore(s => s.setPreloaderDone);
 
   useEffect(() => {
-    // Show only once per browser session — comment out during development if needed
+    // Skip on subsequent visits within the same session
     if (sessionStorage.getItem('muem-preloader-done')) {
       setPreloaderDone(true);
       setVisible(false);
@@ -25,7 +25,6 @@ export function Preloader() {
     const logo    = logoRef.current;
     if (!overlay || !logo) return;
 
-    // Lock scroll while preloader is visible
     document.body.style.overflow = 'hidden';
 
     const tl = gsap.timeline({
@@ -36,52 +35,44 @@ export function Preloader() {
       },
     });
 
-    // ── 1. Fade logo in at centre ─────────────────────────────────────────
+    // ── 1. Logo fades + scales in ─────────────────────────────────────────
     tl.fromTo(
       logo,
-      { opacity: 0, scale: 0.88 },
-      { opacity: 1, scale: 1, duration: 0.65, ease: 'power3.out' },
+      { opacity: 0, scale: 0.82 },
+      { opacity: 1, scale: 1, duration: 0.75, ease: 'power3.out' },
     );
 
-    // ── 2. Brief hold ─────────────────────────────────────────────────────
-    tl.to({}, { duration: 0.45 });
+    // ── 2. Hold ───────────────────────────────────────────────────────────
+    tl.to({}, { duration: 0.55 });
 
-    // ── 3. Fly logo → nav position, fade overlay ──────────────────────────
-    tl.add(() => {
-      const navLogoEl = document.querySelector<HTMLElement>('[data-nav-logo]');
-      if (!navLogoEl || !logo) return;
-
-      const navRect  = navLogoEl.getBoundingClientRect();
-      const logoRect = logo.getBoundingClientRect();
-
-      // Delta from preloader logo centre → nav logo centre
-      const targetX = (navRect.left + navRect.width  / 2) - (logoRect.left + logoRect.width  / 2);
-      const targetY = (navRect.top  + navRect.height / 2) - (logoRect.top  + logoRect.height / 2);
-
-      // Scale the preloader logo down to match the nav logo's rendered size
-      const targetScale = navRect.width / logoRect.width;
-
-      // Fly the logo
-      gsap.to(logo, {
-        x: targetX,
-        y: targetY,
-        scale: targetScale,
-        duration: 0.75,
-        ease: 'power3.inOut',
-        onComplete: () => {
-          // Reveal nav logo the instant the preloader logo lands
-          setPreloaderDone(true);
-        },
-      });
-
-      // Fade the dark overlay — starts 0.2 s after fly begins
-      gsap.to(overlay, {
-        opacity: 0,
-        duration: 0.5,
-        delay: 0.2,
-        ease: 'power2.inOut',
-      });
+    // ── 3a. Snap — tiny punch outward before the rush ─────────────────────
+    tl.to(logo, {
+      scale: 1.1,
+      duration: 0.12,
+      ease: 'power1.out',
     });
+
+    // ── 3b. Rush toward camera — logo zooms out and vanishes ──────────────
+    tl.to(logo, {
+      scale: 5,
+      opacity: 0,
+      duration: 0.9,
+      ease: 'power3.in',
+    }, '-=0.04'); // overlap the snap slightly
+
+    // ── 4. Overlay follows — subtle zoom + fade (camera push-through) ─────
+    tl.to(overlay, {
+      scale: 1.18,
+      opacity: 0,
+      duration: 0.75,
+      ease: 'power2.inOut',
+      onStart: () => setPreloaderDone(true), // nav logo fades in as overlay exits
+    }, '<0.08'); // starts just after logo rush begins
+
+    return () => {
+      tl.kill();
+      document.body.style.overflow = '';
+    };
   }, [setPreloaderDone]);
 
   if (!visible) return null;
@@ -92,8 +83,8 @@ export function Preloader() {
         <Image
           src={LOGO.src}
           alt=""
-          width={72}
-          height={72}
+          width={80}
+          height={80}
           priority
         />
       </div>
