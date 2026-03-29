@@ -21,13 +21,17 @@ export function CategoriesSection() {
   const colLabelRefs = useRef<Record<string, HTMLSpanElement | null>>({});
   const colNameRefs  = useRef<Record<string, HTMLSpanElement | null>>({});
 
+  const clickHintRefs    = useRef<Record<string, HTMLSpanElement | null>>({});
   const expandedRef      = useRef<HTMLDivElement>(null);
   const sectionRef       = useRef<HTMLElement>(null);
   const expandOffsetRef  = useRef<{ labelY: number; nameY: number }>({ labelY: 0, nameY: 0 });
   const expandColRectRef = useRef<DOMRect | null>(null);
   // True while a column is in the expanded/clicked state — blocks runLeave so the
   // overlay appearing (which steals mouseleave from the column) doesn't exit the image
-  const isExpandedRef = useRef(false);
+  const isExpandedRef      = useRef(false);
+  const switchTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pointerRef         = useRef<{ x: number; y: number } | null>(null);
+  const preventScrollRef   = useRef<((e: Event) => void) | null>(null);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -109,6 +113,15 @@ export function CategoriesSection() {
   /* ── Hover dispatchers ───────────────────────────────────────────────── */
   const handleEnter = (id: string) => {
     hoveredColRef.current = id;
+    const cat = CATEGORIES.find(c => c.id === id);
+    const text = `View ${cat?.name ?? ''}`.trim();
+    if (switchTimerRef.current) {
+      clearTimeout(switchTimerRef.current);
+      switchTimerRef.current = null;
+      window.dispatchEvent(new CustomEvent('cursor:switch', { detail: text }));
+    } else {
+      window.dispatchEvent(new CustomEvent('cursor:label', { detail: text }));
+    }
     const state = stateRef.current[id] ?? 'idle';
     if (state === 'entering' || state === 'visible') {
       pendingRef.current[id] = null; // cancel any queued leave
@@ -121,6 +134,10 @@ export function CategoriesSection() {
   const handleLeave = (id: string) => {
     hoveredColRef.current = null;
     if (isExpandedRef.current) return;
+    switchTimerRef.current = setTimeout(() => {
+      switchTimerRef.current = null;
+      window.dispatchEvent(new CustomEvent('cursor:reset'));
+    }, 80);
     const state = stateRef.current[id] ?? 'idle';
     if (state === 'idle' || state === 'exiting') {
       pendingRef.current[id] = null; // cancel any queued enter
@@ -135,38 +152,70 @@ export function CategoriesSection() {
     runLeave(id);
   };
 
+  /* ── Track pointer position for elementFromPoint checks ─────────────── */
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => { pointerRef.current = { x: e.clientX, y: e.clientY }; };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+
   /* ── Nav theme: dark + hamburger while categories is visible ────────── */
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-    const observer = new IntersectionObserver(
+
+    // Low threshold — fires early for nav theming + exit reset
+    const navObserver = new IntersectionObserver(
       ([entry]) => {
         sectionVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting) {
           setNavTheme('dark');
           setNavStyle('minimal');
-          setNavHamburgerLight(false); // reset — Philosophy section sets this true
+          setNavHamburgerLight(false);
+        } else {
+          window.dispatchEvent(new CustomEvent('cursor:reset'));
         }
-        // No else — sections 1 & 2 own the 'full' reset when they re-enter
       },
-      { threshold: 0.1 }, // low — fires early so section 3 wins over any scroll-through of sections 1-2
+      { threshold: 0.1 },
     );
-    observer.observe(section);
-    return () => observer.disconnect();
+
+    // High threshold — fires after snap settles, safe to elementFromPoint
+    const cursorObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || !pointerRef.current) return;
+        const el = document.elementFromPoint(pointerRef.current.x, pointerRef.current.y);
+        const colEl = el?.closest('[data-col-id]') as HTMLElement | null;
+        if (colEl?.dataset.colId) handleEnter(colEl.dataset.colId);
+      },
+      { threshold: 0.9 },
+    );
+
+    navObserver.observe(section);
+    cursorObserver.observe(section);
+    return () => { navObserver.disconnect(); cursorObserver.disconnect(); };
   }, [setNavTheme, setNavStyle]);
 
   /* ── Expand handler ──────────────────────────────────────────────────── */
   const handleExpand = (cat: Category) => {
-    // Lock scroll first — this may remove the scrollbar (widening the viewport on
-    // Windows). Compensate immediately with paddingRight so the columns don't shift.
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.style.overflowY = 'hidden';
-    if (scrollbarWidth > 0) document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
-    // Snapshot rect after scroll-lock so measurements are in the same coordinate space
+    window.dispatchEvent(new CustomEvent('cursor:reset'));
+    // Prevent scrolling by blocking wheel/touch events — avoids touching overflow CSS
+    // which would remove the scrollbar and cause layout shifts on the navbar + columns.
+    const preventScroll = (e: Event) => e.preventDefault();
+    preventScrollRef.current = preventScroll;
+    window.addEventListener('wheel',     preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.dispatchEvent(new CustomEvent('nav:hide'));
+    // Snapshot rect now — before any layout changes
     const clipEl = clipRefs.current[cat.id];
     if (clipEl) expandColRectRef.current = clipEl.getBoundingClientRect();
     isExpandedRef.current = true;
-    setActive(cat);
+    // Fade out the click hint first, then trigger the expansion
+    const hintEl = clickHintRefs.current[cat.id];
+    if (hintEl) {
+      gsap.to(hintEl, { opacity: 0, duration: 0.25, ease: 'power2.in', onComplete: () => setActive(cat) });
+    } else {
+      setActive(cat);
+    }
   };
 
   const clipMap: Record<Category['expandOrigin'], string> = {
@@ -186,14 +235,22 @@ export function CategoriesSection() {
 
     const darkOverlayEl = darkOverlayRefs.current[active.id];
 
+    // Pin the panel in pixels from the column rect — prevents % positions shifting
+    // when the scrollbar disappears and the viewport widens
+    const panelEl = overlay.querySelector('[data-expand-panel]') as HTMLElement | null;
+    if (panelEl && rect) {
+      panelEl.style.left  = `${rect.left}px`;
+      panelEl.style.width = `${rect.width}px`;
+    }
+
     // Pin the column's imageClip as fixed at its current screen position
     if (rect) {
       gsap.set(clipEl, {
         position: 'fixed',
         left: rect.left,
-        top: rect.top,
+        top: 0,          // cover full viewport height — eliminates top/bottom padding gaps
         width: rect.width,
-        height: rect.height,
+        height: '100svh',
         zIndex: 7,
       });
       // Lock the dark overlay to column width before imageClip starts expanding
@@ -246,7 +303,7 @@ export function CategoriesSection() {
         // Expand the real imageClip and overlay clip-path in lock-step.
         // The dark overlay div tracks the column position as imageClip grows left.
         if (rect) {
-          tl.to(clipEl, { left: 0, width: vw, duration: 0.75, ease: 'power3.inOut' }, 0);
+          tl.to(clipEl, { left: 0, right: 0, width: vw, duration: 0.75, ease: 'power3.inOut' }, 0);
           if (darkOverlayEl) {
             // As imageClip shifts left by rect.left, push overlay right by the same amount
             // so it stays over the original column area.
@@ -266,6 +323,7 @@ export function CategoriesSection() {
   const handleClose = useCallback(() => {
     const overlay = expandedRef.current;
     if (!overlay || !active) return;
+    window.dispatchEvent(new CustomEvent('nav:show'));
 
     const clipEl         = clipRefs.current[active.id];
     const darkOverlayEl  = darkOverlayRefs.current[active.id];
@@ -298,11 +356,18 @@ export function CategoriesSection() {
       onComplete: () => {
         if (clipEl) gsap.set(clipEl, { clearProps: 'position,left,top,width,height,zIndex' });
         if (darkOverlayEl) gsap.set(darkOverlayEl, { clearProps: 'left,right,width' });
+        const panelEl = overlay.querySelector('[data-expand-panel]') as HTMLElement | null;
+        if (panelEl) { panelEl.style.left = ''; panelEl.style.width = ''; }
         gsap.set(overlay, { display: 'none' });
         isExpandedRef.current = false;
         setActive(null);
-        document.documentElement.style.overflowY = '';
-        document.documentElement.style.paddingRight = '';
+        const hintEl = clickHintRefs.current[closingId];
+        if (hintEl) gsap.set(hintEl, { clearProps: 'opacity' });
+        if (preventScrollRef.current) {
+          window.removeEventListener('wheel',     preventScrollRef.current);
+          window.removeEventListener('touchmove', preventScrollRef.current);
+          preventScrollRef.current = null;
+        }
         if (hoveredColRef.current !== closingId) runLeave(closingId);
       },
     }, clipEl && rect ? '<' : '-=0.3');
@@ -333,6 +398,7 @@ export function CategoriesSection() {
             tabIndex={0}
             aria-label={`View ${cat.name}`}
             onKeyDown={e => e.key === 'Enter' && handleExpand(cat)}
+            data-col-id={cat.id}
           >
             <div
               ref={el => { clipRefs.current[cat.id] = el; }}
@@ -347,6 +413,7 @@ export function CategoriesSection() {
             </div>
             <span ref={el => { colLabelRefs.current[cat.id] = el; }} className={styles.label}>{cat.label}</span>
             <span ref={el => { colNameRefs.current[cat.id] = el; }} className={styles.name}>{cat.name}</span>
+            <span ref={el => { clickHintRefs.current[cat.id] = el; }} className={styles.clickHint}>Click to explore</span>
           </div>
         ))}
       </section>
@@ -356,6 +423,7 @@ export function CategoriesSection() {
         {active && (
           <>
             <div
+              data-expand-panel
               className={`${styles.expandedPanel} ${
                 active.expandOrigin === 'left'  ? styles.expandedPanelLeft  :
                 active.expandOrigin === 'right' ? styles.expandedPanelRight :

@@ -12,14 +12,14 @@ export interface FeaturedCategory {
   label:    string;             // "Create"
   name:     string;             // "Houses & Villas" — shown in text cell
   tagline:  string;             // one-liner shown below name
-  projects: FeaturedProject[];  // exactly 6 — maps to bento cells A–F
+  projects: FeaturedProject[];  // 6 or 8 — maps to bento cells A–F or A–H
 }
 
 export const FEATURED: FeaturedCategory[] = [
   {
     id: 'studio',
-    label: 'Create',
-    name: 'Studio',
+    label: 'Featured Projects',
+    name: 'Houses & Villas',
     tagline: 'Architecture at the intersection of craft and vision.',
     projects: [
       { id: 's1', title: 'Villa Murcielago', location: 'Nusa Dua, Bali',     imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
@@ -28,12 +28,14 @@ export const FEATURED: FeaturedCategory[] = [
       { id: 's4', title: 'Maison Verte',     location: 'Canggu, Bali',       imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
       { id: 's5', title: 'Pavilion 12',      location: 'Seminyak, Bali',     imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
       { id: 's6', title: 'Terrace Studio',   location: 'Pererenan, Bali',    imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
+      { id: 's7', title: 'Cliff Pavilion',   location: 'Uluwatu, Bali',      imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
+      { id: 's8', title: 'Garden Retreat',   location: 'Ubud, Bali',         imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
     ],
   },
   {
     id: 'habitus',
-    label: 'Live',
-    name: 'Houses & Villas',
+    label: 'Featured Projects',
+    name: 'Apartments & Lofts',
     tagline: 'Living spaces crafted for the way you actually live.',
     projects: [
       { id: 'h1', title: 'Villa Murcielago', location: 'Nusa Dua, Bali',     imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
@@ -42,12 +44,15 @@ export const FEATURED: FeaturedCategory[] = [
       { id: 'h4', title: 'Bamboo Dwelling',  location: 'Ubud, Bali',         imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
       { id: 'h5', title: 'Forest Retreat',   location: 'Seminyak, Bali',     imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
       { id: 'h6', title: 'Cliff Villa',      location: 'Uluwatu, Bali',      imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
+      { id: 'h7', title: 'Terrace Loft',     location: 'Canggu, Bali',       imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
+      { id: 'h8', title: 'Garden Apartment', location: 'Pererenan, Bali',    imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
+      { id: 'h9', title: 'Stone Loft',       location: 'Seminyak, Bali',     imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
     ],
   },
   {
     id: 'residences',
-    label: 'Explore',
-    name: 'Residences',
+    label: 'Featured Projects',
+    name: 'Bespoke Projects',
     tagline: 'Private residences conceived from the inside out.',
     projects: [
       { id: 'r1', title: 'Villa Murcielago', location: 'Nusa Dua, Bali',     imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },

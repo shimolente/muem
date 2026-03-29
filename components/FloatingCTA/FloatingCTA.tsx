@@ -116,7 +116,7 @@ export function FloatingCTA() {
   /* ── Watch footer SECTION (not just the button) — lower threshold for
      timing accuracy; 200ms delay handles mid-scroll rect reads ─────────── */
   useEffect(() => {
-    const footerSection = document.querySelector<HTMLElement>('[data-snap-section="footer"]');
+    const footerSection = document.getElementById('footer-marker');
     if (!footerSection) return;
 
     const obs = new IntersectionObserver(

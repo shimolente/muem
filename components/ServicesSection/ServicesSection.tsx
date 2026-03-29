@@ -1,207 +1,231 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
-import { revealUp } from '@/lib/animation';
-import { SERVICES, type Service } from '@/content/services';
+import { SERVICES } from '@/content/services';
 import { useUIStore } from '@/store/ui';
 import styles from './ServicesSection.module.css';
 
-/* ─── Main component ──────────────────────────────────────────────────────── */
+const N      = SERVICES.length;  // 7
+const STEP_H = 300;              // px — vertical distance between item centres
+
 export function ServicesSection() {
-  const [active, setActive]       = useState<Service>(SERVICES[0]);
-  const [animating, setAnimating] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
 
-  // Content refs (for transition animation)
-  const contentRef  = useRef<HTMLDivElement>(null);
   const sectionRef  = useRef<HTMLElement>(null);
-  const hasAnimated = useRef(false);
-
-  // Sidebar item refs — same pattern as Navbar
-  const itemRefs   = useRef<(HTMLButtonElement | null)[]>([]);
-  const activeIdRef = useRef(SERVICES[0].id); // avoids stale closure in callbacks
+  const trackRef    = useRef<HTMLDivElement>(null);
+  const itemRefs    = useRef<(HTMLDivElement | null)[]>([]);
+  const revealedRef = useRef<boolean[]>(Array.from({ length: N }, (_, i) => i === 0));
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
   const setNavStyle = useUIStore(s => s.setNavStyle);
   const setNavBg    = useUIStore(s => s.setNavBg);
 
-  /* ── Sidebar hover — exact Navbar pattern ───────────────────────────────── */
-  const handleItemEnter = useCallback((index: number) => {
-    itemRefs.current.forEach((el, i) => {
-      if (!el) return;
-      gsap.to(el, {
-        opacity: i === index ? 1 : 0.3,
-        duration: 0.3,
-        ease: 'power2.out',
-        overwrite: true,
-      });
-    });
+  /* ── Dynamic section height (tall so sticky can travel) ─────────────── */
+  useLayoutEffect(() => {
+    const update = () => {
+      if (!sectionRef.current) return;
+      if (window.innerWidth < 768) {
+        sectionRef.current.style.height = '';   // let CSS auto handle mobile
+        return;
+      }
+      sectionRef.current.style.height = `${window.innerHeight + (N - 1) * STEP_H}px`;
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
-  const DIM = 0.38; // resting opacity for non-active items
-
-  const handleListLeave = useCallback(() => {
-    itemRefs.current.forEach((el, i) => {
-      if (!el) return;
-      gsap.to(el, {
-        opacity: SERVICES[i].id === activeIdRef.current ? 1 : DIM,
-        duration: 0.4,
-        ease: 'power2.out',
-        overwrite: true,
-      });
-    });
-  }, []);
-
-  /* ── Keep resting dim state in sync with active selection ───────────────── */
+  /* ── Nav theming ─────────────────────────────────────────────────────── */
   useEffect(() => {
-    activeIdRef.current = active.id;
-    if (!hasAnimated.current) return; // don't fight the entrance animation
-    itemRefs.current.forEach((el, i) => {
-      if (!el) return;
-      gsap.to(el, {
-        opacity: SERVICES[i].id === active.id ? 1 : DIM,
-        duration: 0.35,
-        ease: 'power2.out',
-        overwrite: true,
-      });
-    });
-  }, [active.id]);
-
-  /* ── Entrance animation ─────────────────────────────────────────────────── */
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    // Set initial states
-    gsap.set(itemRefs.current.filter(Boolean), { opacity: 0, x: -12 });
-    gsap.set(contentRef.current, { opacity: 0 });
-
-    const observer = new IntersectionObserver(
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Navbar: light text, no background fill (dark section)
           setNavTheme('light');
           setNavStyle('full');
           setNavBg('transparent');
         }
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-
-          // Sidebar items stagger in, then settle to resting dim state
-          gsap.to(itemRefs.current.filter(Boolean), {
-            opacity: 1,
-            x: 0,
-            duration: 0.55,
-            ease: 'power3.out',
-            stagger: 0.07,
-            delay: 0.1,
-            onComplete: () => {
-              itemRefs.current.forEach((el, i) => {
-                if (!el) return;
-                gsap.to(el, {
-                  opacity: SERVICES[i].id === activeIdRef.current ? 1 : DIM,
-                  duration: 0.4,
-                  ease: 'power2.out',
-                });
-              });
-            },
-          });
-
-          // Content reveals up (rounded → sharp)
-          revealUp(contentRef.current, { delay: 0.35 });
-        }
       },
-      { threshold: 0.15 }
+      { threshold: 0.05 },
     );
-
-    observer.observe(section);
-    return () => observer.disconnect();
+    obs.observe(el);
+    return () => obs.disconnect();
   }, [setNavTheme, setNavStyle, setNavBg]);
 
-  /* ── Service switch ─────────────────────────────────────────────────────── */
-  const handleSelect = useCallback((service: Service) => {
-    if (service.id === active.id || animating) return;
-    setAnimating(true);
-
-    gsap.to(contentRef.current, {
-      opacity: 0,
-      y: 12,
-      duration: 0.2,
-      ease: 'power2.in',
-      onComplete: () => {
-        setActive(service);
-        gsap.set(contentRef.current, { y: -12 });
-        gsap.to(contentRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: 'power3.out',
-          onComplete: () => setAnimating(false),
-        });
-      },
+  /* ── Initialise items (desktop only) ────────────────────────────────── */
+  useEffect(() => {
+    if (window.innerWidth < 768) return;
+    itemRefs.current.forEach((el, i) => {
+      if (!el || i === 0) return;
+      const isEven    = i % 2 === 0;
+      const contentEl = el.querySelector<HTMLElement>(`.${styles.itemContent}`);
+      const imageEl   = el.querySelector<HTMLElement>(`.${styles.itemImage}`);
+      if (contentEl) gsap.set(contentEl, { opacity: 0, x: isEven ? -28 : 28 });
+      if (imageEl)   gsap.set(imageEl,   { opacity: 0, x: isEven ? 28 : -28 });
     });
-  }, [active.id, animating]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Animate one item in or out ──────────────────────────────────────── */
+  const animateItem = (i: number, show: boolean) => {
+    const el = itemRefs.current[i];
+    if (!el) return;
+    const isEven    = i % 2 === 0;
+    const contentEl = el.querySelector<HTMLElement>(`.${styles.itemContent}`);
+    const imageEl   = el.querySelector<HTMLElement>(`.${styles.itemImage}`);
+    const dur  = show ? 0.65 : 0.38;
+    const ease = show ? 'power3.out' : 'power2.in';
+    if (contentEl) gsap.to(contentEl, {
+      opacity: show ? 1 : 0,
+      x: show ? 0 : (isEven ? -28 : 28),
+      duration: dur, ease, overwrite: true,
+    });
+    if (imageEl) gsap.to(imageEl, {
+      opacity: show ? 1 : 0,
+      x: show ? 0 : (isEven ? 28 : -28),
+      duration: dur, ease, overwrite: true,
+    });
+  };
+
+  /* ── Scroll driver (desktop only) ────────────────────────────────────── */
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.innerWidth < 768) return;
+      const section = sectionRef.current;
+      if (!section) return;
+
+      const scrolled  = window.scrollY - section.offsetTop;
+      const maxScroll = section.offsetHeight - window.innerHeight;
+      if (maxScroll <= 0) return;
+      const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
+
+      // Translate track upward so active dot stays at viewport centre
+      gsap.set(trackRef.current, { y: -progress * (N - 1) * STEP_H });
+
+      // Which item is at centre
+      const idx = Math.min(N - 1, Math.round(progress * (N - 1)));
+      setActiveIdx(prev => (prev === idx ? prev : idx));
+
+      // Reveal / hide items
+      for (let i = 0; i < N; i++) {
+        const threshold  = i === 0 ? -0.01 : (i / (N - 1)) - 0.02;
+        const shouldShow = progress > threshold;
+        if (shouldShow !== revealedRef.current[i]) {
+          revealedRef.current[i] = shouldShow;
+          animateItem(i, shouldShow);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const active = SERVICES[activeIdx];
 
   return (
     <section id="services" ref={sectionRef} className={styles.section}>
-      <div className={styles.inner}>
+      <div className={styles.pinned}>
 
-        {/* ── Left sidebar ────────────────────────────────────────────────── */}
-        <nav
-          className={styles.sidebar}
-          aria-label="Services navigation"
-          onMouseLeave={handleListLeave}
-        >
-          <ul className={styles.list}>
-            {SERVICES.map((service, i) => (
-              <li key={service.id}>
-                <button
-                  ref={el => { itemRefs.current[i] = el; }}
-                  className={`${styles.sidebarItem} ${
-                    active.id === service.id ? styles.sidebarItemActive : ''
-                  }`}
-                  onMouseEnter={() => handleItemEnter(i)}
-                  onClick={() => handleSelect(service)}
-                  aria-current={active.id === service.id ? 'true' : undefined}
-                >
-                  {service.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {/* Gradient fades — soften items entering / leaving frame */}
+        <div className={styles.fadeTop} />
+        <div className={styles.fadeBottom} />
 
-        {/* ── Right content ───────────────────────────────────────────────── */}
-        <div ref={contentRef} className={styles.content}>
-
-          {/* Tagline */}
-          <p className={styles.tagline}>{active.tagline}</p>
-
-          {/* Title */}
-          <h2 className={styles.title}>{active.title}</h2>
-
-          {/* Description */}
-          <div className={styles.description}>
-            {active.description.map((para, i) => (
-              <p key={i}>{para}</p>
-            ))}
+        {/* Active service info — top-left overlay */}
+        <div className={styles.overlay}>
+          <p className={styles.overlayLabel}>How We Work</p>
+          <div key={activeIdx} className={styles.overlayContent}>
+            <p className={styles.overlayTagline}>{active.tagline}</p>
+            <h2 className={styles.overlayTitle}>{active.title}</h2>
+            <p className={styles.overlayDesc}>{active.description[0]}</p>
           </div>
-
-          {/* Image — fills remaining vertical space */}
-          {/* TODO: swap each service's image path in content/services.ts */}
-          <div className={styles.imageWrap} data-card>
-            <Image
-              src={active.image}
-              alt={active.name}
-              fill
-              sizes="(max-width: 768px) 100vw, 65vw"
-              className={styles.image}
-              priority={active.id === SERVICES[0].id}
-            />
-          </div>
-
         </div>
+
+        {/* Decorative step counter */}
+        <span className={styles.bigNum} aria-hidden>
+          {String(activeIdx + 1).padStart(2, '0')}
+        </span>
+
+        {/* Scrolling track — moves upward, items stay 300px apart */}
+        <div ref={trackRef} className={styles.track}>
+
+          {SERVICES.map((s, i) => {
+            const isEven = i % 2 === 0; // even → content left, image right
+            return (
+              <div
+                key={s.id}
+                ref={el => { itemRefs.current[i] = el; }}
+                className={`${styles.item} ${i === activeIdx ? styles.itemActive : ''}`}
+              >
+                {/* Left column (desktop) */}
+                <div className={styles.colLeft}>
+                  {isEven ? (
+                    <div className={styles.itemContent}>
+                      <p className={styles.stepLabel}>
+                        Step {String(i + 1).padStart(2, '0')}
+                      </p>
+                      <h3 className={styles.itemTitle}>{s.name}</h3>
+                    </div>
+                  ) : (
+                    <div className={styles.itemImage}>
+                      <Image
+                        src={s.image} alt={s.name} fill
+                        sizes="25vw"
+                        style={{ objectFit: 'cover' }}
+                        priority={i === 0}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Centre column — dot on the line */}
+                <div className={styles.colCenter}>
+                  <span className={styles.dot} />
+                </div>
+
+                {/* Right column (desktop) */}
+                <div className={styles.colRight}>
+                  {isEven ? (
+                    <div className={styles.itemImage}>
+                      <Image
+                        src={s.image} alt={s.name} fill
+                        sizes="25vw"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles.itemContent}>
+                      <p className={styles.stepLabel}>
+                        Step {String(i + 1).padStart(2, '0')}
+                      </p>
+                      <h3 className={styles.itemTitle}>{s.name}</h3>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile-only: always step + name + image, hidden on desktop */}
+                <div className={styles.mobileRow}>
+                  <div className={styles.mobileText}>
+                    <p className={styles.stepLabel}>
+                      Step {String(i + 1).padStart(2, '0')}
+                    </p>
+                    <h3 className={styles.itemTitle}>{s.name}</h3>
+                  </div>
+                  <div className={styles.mobileImage}>
+                    <Image
+                      src={s.image} alt={s.name} fill
+                      sizes="60vw"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
       </div>
     </section>
   );

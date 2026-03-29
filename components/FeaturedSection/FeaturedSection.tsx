@@ -6,9 +6,6 @@ import { FEATURED } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
 import styles from './FeaturedSection.module.css';
 
-// Bento cell slots — order maps directly to FEATURED[n].projects[0..5]
-const SLOTS = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
-
 const AUTOPLAY_MS = 9000;
 
 export function FeaturedSection() {
@@ -145,11 +142,11 @@ export function FeaturedSection() {
 
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
-      <div className={styles.grid}>
+      <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : ''}`}>
 
-        {/* ── 6 image cards: A B C D E F ─────────────────────────── */}
-        {SLOTS.map((slot, i) => {
-          const project = cat.projects[i];
+        {/* ── Image cards — count driven by cat.projects ──────────── */}
+        {cat.projects.map((project, i) => {
+          const slot = String.fromCharCode(65 + i); // 'A', 'B', 'C', …
           return (
             <a
               key={`${display}-${slot}`}

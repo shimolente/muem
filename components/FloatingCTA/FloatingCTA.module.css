@@ -44,11 +44,12 @@
 
 /* ── Pill state (navStyle = 'minimal') ───────────────────────────────────── */
 .cta.pill {
-  width: clamp(140px, 14vw, 168px);
+  width: clamp(10px, 14vw, 150px);
+  /* width: clamp(140px, 14vw, 168px); */
   background: var(--color-warm-dark);
   gap: clamp(8px, 0.8vw, 12px);
   justify-content: center;
-  padding: 0 clamp(16px, 1.6vw, 22px);
+  padding: 4px 24px 4px 24px;
 }
 
 /* ── Label ───────────────────────────────────────────────────────────────── */

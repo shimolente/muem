@@ -27,7 +27,8 @@
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
   margin-bottom: clamp(12px, 2vh, 20px);
-  will-change: opacity;
+  will-change: transform, opacity;
+  opacity: 0; /* GSAP animates to 1 */
 }
 
 /* ── Headline ────────────────────────────────────────────────────────────── */

@@ -41,7 +41,7 @@
   --aire-stroke: 1px;
 
   /* ── Type scale (fluid) ──────────────────────────────────────────────────── */
-  --text-hero:    clamp(48px, 7.5vw, 120px);  /* hero headline          */
+  --text-hero:    clamp(48px, 6.9vw, 100px);  /* hero headline          */
   --text-display: clamp(28px, 4.2vw,  64px);  /* section statements     */
   --text-heading: clamp(18px, 1.8vw,  28px);  /* section titles         */
   --text-body:    clamp(15px, 1.2vw,  18px);  /* paragraphs             */

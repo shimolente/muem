@@ -1,50 +1,61 @@
-/* ── Section ──────────────────────────────────────────────────────────────── */
+/* ── Section — flex column: main content + footer bar ────────────────────── */
 .section {
   position: relative;
   z-index: 2;
-  height: 72svh;
-  min-height: 480px;
-  background: var(--color-warm-dark);
+  width: 100%;
+  height: 100svh;
+  min-height: 660px;
+  background: var(--color-off-white);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Main content row ─────────────────────────────────────────────────────── */
+.mainContent {
+  flex: 1;
   display: flex;
   align-items: stretch;
   padding: clamp(6px, 0.55vw, 10px);
   gap: clamp(6px, 0.55vw, 10px);
+  min-height: 0;
 }
 
-/* ── Left panel — headline + tagline ─────────────────────────────────────── */
+/* ── Left panel ───────────────────────────────────────────────────────────── */
 .leftPanel {
-  width: 55%;
+  width: 44%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;        /* content anchored to bottom */
-  padding: clamp(48px, 5vw, 80px) var(--space-panel-h);
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  justify-content: center;
+  gap: clamp(32px, 4.5vh, 56px);
+  padding: clamp(48px, 5vw, 72px) var(--space-panel-h);
 }
+
+.leftTop  { display: flex; flex-direction: column; }
+.leftBottom { display: flex; flex-direction: column; gap: clamp(16px, 2.2vh, 24px); }
 
 .sectionLabel {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(58, 52, 47, 0.4);
   line-height: 1;
-  margin-bottom: clamp(32px, 5vh, 56px);
+  margin-bottom: clamp(24px, 3.5vh, 44px);
   will-change: transform, opacity;
 }
 
 .headline {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(44px, 6.5vw, 104px);
+  font-size: clamp(36px, 4vw, 64px);
   line-height: 1.06;
   letter-spacing: -0.03em;
-  color: var(--color-white);
+  color: var(--color-warm-dark);
   display: flex;
   flex-direction: column;
-  margin-bottom: clamp(24px, 3.5vh, 44px);
+  margin-bottom: clamp(16px, 2.2vh, 28px);
 }
 
 .headlineLine {
@@ -54,80 +65,276 @@
 
 .tagline {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.65;
-  color: rgba(255, 255, 255, 0.38);
-  max-width: 44ch;
+  color: rgba(58, 52, 47, 0.5);
+  max-width: 40ch;
   will-change: transform, opacity;
 }
 
-/* ── Right panel — CTA + socials ─────────────────────────────────────────── */
-.rightPanel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: clamp(48px, 5vw, 80px) var(--space-panel-h);
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-/* CTA — top area, cleared below navbar */
-.ctaWrapper {
-  padding-top: clamp(40px, 6vh, 72px);
+/* Contact details — label / value pairs */
+.contactDetails {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 10px 18px;
   will-change: transform, opacity;
 }
 
-.cta {
-  font-family: var(--font-display);
+.detailLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
   font-weight: 400;
-  font-size: clamp(28px, 3vw, 48px);
-  letter-spacing: -0.02em;
-  color: var(--color-white);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.35);
   line-height: 1;
-  transition: opacity 0.3s ease;
+  white-space: nowrap;
 }
-.cta:hover { opacity: 0.55; }
 
-.ctaArrow {
-  display: inline-block;
-  font-style: normal;
-  transition: transform 0.3s ease;
+.detailValue {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(58, 52, 47, 0.7);
+  text-decoration: none;
+  line-height: 1;
+  transition: color 0.2s ease;
 }
-.cta:hover .ctaArrow { transform: translate(4px, -4px); }
+.detailValue:hover { color: var(--color-warm-dark); }
 
-/* Socials — anchored to bottom */
+/* Socials — horizontal row */
 .socialsRow {
   display: flex;
-  flex-direction: column;
-  gap: clamp(14px, 2vh, 22px);
+  gap: clamp(16px, 2.5vw, 28px);
   will-change: transform, opacity;
 }
 
 .socialLink {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.32);
+  letter-spacing: 0.02em;
+  color: rgba(58, 52, 47, 0.45);
   text-decoration: none;
   line-height: 1;
   transition: color 0.25s ease;
 }
-.socialLink:hover { color: var(--color-white); }
+.socialLink:hover { color: var(--color-warm-dark); }
+
+/* ── Right panel ──────────────────────────────────────────────────────────── */
+.rightPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(48px, 5vw, 72px) var(--space-panel-h);
+}
+
+/* ── Form ─────────────────────────────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.5vh, 18px);
+  will-change: transform, opacity;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(12px, 1.4vw, 18px);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgba(58, 52, 47, 0.55);
+  line-height: 1;
+}
+
+/* Shared input / textarea / select */
+.input,
+.textarea,
+.select {
+  background: rgba(58, 52, 47, 0.05);
+  border: 1px solid rgba(58, 52, 47, 0.14);
+  border-radius: 6px;
+  padding: 13px 15px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-warm-dark);
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(58, 52, 47, 0.3);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: rgba(58, 52, 47, 0.35);
+  background: rgba(58, 52, 47, 0.07);
+}
+
+.textarea {
+  resize: none;
+  line-height: 1.6;
+}
+
+/* Select — custom chevron */
+.selectWrapper {
+  position: relative;
+}
+
+.selectWrapper::after {
+  content: '';
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid rgba(58, 52, 47, 0.35);
+  pointer-events: none;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+  color: rgba(58, 52, 47, 0.75);
+}
+
+.select option {
+  background: var(--color-off-white);
+  color: var(--color-warm-dark);
+}
+
+/* Submit button — dark on light */
+.submitBtn {
+  background: var(--color-warm-dark);
+  color: var(--color-off-white);
+  border: none;
+  border-radius: 6px;
+  padding: 15px 24px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.25s ease;
+  width: 100%;
+  line-height: 1;
+  margin-top: 4px;
+}
+.submitBtn:hover { opacity: 0.75; }
+
+/* ── Footer bar — dark strip ──────────────────────────────────────────────── */
+.footerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(14px, 1.8vh, 20px) var(--space-nav-h);
+  background: #151517;
+  flex-shrink: 0;
+}
+
+.footerLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.footerLogoImg {
+  width: 20px;
+  height: auto;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.footerLogoWordmark {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1;
+}
+
+.footerNav {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2.5vw, 36px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footerNavLink {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  transition: color 0.22s ease;
+}
+.footerNavLink:hover { color: var(--color-white); }
+
+.footerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.footerCopyright {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* FloatingCTA snap target — zero-size anchor */
+.footerCtaTarget {
+  display: block;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
 
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section {
     height: auto;
     min-height: unset;
+  }
+
+  .mainContent {
     flex-direction: column;
     padding: 14px;
     gap: 14px;
@@ -139,12 +346,18 @@
     padding: 32px 22px 28px;
   }
 
-  .headline  { font-size: clamp(36px, 9vw, 56px); }
-  .cta       { font-size: clamp(22px, 6vw, 36px); }
+  .headline { font-size: clamp(32px, 8vw, 52px); }
 
-  .socialsRow {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 16px 24px;
+  .formRow { grid-template-columns: 1fr; }
+
+  .socialsRow { flex-wrap: wrap; gap: 12px 20px; }
+
+  .footerBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 22px 28px;
   }
+
+  .footerNav { justify-content: flex-start; gap: 14px 20px; }
 }

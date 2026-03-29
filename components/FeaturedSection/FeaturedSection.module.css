@@ -27,9 +27,13 @@
 .cell {
   position: relative;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 0;
   display: block;
   text-decoration: none;
+  transition: border-radius 0.4s var(--ease-out-expo);
+}
+.cell:hover {
+  border-radius: 48px;
 }
 
 /* Grid-area assignments */
@@ -39,6 +43,9 @@
 .cellD { grid-area: d; }
 .cellE { grid-area: e; }
 .cellF { grid-area: f; }
+.cellG { grid-area: g; }
+.cellH { grid-area: h; }
+.cellI { grid-area: i; }
 
 /* Background image — scales on hover */
 .cellImage {
@@ -103,7 +110,7 @@
 }
 .cell:hover .cellMeta {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(8px, -10px);
 }
 .cellLocation {
   font-family: var(--font-body);
@@ -132,8 +139,6 @@
   gap: 0; /* controlled via margins on children for precise hierarchy spacing */
   text-align: center;
   padding: clamp(14px, 1.8vw, 28px);
-  border-radius: 6px;
-  border: 1px solid rgba(58, 52, 47, 0.1);
   /* no background — sits against the section's off-white */
 }
 
@@ -148,7 +153,7 @@
   line-height: 1;
   margin-bottom: clamp(10px, 1.4vh, 18px);
 }
-/* Tier 2 — display name ("Studio") — the hero element */
+/* Tier 2 — display name ("Houses & Villas") — the hero element */
 .textTitle {
   font-family: var(--font-display);
   font-weight: 400;
@@ -209,6 +214,26 @@
   background: var(--color-warm-dark);
   width: 7px;
   height: 7px;
+}
+
+/* ── Per-category layout overrides ───────────────────────────────────────── */
+
+/* Apartments & Lofts: wide top, E tall left, F+I stacked, T+G center, H tall right */
+.gridHabitus {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-areas:
+    "a a b c d d"
+    "e f t t h h"
+    "e i g g h h";
+}
+
+/* Houses & Villas: 6-col internal grid, right column split, 8 image cards */
+.gridStudio {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-areas:
+    "a a b b c d"
+    "a a t t c d"
+    "e e f g h h";
 }
 
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */

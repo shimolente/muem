@@ -107,14 +107,18 @@
   position: relative;
   display: block;
   aspect-ratio: 5 / 6;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   text-decoration: none;
   background: rgba(58, 52, 47, 0.15);  /* placeholder while image loads */
+  transition: border-radius 0.55s var(--ease-out-expo);
 
   /* initial hidden state for GSAP entrance */
   opacity: 0;
   will-change: opacity, transform;
+}
+.card:hover {
+  border-radius: 48px;
 }
 
 .cardImg {
@@ -161,6 +165,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: transform 0.55s var(--ease-out-expo);
+}
+.card:hover .cardBottom {
+  transform: translate(8px, -10px);
 }
 
 .cardTitle {
@@ -192,11 +200,13 @@
   justify-content: flex-end;  /* bottom-right */
   padding: clamp(12px, 1.4vw, 18px);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, padding 0.55s var(--ease-out-expo);
   pointer-events: none;
 }
 .card:hover .cardHover {
   opacity: 1;
+  padding-bottom: clamp(24px, 2.8vw, 36px);
+  padding-right: clamp(24px, 2.8vw, 36px);
 }
 
 .seeDetail {
@@ -268,7 +278,6 @@
   .filterBar > *:nth-child(3)       { border-radius: 0 0 0 7px; border-top: 1px solid rgba(58, 52, 47, 0.14); }
   .filterBar > *:last-child         { border-radius: 0 0 7px 0; border-top: 1px solid rgba(58, 52, 47, 0.14); border-right: none; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .card { border-radius: 8px; }
 }
 
 @media (max-width: 480px) {

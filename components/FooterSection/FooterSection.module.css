@@ -1,35 +1,40 @@
-/* ── Section ──────────────────────────────────────────────────────────────── */
+/* ── Section — fills snap viewport, content anchors to bottom ─────────────── */
 .section {
   position: relative;
   z-index: 2;
-  min-height: 80svh;
-  /* background: var(--color-warm-dark); */
+  width: 100%;
+  min-height: 100svh;
   background: #151517;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(48px, 5vw, 80px) var(--space-nav-h) clamp(32px, 3.5vw, 52px);
+  align-items: flex-end;
+  padding: 0 var(--space-nav-h) clamp(40px, 5vh, 60px);
 }
 
-/* ── Top row — logo left, CTA right ────────────────────────────────────── */
+.inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 3.5vh, 44px);
+}
+
+/* ── Top row — logo left, nav links right ────────────────────────────────── */
 .topRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 32px;
-  padding-top: clamp(40px, 6vh, 72px); /* clear navbar */
 }
 
-/* Logo: SVG mark + wordmark */
 .logoLink {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 11px;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .logoImg {
-  width: clamp(28px, 2.8vw, 40px);
+  width: clamp(22px, 1.8vw, 28px);
   height: auto;
   filter: brightness(0) invert(1);
   flex-shrink: 0;
@@ -37,189 +42,89 @@
 
 .logoWordmark {
   font-family: var(--font-body);
-  font-size: clamp(14px, 1.4vw, 20px);
+  font-size: clamp(12px, 1vw, 14px);
   font-weight: 400;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: rgba(255, 255, 255, 0.55);
   line-height: 1;
 }
 
-/* "Let's talk" CTA area — text + circle button */
-.ctaArea {
+.navLinks {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 2vw, 28px);
-  text-decoration: none;
-  flex-shrink: 0;
+  gap: clamp(20px, 2.8vw, 40px);
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.ctaText {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(28px, 3.5vw, 56px);
-  letter-spacing: -0.02em;
-  color: var(--color-white);
-  line-height: 1;
-  transition: opacity 0.3s ease;
-}
-.ctaArea:hover .ctaText { opacity: 0.55; }
-
-/* Circular ↗ button — the snap target for FloatingCTA */
-.ctaBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(44px, 4.5vw, 64px);
-  height: clamp(44px, 4.5vw, 64px);
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  flex-shrink: 0;
-  transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-}
-.ctaArea:hover .ctaBtn {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.6);
-  transform: rotate(45deg);
-}
-
-.ctaBtnIcon {
-  font-style: normal;
-  font-size: clamp(16px, 1.6vw, 22px);
-  color: var(--color-white);
-  line-height: 1;
-}
-
-/* ── Divider ─────────────────────────────────────────────────────────────── */
-.divider {
-  width: 100%;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: clamp(40px, 5vh, 64px) 0 clamp(32px, 4vh, 52px);
-}
-
-/* ── Nav grid ────────────────────────────────────────────────────────────── */
-.navGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(24px, 3vw, 48px);
-  flex: 1;
-}
-
-.navCol {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(14px, 1.8vh, 22px);
-}
-
-.navColLabel {
+.navLink {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: clamp(11px, 0.85vw, 13px);
   font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
-  line-height: 1;
-}
-
-.navColLink {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 1.3vw, 18px);
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.32);
   text-decoration: none;
   line-height: 1;
-  transition: color 0.25s ease;
+  letter-spacing: 0.04em;
+  transition: color 0.22s ease;
 }
-.navColLink:hover { color: var(--color-white); }
+.navLink:hover { color: rgba(255, 255, 255, 0.75); }
 
-/* ── Bottom bar ──────────────────────────────────────────────────────────── */
+/* ── Bottom bar — copyright + legal ─────────────────────────────────────── */
 .bottomBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-top: clamp(32px, 4vh, 52px);
+  padding-top: clamp(20px, 2.5vh, 30px);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin-top: auto;
 }
 
 .copyright {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.16);
   line-height: 1;
 }
 
 .legalLinks {
   display: flex;
-  gap: 20px;
+  gap: 18px;
 }
 
 .legalLink {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.16);
   text-decoration: none;
   line-height: 1;
-  transition: color 0.25s ease;
+  transition: color 0.22s ease;
 }
-.legalLink:hover { color: rgba(255, 255, 255, 0.55); }
-
-/* ── Copyright group (left side of bottom bar) ───────────────────────────── */
-.copyrightGroup {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  row-gap: 4px;
-}
-
-.copyrightSep {
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.22);
-  padding: 0 10px;
-  user-select: none;
-  line-height: 1;
-}
-
-.emailLink {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.22);
-  text-decoration: none;
-  line-height: 1;
-  transition: color 0.25s ease;
-}
-.emailLink:hover { color: rgba(255, 255, 255, 0.55); }
+.legalLink:hover { color: rgba(255, 255, 255, 0.45); }
 
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section {
-    padding: 32px 22px 28px;
+    padding: 0 22px 36px;
     min-height: unset;
   }
 
   .topRow {
     flex-direction: column;
-    gap: 28px;
-    padding-top: 28px;
+    align-items: flex-start;
+    gap: 20px;
   }
 
-  .ctaArea { gap: 14px; }
-  .ctaText  { font-size: clamp(24px, 6vw, 36px); }
-
-  .navGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px 16px;
+  .navLinks {
+    justify-content: flex-start;
+    gap: 14px 22px;
   }
 
   .bottomBar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
   }
 }

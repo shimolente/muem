@@ -16,7 +16,7 @@ export const CATEGORIES: Category[] = [
     id: 'studio', label: 'Create', name: 'Studio', href: '/studio',
     imageSrc: '/images/studio-cover.jpg', imageAlt: 'Studio project',
     body: 'We guide selective individuals and brands in shaping clarity from complexity, crafting elevated lifestyles, and achieving results that transcend expectations.',
-    cta: 'Design with us', ctaHref: '/contact', expandOrigin: 'left',
+    cta: 'Design with us', ctaHref: '/studio', expandOrigin: 'left',
   },
   {
     id: 'habitus', label: 'Live', name: 'Habitus', href: '/habitus',

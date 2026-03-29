@@ -13,6 +13,7 @@ import styles from './HeroSection.module.css';
 export function HeroSection() {
   const sectionRef  = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
+  const labelRef    = useRef<HTMLParagraphElement>(null);
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
   const setNavStyle = useUIStore(s => s.setNavStyle);
@@ -38,12 +39,19 @@ export function HeroSection() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Word reveal on load
+      // Label slides in first
+      gsap.fromTo(
+        labelRef.current,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.1 },
+      );
+
+      // Word reveal follows
       const words = headlineRef.current?.querySelectorAll('[data-word]') ?? [];
       gsap.fromTo(
         words,
         { y: '110%', opacity: 0 },
-        { y: '0%', opacity: 1, stagger: 0.1, duration: 1.1, ease: 'power3.out', delay: 0.2 },
+        { y: '0%', opacity: 1, stagger: 0.1, duration: 1.1, ease: 'power3.out', delay: 0.4 },
       );
 
     }, sectionRef);
@@ -59,17 +67,26 @@ export function HeroSection() {
 
         {/* Small label above headline */}
         {HERO.label && (
-          <p className={styles.label}>{HERO.label}</p>
+          <p ref={labelRef} className={styles.label}>{HERO.label}</p>
         )}
 
         <h1 ref={headlineRef} className={styles.headline}>
-          {words.map((word, i) => (
-            <span key={i} className={styles.wordClip}>
-              <span data-word style={{ display: 'inline-block' }}>
-                {word}{i < words.length - 1 ? '\u00A0' : ''}
+          {words.map((word, i) => {
+            const isItalic = word.replace(/[^a-zA-Z]/g, '') === 'Luxury';
+            return (
+              <span key={i} className={styles.wordClip}>
+                <span
+                  data-word
+                  style={{
+                    display: 'inline-block',
+                    fontFamily: isItalic ? 'var(--font-display-italic)' : undefined,
+                  }}
+                >
+                  {word}{i < words.length - 1 ? '\u00A0' : ''}
+                </span>
               </span>
-            </span>
-          ))}
+            );
+          })}
         </h1>
       </div>
 

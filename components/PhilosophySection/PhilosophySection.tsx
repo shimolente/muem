@@ -8,9 +8,11 @@ import styles from './PhilosophySection.module.css';
 
 export function PhilosophySection() {
   const [pillarIdx, setPillarIdx] = useState(0);
-  const pillarIdxRef  = useRef(0);   // mirrors pillarIdx — avoids stale closure in navigate
-  const isAnimating   = useRef(false);
-  const hasEntered    = useRef(false);
+  const pillarIdxRef    = useRef(0);   // mirrors pillarIdx — avoids stale closure in navigate
+  const isAnimating     = useRef(false);
+  const hasEntered      = useRef(false);
+  const autoTimerRef    = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isHoveringImage = useRef(false);
 
   const sectionRef    = useRef<HTMLElement>(null);
 
@@ -23,13 +25,72 @@ export function PhilosophySection() {
   const bodyRef         = useRef<HTMLParagraphElement>(null);
   const navRowRef       = useRef<HTMLDivElement>(null);
 
-  // Image ref
-  const imageRef        = useRef<HTMLDivElement>(null);
+  // Image refs
+  const imageCardRef    = useRef<HTMLDivElement>(null); // container — for border-radius animation
+  const imageRef        = useRef<HTMLDivElement>(null); // inner — for zoom
   const captionRef      = useRef<HTMLSpanElement>(null);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
   const setNavHamburgerLight = useUIStore(s => s.setNavHamburgerLight);
+
+  /* ── Pillar navigation ────────────────────────────────────────────────── */
+  const navigate = useCallback((next: number) => {
+    if (isAnimating.current || next === pillarIdxRef.current) return;
+
+    const dir  = next > pillarIdxRef.current ? 1 : -1;
+    isAnimating.current = true;
+    pillarIdxRef.current = next;
+
+    const xOut = dir * 40;
+
+    const textEls = [
+      numberRef.current,
+      dividerRef.current,
+      plusRef.current,
+      ...(statementRefs.current.filter(Boolean)),
+      bodyRef.current,
+    ].filter(Boolean);
+
+    // Kill pan
+    gsap.killTweensOf(imageRef.current, 'backgroundPositionX');
+
+    // Exit
+    gsap.to(textEls, {
+      opacity: 0, x: xOut, stagger: 0.03, duration: 0.22, ease: 'power2.in',
+    });
+    gsap.to(imageRef.current, {
+      opacity: 0, duration: 0.3, ease: 'power2.in',
+    });
+    gsap.to(captionRef.current, {
+      opacity: 0, duration: 0.2, ease: 'power2.in',
+    });
+
+    // After exit completes, update state then animate in
+    gsap.delayedCall(0.32, () => {
+      setPillarIdx(next);
+    });
+  }, []);
+
+  const startAutoplay = useCallback(() => {
+    if (autoTimerRef.current) clearInterval(autoTimerRef.current);
+    autoTimerRef.current = setInterval(() => {
+      const next = (pillarIdxRef.current + 1) % PHILOSOPHY.length;
+      navigate(next);
+    }, 7000);
+  }, [navigate]);
+
+  // Clean up interval on unmount
+  useEffect(() => () => {
+    if (autoTimerRef.current) clearInterval(autoTimerRef.current);
+  }, []);
+
+  // If the pillar changes while image is hovered, slot-machine switch the cursor label
+  useEffect(() => {
+    if (isHoveringImage.current) {
+      window.dispatchEvent(new CustomEvent('cursor:switch', { detail: PHILOSOPHY[pillarIdx].pillar }));
+    }
+  }, [pillarIdx]);
 
   /* ── Nav theming ─────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -38,9 +99,9 @@ export function PhilosophySection() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('dark');           // logo dark (over cream panel)
+          setNavTheme('dark');
           setNavStyle('minimal');
-          setNavHamburgerLight(true);    // hamburger stays white (over dark image)
+          setNavHamburgerLight(true);
         }
       },
       { threshold: 0.1 },
@@ -66,7 +127,7 @@ export function PhilosophySection() {
     // Set initial states
     gsap.set(sectionLabelRef.current, { opacity: 0, y: 10 });
     gsap.set(textEls, { opacity: 0, y: 20 });
-    gsap.set(imageRef.current, { opacity: 0 });
+    gsap.set(imageRef.current, { opacity: 0, backgroundPositionX: '45%' });
     gsap.set(captionRef.current, { opacity: 0 });
 
     const obs = new IntersectionObserver(
@@ -74,23 +135,18 @@ export function PhilosophySection() {
         if (entry.isIntersecting && !hasEntered.current) {
           hasEntered.current = true;
 
-          // Image fades in first
-          gsap.to(imageRef.current, {
-            opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.1,
-          });
+          gsap.to(imageRef.current, { opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.1 });
+          gsap.to(imageRef.current, { backgroundPositionX: '55%', duration: 20, ease: 'none', delay: 0.1 });
           gsap.to(captionRef.current, {
             opacity: 1, duration: 0.7, ease: 'power2.out', delay: 0.5,
           });
-
-          // Section label
           gsap.to(sectionLabelRef.current, {
             opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.2,
           });
-
-          // Text content staggers in
           gsap.to(textEls, {
             opacity: 1, y: 0,
             stagger: 0.06, duration: 0.7, ease: 'power3.out', delay: 0.3,
+            onComplete: () => startAutoplay(),
           });
 
           obs.disconnect();
@@ -101,44 +157,7 @@ export function PhilosophySection() {
     obs.observe(el);
     return () => obs.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* ── Pillar navigation ────────────────────────────────────────────────── */
-  const navigate = useCallback((dir: 1 | -1) => {
-    if (isAnimating.current) return;
-    const next = (pillarIdxRef.current + dir + PHILOSOPHY.length) % PHILOSOPHY.length;
-    if (next === pillarIdxRef.current) return;
-
-    isAnimating.current = true;
-    pillarIdxRef.current = next;
-
-    const xOut = dir * 40;  // exit slides in direction of travel
-    const xIn  = dir * -40; // enter slides from the opposite side
-
-    const textEls = [
-      numberRef.current,
-      dividerRef.current,
-      plusRef.current,
-      ...(statementRefs.current.filter(Boolean)),
-      bodyRef.current,
-    ].filter(Boolean);
-
-    // Exit
-    gsap.to(textEls, {
-      opacity: 0, x: xOut, stagger: 0.03, duration: 0.22, ease: 'power2.in',
-    });
-    gsap.to(imageRef.current, {
-      opacity: 0, duration: 0.3, ease: 'power2.in',
-    });
-    gsap.to(captionRef.current, {
-      opacity: 0, duration: 0.2, ease: 'power2.in',
-    });
-
-    // After exit completes, update state then animate in
-    gsap.delayedCall(0.32, () => {
-      setPillarIdx(next);
-    });
-  }, []);
+  }, [startAutoplay]);
 
   /* ── Enter animation after state update ──────────────────────────────── */
   useEffect(() => {
@@ -150,7 +169,6 @@ export function PhilosophySection() {
         ? 1
         : 0;
 
-    // pillarIdx has now caught up with pillarIdxRef after navigate's delayedCall
     const xIn = dir * -40;
 
     const textEls = [
@@ -161,9 +179,16 @@ export function PhilosophySection() {
       bodyRef.current,
     ].filter(Boolean);
 
-    // Double rAF — ensure React has committed new pillar content to DOM
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
+        // Directional radius: rounds the leading edge on entry, then flattens
+        const enterRadius = dir === 1 ? '48px 0 0 48px' : '0 48px 48px 0';
+        gsap.set(imageCardRef.current, { borderRadius: enterRadius });
+        gsap.to(imageCardRef.current, {
+          borderRadius: '0px', duration: 0.9, ease: 'power3.out',
+          onComplete: () => { if (imageCardRef.current) imageCardRef.current.style.removeProperty('border-radius'); },
+        });
+
         gsap.fromTo(
           textEls,
           { opacity: 0, x: xIn },
@@ -173,11 +198,12 @@ export function PhilosophySection() {
             onComplete: () => { isAnimating.current = false; },
           },
         );
-        gsap.fromTo(
-          imageRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.65, ease: 'power2.out' },
-        );
+        // Pan direction alternates per pillar — set start position before fading in
+        const startPct = pillarIdx % 2 === 0 ? '45%' : '55%';
+        const endPct   = pillarIdx % 2 === 0 ? '55%' : '45%';
+        gsap.set(imageRef.current, { backgroundPositionX: startPct });
+        gsap.to(imageRef.current, { opacity: 1, duration: 0.65, ease: 'power2.out' });
+        gsap.to(imageRef.current, { backgroundPositionX: endPct, duration: 20, ease: 'none' });
         gsap.fromTo(
           captionRef.current,
           { opacity: 0 },
@@ -221,31 +247,37 @@ export function PhilosophySection() {
           <p ref={bodyRef} className={styles.body}>{pillar.body}</p>
         </div>
 
-        {/* Nav row: prev / counter / next */}
+        {/* Nav row: dots */}
         <div ref={navRowRef} className={styles.navRow}>
-          <button
-            className={`${styles.arrow} ${styles.arrowLeft}`}
-            onClick={() => navigate(-1)}
-            aria-label="Previous pillar"
-          >
-            ←
-          </button>
-          <span className={styles.counter}>
-            {pillar.number} of {String(PHILOSOPHY.length).padStart(2, '0')}
-          </span>
-          <button
-            className={`${styles.arrow} ${styles.arrowRight}`}
-            onClick={() => navigate(1)}
-            aria-label="Next pillar"
-          >
-            →
-          </button>
+          <div className={styles.dots} role="tablist" aria-label="Browse pillars">
+            {PHILOSOPHY.map((_, i) => (
+              <button
+                key={i}
+                role="tab"
+                aria-selected={i === pillarIdx}
+                aria-label={`Pillar ${i + 1}`}
+                className={`${styles.dot} ${i === pillarIdx ? styles.dotActive : ''}`}
+                onClick={() => { navigate(i); startAutoplay(); }}
+              />
+            ))}
+          </div>
         </div>
 
       </div>
 
       {/* ── Right: image card ─────────────────────────────────────────── */}
-      <div className={styles.imageCard}>
+      <div
+        ref={imageCardRef}
+        className={styles.imageCard}
+        onMouseEnter={() => {
+          isHoveringImage.current = true;
+          window.dispatchEvent(new CustomEvent('cursor:label', { detail: pillar.pillar }));
+        }}
+        onMouseLeave={() => {
+          isHoveringImage.current = false;
+          window.dispatchEvent(new CustomEvent('cursor:reset'));
+        }}
+      >
         <div
           ref={imageRef}
           className={styles.imageInner}

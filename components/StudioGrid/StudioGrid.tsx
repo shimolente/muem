@@ -59,7 +59,7 @@ const YEAR_OPTIONS: DropdownOption[] = YEARS
 /* ── Project card ─────────────────────────────────────────────────────────── */
 function ProjectCard({ project }: { project: StudioProject }) {
   return (
-    <Link href={project.href} className={styles.card} data-card>
+    <Link href={project.href} className={styles.card}>
       <Image
         src={project.imageSrc}
         alt={project.title}
@@ -94,10 +94,10 @@ export function StudioGrid() {
   const gridRef     = useRef<HTMLDivElement>(null);
   const hasEntered  = useRef(false);
 
-  const [topology, setTopology] = useState('All Topologies');
-  const [location, setLocation] = useState('All Locations');
-  const [year, setYear]         = useState('All Years');
-  const [size, setSize]         = useState('All Sizes');
+  const [topology, setTopology] = useState<string[]>([]);
+  const [location, setLocation] = useState<string[]>([]);
+  const [year, setYear]         = useState<string[]>([]);
+  const [size, setSize]         = useState<string[]>([]);
   const [limit, setLimit]       = useState(8);
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
@@ -124,10 +124,10 @@ export function StudioGrid() {
 
   /* ── Filtered + paginated data ───────────────────────────────────────── */
   const allFiltered = STUDIO_PROJECTS.filter(p => {
-    const matchTopology = topology === 'All Topologies' || p.topology === topology;
-    const matchLoc      = matchLocation(p.location, location);
-    const matchYear     = year  === 'All Years'  || p.year === parseInt(year);
-    const matchSize     = size  === 'All Sizes'  || matchSizeRange(p.size, size);
+    const matchTopology = topology.length === 0 || topology.includes(p.topology);
+    const matchLoc      = location.length === 0 || location.some(loc => matchLocation(p.location, loc));
+    const matchYear     = year.length    === 0 || year.includes(String(p.year));
+    const matchSize     = size.length    === 0 || size.some(s => matchSizeRange(p.size, s));
     return matchTopology && matchLoc && matchYear && matchSize;
   });
 
@@ -138,7 +138,7 @@ export function StudioGrid() {
   const animateCards = useCallback(() => {
     const cards = gridRef.current?.querySelectorAll<HTMLElement>(`.${styles.card}`);
     if (!cards || cards.length === 0) return;
-    revealUp(Array.from(cards), { stagger: 0.06 });
+    revealUp(Array.from(cards), { stagger: 0.06, clearProps: 'borderRadius' });
   }, []);
 
   /* Fire entrance once when section first enters viewport */
@@ -196,30 +196,30 @@ export function StudioGrid() {
       <div className={styles.filterBar}>
         <FilterDropdown
           label="Topology"
-          value={topology}
           allValue="All Topologies"
           options={TOPOLOGY_OPTIONS}
+          values={topology}
           onChange={setTopology}
         />
         <FilterDropdown
           label="Location"
-          value={location}
           allValue="All Locations"
           options={LOCATION_OPTIONS}
+          values={location}
           onChange={setLocation}
         />
         <FilterDropdown
           label="Year of Completion"
-          value={year}
           allValue="All Years"
           options={YEAR_OPTIONS}
+          values={year}
           onChange={setYear}
         />
         <FilterDropdown
           label="Size"
-          value={size}
           allValue="All Sizes"
           options={SIZE_OPTIONS}
+          values={size}
           onChange={setSize}
         />
       </div>

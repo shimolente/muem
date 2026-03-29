@@ -11,7 +11,7 @@
   background: transparent;
   border-right: 1px solid rgba(58, 52, 47, 0.14);
   transition: background 0.2s ease;
-  outline: none; /* keyboard focus handled via :focus-visible below */
+  outline: none;
 }
 .trigger:focus-visible {
   outline: 2px solid rgba(58, 52, 47, 0.35);
@@ -25,7 +25,7 @@
   background: rgba(58, 52, 47, 0.03);
 }
 
-/* Subtle dot to indicate an active filter */
+/* Bold value when filter is active */
 .triggerFiltered .triggerValue {
   color: var(--color-warm-dark);
   font-weight: 500;
@@ -60,13 +60,10 @@
   position: absolute;
   right: clamp(16px, 1.6vw, 22px);
   top: 50%;
-  transform: translateY(-50%);
   pointer-events: none;
-
-  /* Hairline chevron drawn with CSS borders */
   width: 8px;
   height: 5px;
-  border-left:  1.5px solid rgba(58, 52, 47, 0.4);
+  border-left:   1.5px solid rgba(58, 52, 47, 0.4);
   border-bottom: 1.5px solid rgba(58, 52, 47, 0.4);
   transform: translateY(-60%) rotate(-45deg);
   transition: transform 0.22s ease;
@@ -103,22 +100,22 @@
 .row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 9px;
   width: 100%;
-  padding: 9px 10px;
+  padding: 8px 10px;
   border-radius: 7px;
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
   transition: background 0.14s ease;
-  gap: 8px;
 }
 .row:hover {
   background: rgba(58, 52, 47, 0.055);
 }
 .rowActive {
-  background: rgba(58, 52, 47, 0.07);
+  background: rgba(58, 52, 47, 0.06);
 }
 
 .rowLabel {
@@ -132,7 +129,7 @@
   font-weight: 500;
 }
 
-/* Group heading — muted, slightly uppercase feel */
+/* Group heading */
 .rowGroup .rowLabel {
   font-size: 11px;
   letter-spacing: 0.10em;
@@ -154,17 +151,28 @@
   color: var(--color-warm-dark);
 }
 
-/* ── Check icon ──────────────────────────────────────────────────────────── */
-.checkIcon {
-  color: var(--color-warm-dark);
+/* ── Checkbox ────────────────────────────────────────────────────────────── */
+.checkbox {
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
-  opacity: 0.7;
+  border: 1.5px solid rgba(58, 52, 47, 0.28);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-off-white);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.checkboxChecked {
+  background: var(--color-warm-dark);
+  border-color: var(--color-warm-dark);
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .panel {
-    /* On mobile, panels can be wider — let them fill the filter item */
     width: calc(100vw - 40px);
     max-width: 320px;
   }

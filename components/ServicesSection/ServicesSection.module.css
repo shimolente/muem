@@ -1,165 +1,362 @@
-/* ── Section — locked to exactly one viewport ────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────────────
+   VERTICAL SCROLL-PINNED TIMELINE
+   ┌──────────────────────────────────────────────────────────────────────┐
+   │  section  (position: relative, height: 100svh + (N-1)*300px via JS) │
+   │  └── .pinned  (position: sticky; top: 0; height: 100svh)            │
+   │       ├── .overlay      (top-left text panel, z:10)                  │
+   │       ├── .bigNum        (top-right decorative, z:1)                 │
+   │       ├── .fadeTop/Bottom (gradient masks, z:5)                     │
+   │       └── .track  (position:absolute; top:calc(50%-150px))          │
+   │            └── .item × N   (grid 1fr 60px 1fr, height:300px each)   │
+   └──────────────────────────────────────────────────────────────────────┘
+
+   Active dot stays at viewport centre.
+   Track is GSAP-translated Y = -progress * (N-1) * 300px.
+   Items fade+slide in from sides as progress passes their threshold.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
-  background: #0E0C0A;
+  position: relative;
+  background: #36422E;
+  /* height set by JS on desktop */
+}
+
+/* ── Pinned viewport ──────────────────────────────────────────────────────── */
+.pinned {
+  position: sticky;
+  top: 0;
   height: 100svh;
   overflow: hidden;
+}
+
+/* ── Overlay — container (left side, full height) ────────────────────────── */
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--space-nav-h);
+  z-index: 10;
+  pointer-events: none;
+  max-width: min(340px, 27vw);
   display: flex;
   flex-direction: column;
-  padding: clamp(96px, 12vh, 140px) var(--space-nav-h) clamp(56px, 7vh, 80px);
 }
 
-/* ── Two-column grid — fills remaining height ─────────────────────────────── */
-.inner {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: clamp(180px, 20vw, 260px) 1fr;
-  gap: clamp(40px, 5vw, 80px);
-}
-
-/* ── Left sidebar — top-anchored ─────────────────────────────────────────── */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 1.8vh, 22px);
-}
-
-/* ── Sidebar items ────────────────────────────────────────────────────────── */
-.sidebarItem {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 1.3vw, 18px);
-  font-weight: 400;
-  line-height: var(--leading-snug);
-  color: var(--color-white);
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: none;
-
-  /* opacity set to 0 initially via GSAP; GSAP also drives hover dim */
-  will-change: opacity, transform;
-  transition: none; /* GSAP handles transitions */
-}
-
-/* Active indicator — short dash to the left, bold weight */
-.sidebarItemActive {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-}
-
-.sidebarItemActive::before {
-  content: '';
-  display: inline-block;
-  width: 18px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-  flex-shrink: 0;
-  margin-bottom: 1px; /* optical alignment */
-}
-
-/* ── Right content — fills full column height ─────────────────────────────── */
-.content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  will-change: opacity, transform;
-}
-
-/* ── Tagline ──────────────────────────────────────────────────────────────── */
-.tagline {
+/* "HOW WE WORK" pinned to the top */
+.overlayLabel {
   font-family: var(--font-body);
   font-size: var(--text-label);
-  font-weight: 400;
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.38);
-  margin-bottom: clamp(12px, 1.8vh, 20px);
+  padding-top: clamp(80px, 12vh, 120px);
+  flex-shrink: 0;
 }
 
-/* ── Title ────────────────────────────────────────────────────────────────── */
-.title {
+/* Active service content — pushed to vertical centre */
+.overlayContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(8px, 1.2vh, 14px);
+  animation: slideUp 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.overlayTagline {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.overlayTitle {
   font-family: var(--font-display-light);
-  font-size: var(--text-display);
+  font-size: clamp(22px, 3vw, 48px);
   font-weight: 300;
   line-height: var(--leading-tight);
   color: var(--color-white);
-  margin-bottom: clamp(20px, 3vh, 36px);
+  margin: 0;
 }
 
-/* ── Description ─────────────────────────────────────────────────────────── */
-.description {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 1.6vh, 18px);
-  max-width: clamp(440px, 56vw, 720px);
-  margin-bottom: clamp(24px, 3.5vh, 44px);
-}
-
-.description p {
+.overlayDesc {
   font-family: var(--font-body);
   font-size: var(--text-body);
-  font-weight: 400;
-  line-height: var(--leading-loose);
-  color: rgba(255, 255, 255, 0.52);
+  line-height: var(--leading-normal);
+  color: rgba(255, 255, 255, 0.44);
 }
 
-/* ── Image — flex-fills all remaining vertical space ─────────────────────── */
-.imageWrap {
-  flex: 1;
-  min-height: 0;         /* critical: lets flex child shrink below its content size */
+/* ── Large decorative step number ────────────────────────────────────────── */
+.bigNum {
+  position: absolute;
+  bottom: clamp(40px, 6vh, 80px);
+  right: var(--space-nav-h);
+  font-family: var(--font-display-light);
+  font-size: clamp(90px, 12vw, 180px);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+  user-select: none;
+  font-weight: 300;
+  z-index: 1;
+}
+
+/* ── Top / bottom gradient masks ─────────────────────────────────────────── */
+.fadeTop,
+.fadeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.fadeTop {
+  top: 0;
+  height: 28vh;
+  background: linear-gradient(to bottom, #36422E 0%, rgba(54, 66, 46, 0) 100%);
+}
+.fadeBottom {
+  bottom: 0;
+  height: 28vh;
+  background: linear-gradient(to top, #36422E 0%, rgba(54, 66, 46, 0) 100%);
+}
+
+/* ── Track ────────────────────────────────────────────────────────────────── */
+.track {
+  position: absolute;
+  /* shifted right so it doesn't overlap the text overlay */
+  left: clamp(260px, 34vw, 480px);
+  right: 0;
+  /* top: centres item[0]'s dot (midpoint = 150px) at viewport 50% */
+  top: calc(50% - 150px);
+  height: 2100px;             /* N(7) × STEP_H(300) */
+  z-index: 2;
+  will-change: transform;
+}
+
+/* Vertical centre line spans full track height */
+.track::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Timeline item ────────────────────────────────────────────────────────── */
+.item {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  height: 300px;
+  align-items: center;
   position: relative;
-  border-radius: 8px;
-  overflow: hidden;
 }
 
-.image {
-  object-fit: cover;
+/* ── Column helpers ───────────────────────────────────────────────────────── */
+.colLeft {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: clamp(28px, 3.5vw, 56px);
+  height: 100%;
+}
+
+.colRight {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: clamp(28px, 3.5vw, 56px);
+  height: 100%;
+}
+
+.colCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Item image ───────────────────────────────────────────────────────────── */
+.itemImage {
+  position: relative;
+  width: clamp(160px, 18vw, 260px);
+  height: clamp(100px, 12vw, 170px);
+  overflow: hidden;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Item text content ────────────────────────────────────────────────────── */
+.itemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Even items (content in colLeft) → right-aligned */
+.colLeft .itemContent {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Odd items (content in colRight) → left-aligned */
+.colRight .itemContent {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.stepLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.22);
+  line-height: 1;
+  transition: color 0.35s ease;
+}
+
+.itemTitle {
+  font-family: var(--font-display-light);
+  font-size: clamp(15px, 1.8vw, 26px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.35s ease;
+}
+
+/* Active item highlights */
+.itemActive .stepLabel { color: rgba(255, 255, 255, 0.6); }
+.itemActive .itemTitle  { color: rgba(255, 255, 255, 0.95); }
+
+/* ── Dot ──────────────────────────────────────────────────────────────────── */
+.dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  transition:
+    background    0.4s var(--ease-out-expo),
+    border-color  0.4s var(--ease-out-expo),
+    box-shadow    0.4s var(--ease-out-expo),
+    transform     0.4s var(--ease-out-expo);
+}
+
+/* Bullseye on active */
+.itemActive .dot {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px #36422E, 0 0 0 6.5px rgba(255, 255, 255, 0.38);
+  transform: scale(1.25);
+}
+
+/* ── Mobile-only row (hidden on desktop) ─────────────────────────────────── */
+.mobileRow {
+  display: none;
+}
+.mobileText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mobileImage {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 /* ── Mobile ───────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .section {
+  /* undo JS height, let content scroll naturally */
+  .section { height: auto !important; padding: 80px 0 64px; }
+
+  /* pinned no longer sticky on mobile */
+  .pinned {
+    position: relative;
     height: auto;
-    min-height: 100svh;
-    padding: 80px 20px 48px;
+    overflow: visible;
   }
 
-  .inner {
-    grid-template-columns: 1fr;
-    gap: 36px;
+  .track {
+    position: relative;   /* keeps ::before anchored to track */
+    height: auto;
+    transform: none !important;
+    top: auto;
+    left: auto;
+    right: auto;
   }
 
-  .sidebar {
-    justify-content: flex-start;
+  .track::before {
+    /* re-anchor line to the dot column */
+    left: 22px;
+    transform: none;
+    height: 100%;
+    top: 0;
   }
 
-  .list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px 16px;
+  /* 2-col grid: [dot 44px] [content] */
+  .item {
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto;
+    height: auto;
+    padding: 24px 20px 24px 0;
   }
 
-  .sidebarItem {
-    font-size: 13px;
+  /* Hide the desktop alternating columns */
+  .colLeft  { display: none; }
+  .colRight { display: none; }
+
+  .colCenter {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 5px;
+    height: auto;
   }
 
-  .sidebarItemActive::before {
-    display: none;
+  /* Show mobile row in the second column */
+  .mobileRow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    grid-column: 2;
+    grid-row: 1;
+    padding-left: 16px;
   }
 
-  .imageWrap {
-    flex: unset;
-    aspect-ratio: 4 / 3;
-    min-height: unset;
+  .mobileText .itemContent {
+    align-items: flex-start;
+    text-align: left;
   }
+
+  /* override any GSAP inline styles on desktop elements */
+  .itemContent,
+  .itemImage { opacity: 1 !important; transform: none !important; }
+
+  /* fades / overlay / bigNum hidden on mobile */
+  .fadeTop, .fadeBottom { display: none; }
+  .overlay, .bigNum     { display: none; }
 }

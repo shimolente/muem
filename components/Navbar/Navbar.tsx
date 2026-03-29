@@ -9,10 +9,11 @@ import { useUIStore } from '@/store/ui';
 import styles from './Navbar.module.css';
 
 export function Navbar() {
-  const itemRefs    = useRef<(HTMLAnchorElement | null)[]>([]);
-  const overlayRef  = useRef<HTMLDivElement>(null);
-  const logoRef     = useRef<HTMLAnchorElement>(null);
+  const itemRefs     = useRef<(HTMLAnchorElement | null)[]>([]);
+  const overlayRef   = useRef<HTMLDivElement>(null);
+  const logoRef      = useRef<HTMLAnchorElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const navbarRef    = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
 
   const navTheme          = useUIStore(s => s.navTheme);
@@ -63,6 +64,20 @@ export function Navbar() {
       delay: 0.2,
     });
   }, [preloaderDone]);
+
+  // ── Hide/show for category expand ─────────────────────────────────────────
+  useEffect(() => {
+    const el = navbarRef.current;
+    if (!el) return;
+    const onHide = () => gsap.to(el, { yPercent: -100, opacity: 0, duration: 0.4, ease: 'power3.in' });
+    const onShow = () => gsap.to(el, { yPercent: 0,    opacity: 1, duration: 0.5, ease: 'power3.out' });
+    window.addEventListener('nav:hide', onHide);
+    window.addEventListener('nav:show', onShow);
+    return () => {
+      window.removeEventListener('nav:hide', onHide);
+      window.removeEventListener('nav:show', onShow);
+    };
+  }, []);
 
   // ── Hover dim siblings ─────────────────────────────────────────────────────
   const handleItemEnter = (index: number) => {
@@ -116,7 +131,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className={[
+      <header ref={navbarRef} className={[
         styles.navbar,
         isDark    ? styles.navbarDark    : '',
         isMinimal ? styles.navbarMinimal : '',

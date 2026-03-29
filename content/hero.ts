@@ -15,7 +15,7 @@ export interface HeroContent {
 }
 
 export const HERO: HeroContent = {
-  headline:       'Roots of Living',
+  headline:       'Roots of Luxury',
   videoSrc:       '/video-hero.mp4',
   overlayColor:   '#3A342F',
   overlayOpacity: 0.39,

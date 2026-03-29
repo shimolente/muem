@@ -13,62 +13,72 @@ export type DropdownGroup = {
 };
 export type DropdownOption = ({ type?: 'item' } & DropdownItem) | DropdownGroup;
 
-/* ── Props ─────────────────────────────────────────────────────────────────── */
+/* ── Props — multi-select ───────────────────────────────────────────────────── */
 interface FilterDropdownProps {
   label:    string;
-  value:    string;     /* currently selected value */
-  allValue: string;     /* reset option, e.g. 'All Topologies' */
+  allValue: string;     /* placeholder text when nothing selected */
   options:  DropdownOption[];
-  onChange: (v: string) => void;
+  values:   string[];   /* currently selected values (empty = "All") */
+  onChange: (v: string[]) => void;
 }
 
-/* ── Resolve short display label for the trigger ───────────────────────────── */
+/* ── Trigger display label ─────────────────────────────────────────────────── */
 function resolveDisplay(
-  value:    string,
+  values:   string[],
   allValue: string,
   options:  DropdownOption[],
 ): string {
-  if (value === allValue) return allValue;
-  for (const opt of options) {
-    if (opt.type === 'group') {
-      if (opt.value === value) return opt.label;
-      const child = opt.children.find(c => c.value === value);
-      if (child) return child.label;
-    } else {
-      if (opt.value === value) return opt.label;
+  if (values.length === 0) return allValue;
+  if (values.length === 1) {
+    const v = values[0];
+    for (const opt of options) {
+      if (opt.type === 'group') {
+        if (opt.value === v) return opt.label;
+        const child = opt.children.find(c => c.value === v);
+        if (child) return child.label;
+      } else {
+        if (opt.value === v) return opt.label;
+      }
     }
+    return v;
   }
-  return value;
+  return `${values.length} selected`;
 }
 
-/* ── Check icon ────────────────────────────────────────────────────────────── */
-function Check() {
+/* ── Checkbox icon ─────────────────────────────────────────────────────────── */
+function Checkbox({ checked }: { checked: boolean }) {
   return (
-    <svg
-      className={styles.checkIcon}
-      width="12" height="12" viewBox="0 0 12 12"
-      fill="none" aria-hidden="true"
+    <span
+      className={`${styles.checkbox} ${checked ? styles.checkboxChecked : ''}`}
+      aria-hidden="true"
     >
-      <path
-        d="M2 6.5l2.8 2.8 5-5.6"
-        stroke="currentColor" strokeWidth="1.6"
-        strokeLinecap="round" strokeLinejoin="round"
-      />
-    </svg>
+      {checked && (
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+          <path
+            d="M1.5 4.5l2 2 4-4"
+            stroke="currentColor" strokeWidth="1.6"
+            strokeLinecap="round" strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </span>
   );
 }
 
 /* ── Component ─────────────────────────────────────────────────────────────── */
 export function FilterDropdown({
-  label, value, allValue, options, onChange,
+  label, allValue, options, values, onChange,
 }: FilterDropdownProps) {
   const [open, setOpen]  = useState(false);
   const containerRef     = useRef<HTMLDivElement>(null);
-  const display          = resolveDisplay(value, allValue, options);
-  const isFiltered       = value !== allValue;
+  const display          = resolveDisplay(values, allValue, options);
+  const isFiltered       = values.length > 0;
 
-  const close  = ()  => setOpen(false);
-  const select = (v: string) => { onChange(v); close(); };
+  const close    = ()  => setOpen(false);
+  const toggle   = (v: string) => {
+    onChange(values.includes(v) ? values.filter(x => x !== v) : [...values, v]);
+  };
+  const clearAll = () => onChange([]);
 
   /* Close on outside click */
   useEffect(() => {
@@ -96,66 +106,71 @@ export function FilterDropdown({
       role="button"
       aria-haspopup="listbox"
       aria-expanded={open}
+      aria-label={`${label} filter`}
       tabIndex={0}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(v => !v); } }}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(v => !v); }
+      }}
     >
       {/* Trigger text */}
       <span className={styles.triggerLabel}>{label}</span>
       <span className={styles.triggerValue}>{display}</span>
       <span className={styles.chevron} aria-hidden="true" />
 
-      {/* Panel */}
+      {/* Panel — click inside does not close */}
       {open && (
         <div
           className={styles.panel}
           role="listbox"
+          aria-multiselectable="true"
           onClick={e => e.stopPropagation()}
         >
-          {/* "All …" reset row */}
+
+          {/* "All …" — checked when nothing is selected; clears on click */}
           <button
             type="button"
             role="option"
-            aria-selected={value === allValue}
-            className={`${styles.row} ${value === allValue ? styles.rowActive : ''}`}
-            onClick={() => select(allValue)}
+            aria-selected={values.length === 0}
+            className={`${styles.row} ${values.length === 0 ? styles.rowActive : ''}`}
+            onClick={clearAll}
           >
+            <Checkbox checked={values.length === 0} />
             <span className={styles.rowLabel}>{allValue}</span>
-            {value === allValue && <Check />}
           </button>
 
           <div className={styles.separator} />
 
           {options.map((opt, i) => {
             if (opt.type === 'group') {
-              const groupActive = value === opt.value;
+              const checked = values.includes(opt.value);
               return (
                 <div key={i}>
-                  {/* Group heading — clicking selects all in region */}
+                  {/* Group heading — toggles the region value */}
                   <button
                     type="button"
                     role="option"
-                    aria-selected={groupActive}
-                    className={`${styles.row} ${styles.rowGroup} ${groupActive ? styles.rowActive : ''}`}
-                    onClick={() => select(opt.value)}
+                    aria-selected={checked}
+                    className={`${styles.row} ${styles.rowGroup} ${checked ? styles.rowActive : ''}`}
+                    onClick={() => toggle(opt.value)}
                   >
+                    <Checkbox checked={checked} />
                     <span className={styles.rowLabel}>{opt.label}</span>
-                    {groupActive && <Check />}
                   </button>
 
                   {/* Indented children */}
                   {opt.children.map(child => {
-                    const active = value === child.value;
+                    const childChecked = values.includes(child.value);
                     return (
                       <button
                         key={child.value}
                         type="button"
                         role="option"
-                        aria-selected={active}
-                        className={`${styles.row} ${styles.rowChild} ${active ? styles.rowActive : ''}`}
-                        onClick={() => select(child.value)}
+                        aria-selected={childChecked}
+                        className={`${styles.row} ${styles.rowChild} ${childChecked ? styles.rowActive : ''}`}
+                        onClick={() => toggle(child.value)}
                       >
+                        <Checkbox checked={childChecked} />
                         <span className={styles.rowLabel}>{child.label}</span>
-                        {active && <Check />}
                       </button>
                     );
                   })}
@@ -163,18 +178,18 @@ export function FilterDropdown({
               );
             }
 
-            const active = value === opt.value;
+            const checked = values.includes(opt.value);
             return (
               <button
                 key={opt.value}
                 type="button"
                 role="option"
-                aria-selected={active}
-                className={`${styles.row} ${active ? styles.rowActive : ''}`}
-                onClick={() => select(opt.value)}
+                aria-selected={checked}
+                className={`${styles.row} ${checked ? styles.rowActive : ''}`}
+                onClick={() => toggle(opt.value)}
               >
+                <Checkbox checked={checked} />
                 <span className={styles.rowLabel}>{opt.label}</span>
-                {active && <Check />}
               </button>
             );
           })}

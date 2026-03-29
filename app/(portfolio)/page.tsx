@@ -5,7 +5,6 @@ import { CategoriesSection }   from '@/components/CategoriesSection/CategoriesSe
 import { FeaturedSection }     from '@/components/FeaturedSection/FeaturedSection';
 import { PhilosophySection }   from '@/components/PhilosophySection/PhilosophySection';
 import { ContactSection }      from '@/components/ContactSection/ContactSection';
-import { FooterSection }       from '@/components/FooterSection/FooterSection';
 import { FloatingCTA }         from '@/components/FloatingCTA/FloatingCTA';
 import { SnapEnabler }         from '@/components/SnapEnabler/SnapEnabler';
 
@@ -26,7 +25,6 @@ export default function HomePage() {
       <FeaturedSection />
       <PhilosophySection />
       <ContactSection />
-      <FooterSection />
       <FloatingCTA />
     </>
   );

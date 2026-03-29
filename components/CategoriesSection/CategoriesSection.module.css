@@ -6,7 +6,7 @@
   min-height: 500px;
   display: flex;
   background: var(--color-off-white); /* covers the fixed video behind */
-  padding: clamp(6px, 0.55vw, 10px);
+  padding: 0;
   gap: clamp(6px, 0.55vw, 10px);
 }
 
@@ -15,7 +15,7 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 0;
   cursor: none;
   display: flex;
   align-items: center;
@@ -75,6 +75,8 @@
   line-height: 1;
   pointer-events: none;
   transition: color 0.7s ease;
+  -webkit-text-stroke: var(--aire-stroke) currentColor;
+  paint-order: stroke fill;
 }
 
 .name {
@@ -93,6 +95,29 @@
   white-space: nowrap;
   pointer-events: none;
   transition: color 0.7s ease;
+}
+
+/* ── Click hint ──────────────────────────────────────────────────────────── */
+.clickHint {
+  position: absolute;
+  z-index: 3;
+  top: 67%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.columnHovered .clickHint {
+  opacity: 1;
+  transition: opacity 0.35s ease 0.55s; /* appears after curtain lifts */
 }
 
 /* Text turns white while overlay is active — delay syncs with curtain lift */

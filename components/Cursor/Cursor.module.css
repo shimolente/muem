@@ -24,6 +24,28 @@
   mix-blend-mode: difference;
 }
 
+.cursorLabel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: var(--z-cursor);
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-white);
+  background: var(--color-warm-dark);
+  padding: 8px 16px;
+  border-radius: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 0;
+  scale: 0.85;
+}
+
 @media (hover: none) {
-  .dot, .ring { display: none; }
+  .dot, .ring, .cursorLabel { display: none; }
 }

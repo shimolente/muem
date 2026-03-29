@@ -108,7 +108,18 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
               className={styles.headlineLine}
               ref={el => { if (el) linesRef.current[i] = el; }}
             >
-              {line}
+              {line.split(' ').map((word, j, arr) => {
+                const clean = word.replace(/[^a-zA-Z]/g, '');
+                const isItalic = clean === 'Spaces' || clean === 'Home';
+                return (
+                  <span
+                    key={j}
+                    style={isItalic ? { fontFamily: 'var(--font-display-italic)' } : undefined}
+                  >
+                    {word}{j < arr.length - 1 ? ' ' : ''}
+                  </span>
+                );
+              })}
             </span>
           ))}
         </h1>

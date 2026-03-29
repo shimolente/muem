@@ -4,31 +4,15 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { LOGO } from '@/content/nav';
-import { CONTACT } from '@/content/contact';
 import { useUIStore } from '@/store/ui';
 import styles from './FooterSection.module.css';
 
-/* ── Nav columns ─────────────────────────────────────────────────────────────
-   3 columns: Projects | About | Socials
-   Projects + About are static (hrefs defined here).
-   Socials come from CONTACT.socials.
-──────────────────────────────────────────────────────────────────────────── */
-const FOOTER_NAV = [
-  {
-    label: 'Projects',
-    links: [
-      { label: 'Studio',     href: '/studio'     },
-      { label: 'Habitus',    href: '/habitus'     },
-      { label: 'Residences', href: '/residences'  },
-    ],
-  },
-  {
-    label: 'About',
-    links: [
-      { label: 'Muem Studio',   href: '/studio'        },
-      { label: 'Opportunities', href: '/opportunities'  },
-    ],
-  },
+const FOOTER_LINKS = [
+  { label: 'Studio',        href: '/studio'        },
+  { label: 'Habitus',       href: '/habitus'        },
+  { label: 'Residences',    href: '/residences'     },
+  { label: 'Muem Studio',   href: '/studio'         },
+  { label: 'Opportunities', href: '/opportunities'  },
 ] as const;
 
 export function FooterSection() {
@@ -44,7 +28,7 @@ export function FooterSection() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('light');    // white logo + bars over dark bg
+          setNavTheme('light');
           setNavStyle('minimal');
         }
       },
@@ -62,79 +46,42 @@ export function FooterSection() {
       data-snap-section="footer"
       className={styles.section}
     >
+      <div className={styles.inner}>
 
-      {/* ── Top row — logo left, CTA right ────────────────────────────── */}
-      <div className={styles.topRow}>
-        <Link href={LOGO.href} className={styles.logoLink}>
-          <Image
-            src={LOGO.src}
-            alt={LOGO.alt}
-            width={40}
-            height={40}
-            className={styles.logoImg}
-          />
-          <span className={styles.logoWordmark}>Muem Studio</span>
-        </Link>
+        {/* ── Top row — logo + nav links ─────────────────────────────── */}
+        <div className={styles.topRow}>
+          <Link href={LOGO.href} className={styles.logoLink}>
+            <Image
+              src={LOGO.src}
+              alt={LOGO.alt}
+              width={28}
+              height={28}
+              className={styles.logoImg}
+            />
+            <span className={styles.logoWordmark}>Muem Studio</span>
+          </Link>
 
-        <Link href="/contact" className={styles.ctaArea}>
-          <span className={styles.ctaText}>Let's talk</span>
-          {/* id="footer-cta" — FloatingCTA snaps to this element */}
-          <span id="footer-cta" className={styles.ctaBtn}>
-            <i className={styles.ctaBtnIcon}>↗</i>
-          </span>
-        </Link>
-      </div>
-
-      {/* ── Divider ──────────────────────────────────────────────────── */}
-      <div className={styles.divider} />
-
-      {/* ── Nav grid — Projects / About / Socials ─────────────────────── */}
-      <nav className={styles.navGrid}>
-        {FOOTER_NAV.map(col => (
-          <div key={col.label} className={styles.navCol}>
-            <span className={styles.navColLabel}>{col.label}</span>
-            {col.links.map(link => (
-              <Link key={link.label} href={link.href} className={styles.navColLink}>
+          <nav className={styles.navLinks}>
+            {FOOTER_LINKS.map(link => (
+              <Link key={link.label} href={link.href} className={styles.navLink}>
                 {link.label}
               </Link>
             ))}
-          </div>
-        ))}
-
-        {/* Socials column — from CONTACT content */}
-        <div className={styles.navCol}>
-          <span className={styles.navColLabel}>Socials</span>
-          {CONTACT.socials.map(s => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.navColLink}
-            >
-              {s.label}
-            </a>
-          ))}
+          </nav>
         </div>
-      </nav>
 
-      {/* ── Bottom bar — copyright · email | Privacy  Terms ───────────── */}
-      <div className={styles.bottomBar}>
-        <div className={styles.copyrightGroup}>
+        {/* ── Bottom bar — copyright + legal ─────────────────────────── */}
+        <div className={styles.bottomBar}>
           <span className={styles.copyright}>
             © {year} Muem Studio. All rights reserved.
           </span>
-          <span className={styles.copyrightSep} aria-hidden="true">·</span>
-          <a href="mailto:hi@muem.com" className={styles.emailLink}>
-            hi@muem.com
-          </a>
+          <div className={styles.legalLinks}>
+            <Link href="/privacy" className={styles.legalLink}>Privacy</Link>
+            <Link href="/terms"   className={styles.legalLink}>Terms</Link>
+          </div>
         </div>
-        <div className={styles.legalLinks}>
-          <Link href="/privacy" className={styles.legalLink}>Privacy</Link>
-          <Link href="/terms"   className={styles.legalLink}>Terms</Link>
-        </div>
-      </div>
 
+      </div>
     </footer>
   );
 }
