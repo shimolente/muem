@@ -4,8 +4,9 @@
  */
 
 export interface Stat {
-  value: string;
-  label: string;
+  value:  string;
+  label:  string;
+  tags:   string[];
 }
 
 export interface AboutContent {
@@ -15,13 +16,28 @@ export interface AboutContent {
 }
 
 export const ABOUT: AboutContent = {
-  headline: 'For those who seek\nto create, live and play.',
-  body:     'We help the most discerning individuals and brands to cut through complexity, enhance lifestyles and exceed business goals.',
+  headline: 'Less talk.\nMore design.',
+  body:     '',
   stats: [
-    // TODO: replace with real figures when confirmed
-    { value: '12+',  label: 'Years in the industry'  },
-    { value: '200+', label: 'Projects delivered'     },
-    { value: '5',    label: 'Countries'              },
-    { value: '98%',  label: 'Client satisfaction'    },
+    {
+      value: '3+',
+      label: 'Expertise',
+      tags:  ['Architecture', 'Furniture', 'Real Estate'],
+    },
+    {
+      value: '30+',
+      label: 'Projects',
+      tags:  ['Residential', 'Hospitality', 'Commercial'],
+    },
+    {
+      value: '15+',
+      label: 'm² Designed',
+      tags:  ['Rootedness', 'Sustainability', 'Refinement'],
+    },
+    {
+      value: '10+',
+      label: 'Years',
+      tags:  ['International', 'Experience'],
+    },
   ],
 };

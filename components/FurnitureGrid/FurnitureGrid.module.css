@@ -1,22 +1,4 @@
-/*
- * ╔══════════════════════════════════════════════════════════════════════╗
- * ║  SPACING VARIANTS — switch between A and B as needed               ║
- * ╠══════════════════════════════════════════════════════════════════════╣
- * ║  SPACING A  (original — horizontal section padding, 4-col grid)    ║
- * ║    .section  → padding: clamp(112px,14vh,160px) var(--space-nav-h) ║
- * ║                          clamp(64px,8vw,120px)                     ║
- * ║    .grid     → grid-template-columns: repeat(4, 1fr)               ║
- * ║                gap: clamp(12px,1.2vw,20px)                         ║
- * ║    .filterBarWrap, .introWrap → padding: 0 var(--space-nav-h)      ║
- * ╠══════════════════════════════════════════════════════════════════════╣
- * ║  SPACING B  (current — CategoriesSection gap, uniform 6-10px)     ║
- * ║    .section  → padding-top only, no horizontal padding             ║
- * ║    .grid     → 3 cols, gap + left/right padding = clamp(6px,.55vw, ║
- * ║                10px) — same gap as the landing 3-categories section ║
- * ╚══════════════════════════════════════════════════════════════════════╝
- */
-
-/* ── Section — SPACING B: no horizontal padding on section itself ─────────── */
+/* ── Section ──────────────────────────────────────────────────────────────── */
 .section {
   background: var(--color-off-white);
   color: var(--color-warm-dark);
@@ -24,18 +6,17 @@
   padding-bottom: clamp(64px, 8vw, 120px);
 }
 
-/* ── Intro gets standard page-level padding ───────────────────────────────── */
+/* ── Intro ────────────────────────────────────────────────────────────────── */
 .introWrap {
   padding: 0 var(--space-nav-h);
 }
 
-/* ── Intro header ─────────────────────────────────────────────────────────── */
 .intro {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: clamp(12px, 1.2vw, 20px);
   align-items: end;
-  margin-bottom: clamp(56px, 8vh, 96px);
+  margin-bottom: clamp(48px, 7vh, 80px);
 }
 
 .introLeft  { grid-column: 1 / 3; }
@@ -83,38 +64,68 @@
   letter-spacing: 0.06em;
   color: var(--color-warm-dark);
   border-bottom: 1px solid currentColor;
-  border-top: none; border-left: none; border-right: none;
+  text-decoration: none;
   padding-bottom: 2px;
   align-self: flex-start;
-  background: none;
-  cursor: pointer;
   transition: opacity 0.2s ease;
 }
 .introCta:hover { opacity: 0.5; }
 
-/* ── Filter bar — wide padding matches introWrap / page-level spacing ─────── */
-.filterBarWrap {
+/* ── Category filter row ──────────────────────────────────────────────────── */
+.filterWrap {
   padding: 0 var(--space-nav-h);
-  margin-bottom: clamp(16px, 2vh, 24px);
+  margin-bottom: clamp(20px, 3vh, 32px);
 }
 
-.filterBar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(6px, 0.55vw, 10px);
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 0.8vw, 12px);
+  flex-wrap: wrap;
 }
 
-/* ── Project grid — SPACING B: edge padding = gap size ───────────────────── */
+.filterPill {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: rgba(58, 52, 47, 0.55);
+  background: rgba(58, 52, 47, 0.06);
+  border: none;
+  border-radius: 100px;
+  padding: 9px 20px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.22s ease, color 0.22s ease;
+  white-space: nowrap;
+}
+
+.filterPill:hover {
+  background: rgba(58, 52, 47, 0.12);
+  color: var(--color-warm-dark);
+}
+
+.filterPillActive {
+  background: var(--color-warm-dark);
+  color: var(--color-off-white);
+}
+.filterPillActive:hover {
+  background: var(--color-warm-dark);
+  color: var(--color-off-white);
+  opacity: 0.85;
+}
+
+/* ── Card grid — 4 columns, same gap as StudioGrid ───────────────────────── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-flow: dense; /* fills gaps left by span-2 featured cards */
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: dense;
   gap: clamp(6px, 0.55vw, 10px);
   padding: 0 clamp(6px, 0.55vw, 10px);
   margin-bottom: clamp(32px, 4vh, 52px);
 }
 
-/* ── Project card ─────────────────────────────────────────────────────────── */
+/* ── Card — identical pattern to StudioGrid ──────────────────────────────── */
 .card {
   position: relative;
   display: block;
@@ -123,12 +134,12 @@
   text-decoration: none;
   background: rgba(58, 52, 47, 0.15);
   transition: border-radius 0.55s var(--ease-out-expo);
-  opacity: 0;
+  opacity: 0;           /* revealUp sets opacity: 1 */
   will-change: opacity, transform;
 }
 .card:hover { border-radius: 48px; }
 
-/* Featured: spans 2 columns, landscape */
+/* Featured card: spans 2 columns */
 .cardFeatured {
   grid-column: span 2;
   aspect-ratio: 2 / 1;
@@ -143,7 +154,7 @@
   filter: brightness(0.85);
 }
 
-/* Bottom gradient overlay */
+/* Dark gradient overlay */
 .cardOverlay {
   position: absolute;
   inset: 0;
@@ -152,14 +163,14 @@
   pointer-events: none;
 }
 
-/* ── Carousel controls ───────────────────────────────────────────────────── */
+/* ── Carousel ─────────────────────────────────────────────────────────────── */
 .carouselBtn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
@@ -177,12 +188,12 @@
 .card:hover .carouselBtn { opacity: 1; }
 .carouselBtn:hover       { background: rgba(255, 255, 255, 0.28); }
 
-.carouselPrev { left: 14px; }
-.carouselNext { right: 14px; }
+.carouselPrev { left: 12px; }
+.carouselNext { right: 12px; }
 
 .carouselDots {
   position: absolute;
-  bottom: 14px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -203,21 +214,11 @@
 .carouselDotActive { background: #fff; }
 
 /* ── Card info ───────────────────────────────────────────────────────────── */
-.cardLocation {
-  font-family: var(--font-body);
-  font-size: clamp(10px, 0.85vw, 12px);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.62);
-  line-height: 1;
-  display: block;
-}
-
 .cardBottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
   z-index: 2;
-  padding: clamp(16px, 1.8vw, 24px);
+  padding: clamp(14px, 1.6vw, 22px);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -225,9 +226,20 @@
 }
 .card:hover .cardBottom { transform: translate(8px, -10px); }
 
+/* Category label — acts like "location" in StudioGrid */
+.cardCategory {
+  font-family: var(--font-body);
+  font-size: clamp(10px, 0.75vw, 11px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1;
+  display: block;
+}
+
 .cardTitle {
   font-family: var(--font-display);
-  font-size: clamp(19px, 1.8vw, 26px);
+  font-size: clamp(17px, 1.6vw, 24px);
   font-weight: 400;
   color: var(--color-white);
   line-height: 1.15;
@@ -238,12 +250,13 @@
   display: flex;
   gap: 14px;
   font-family: var(--font-body);
-  font-size: clamp(11px, 0.9vw, 13px);
+  font-size: clamp(11px, 0.85vw, 12px);
   color: rgba(255, 255, 255, 0.45);
   line-height: 1;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
+/* "View Item" pill on hover — bottom-right corner */
 .cardHover {
   position: absolute;
   inset: 0;
@@ -262,7 +275,7 @@
   padding-right: clamp(24px, 2.8vw, 36px);
 }
 
-.seeDetail {
+.viewItem {
   font-family: var(--font-body);
   font-size: 11px;
   font-weight: 400;
@@ -278,7 +291,7 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* ── Load more — centered, pill button style ──────────────────────────────── */
+/* ── Load more ────────────────────────────────────────────────────────────── */
 .loadMoreRow {
   display: flex;
   justify-content: center;
@@ -299,7 +312,6 @@
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
   line-height: 1;
-  white-space: nowrap;
 }
 .loadMore:hover {
   background: rgba(58, 52, 47, 0.85);
@@ -318,21 +330,20 @@
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
+  .grid { grid-template-columns: repeat(3, 1fr); }
   .cardFeatured { grid-column: span 2; aspect-ratio: 2 / 1; }
-  .filterBar { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
   .introWrap { padding: 0 20px; }
+  .filterWrap { padding: 0 20px; }
   .intro { grid-template-columns: 1fr; gap: 24px; }
   .introLeft, .introRight { grid-column: 1 / -1; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .cardFeatured { grid-column: span 2; aspect-ratio: 2 / 1; }
-  .filterBar { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-  .grid { grid-template-columns: 1fr; }
-  .cardFeatured { grid-column: span 1; aspect-ratio: 1 / 1; }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .cardFeatured { grid-column: span 2; aspect-ratio: 1 / 1; }
 }

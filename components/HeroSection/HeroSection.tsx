@@ -63,13 +63,9 @@ export function HeroSection() {
 
   return (
     <section ref={sectionRef} className={styles.section} data-snap-section="hero">
-      <div className={styles.content}>
 
-        {/* Small label above headline */}
-        {HERO.label && (
-          <p ref={labelRef} className={styles.label}>{HERO.label}</p>
-        )}
-
+      <div className={styles.headlineWrap}>
+        {/* Big headline */}
         <h1 ref={headlineRef} className={styles.headline}>
           {words.map((word, i) => {
             const isItalic = word.replace(/[^a-zA-Z]/g, '') === 'Luxury';
@@ -88,6 +84,11 @@ export function HeroSection() {
             );
           })}
         </h1>
+
+        {/* Small caption below */}
+        {HERO.label && (
+          <p ref={labelRef} className={styles.label}>{HERO.label}</p>
+        )}
       </div>
 
     </section>

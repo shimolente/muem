@@ -20,6 +20,8 @@ interface FilterDropdownProps {
   options:  DropdownOption[];
   values:   string[];   /* currently selected values (empty = "All") */
   onChange: (v: string[]) => void;
+  compact?: boolean;    /* pill variant — used for compact Location / Year filters */
+  filled?:  boolean;    /* filled block variant — used for the 3 category filters */
 }
 
 /* ── Trigger display label ─────────────────────────────────────────────────── */
@@ -67,7 +69,7 @@ function Checkbox({ checked }: { checked: boolean }) {
 
 /* ── Component ─────────────────────────────────────────────────────────────── */
 export function FilterDropdown({
-  label, allValue, options, values, onChange,
+  label, allValue, options, values, onChange, compact = false, filled = false,
 }: FilterDropdownProps) {
   const [open, setOpen]  = useState(false);
   const containerRef     = useRef<HTMLDivElement>(null);
@@ -101,7 +103,7 @@ export function FilterDropdown({
   return (
     <div
       ref={containerRef}
-      className={`${styles.trigger} ${open ? styles.triggerOpen : ''} ${isFiltered ? styles.triggerFiltered : ''}`}
+      className={`${compact ? styles.triggerCompact : filled ? styles.triggerFilled : styles.trigger} ${open ? styles.triggerOpen : ''} ${isFiltered ? styles.triggerFiltered : ''}`}
       onClick={() => setOpen(v => !v)}
       role="button"
       aria-haspopup="listbox"
@@ -113,8 +115,10 @@ export function FilterDropdown({
       }}
     >
       {/* Trigger text */}
-      <span className={styles.triggerLabel}>{label}</span>
-      <span className={styles.triggerValue}>{display}</span>
+      {!compact && <span className={styles.triggerLabel}>{label}</span>}
+      <span className={styles.triggerValue}>
+        {compact ? `${label}: ${display}` : display}
+      </span>
       <span className={styles.chevron} aria-hidden="true" />
 
       {/* Panel — click inside does not close */}

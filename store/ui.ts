@@ -19,6 +19,10 @@ interface UIState {
   navHamburgerLight: boolean;
   /** Background fill for the navbar bar. 'cream' adds a solid off-white bg (used on inner-page grid sections). */
   navBg: 'transparent' | 'cream';
+  /** When true applies a subtle drop-shadow to logo + hamburger (white elements on a light bg). */
+  navShadow: boolean;
+  /** When true the floating ↓ arrow is suppressed (e.g. on the About section). */
+  floatingArrowHide: boolean;
 
   setMenuOpen:          (open: boolean)                    => void;
   setPreloaderDone:     (done: boolean)                    => void;
@@ -28,6 +32,8 @@ interface UIState {
   setNavLogoLight:      (v: boolean)                       => void;
   setNavHamburgerLight: (v: boolean)                       => void;
   setNavBg:             (bg: 'transparent' | 'cream')      => void;
+  setNavShadow:         (v: boolean)                       => void;
+  setFloatingArrowHide: (v: boolean)                       => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -39,6 +45,8 @@ export const useUIStore = create<UIState>((set) => ({
   navLogoLight:      false,
   navHamburgerLight: false,
   navBg:             'transparent',
+  navShadow:         false,
+  floatingArrowHide: false,
 
   setMenuOpen:          (open)  => set({ menuOpen: open }),
   setPreloaderDone:     (done)  => set({ preloaderDone: done }),
@@ -48,4 +56,6 @@ export const useUIStore = create<UIState>((set) => ({
   setNavLogoLight:      (v)     => set({ navLogoLight: v }),
   setNavHamburgerLight: (v)     => set({ navHamburgerLight: v }),
   setNavBg:             (bg)    => set({ navBg: bg }),
+  setNavShadow:         (v)     => set({ navShadow: v }),
+  setFloatingArrowHide: (v)     => set({ floatingArrowHide: v }),
 }));

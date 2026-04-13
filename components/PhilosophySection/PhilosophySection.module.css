@@ -48,79 +48,15 @@
   text-align: center;
 }
 
-/* Large ordinal number */
-.number {
+/* Large heading — "Essence", "Team", "International" */
+.heading {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(52px, 5.2vw, 84px);
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--color-warm-dark);
-  opacity: 0.45;
-  margin-bottom: clamp(16px, 2vh, 28px);
-  will-change: transform, opacity;
-}
-
-/* Hairline divider */
-.divider {
-  width: 100%;
-  height: 1px;
-  background: rgba(58, 52, 47, 0.14);
-  margin-bottom: clamp(14px, 1.8vh, 22px);
-  will-change: opacity;
-}
-
-/* Pillar identifier — "+ CRAFT" */
-.plus {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.45);
-  line-height: 1;
-  margin-bottom: clamp(18px, 2.4vh, 32px);
-  will-change: transform, opacity;
-}
-
-/* Display statement — 3 lines */
-.statement {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(26px, 2.6vw, 44px);
-  line-height: 1.18;
-  letter-spacing: -0.03em;
-  color: var(--color-warm-dark);
-  display: flex;
-  flex-direction: column;
-  gap: 0.04em;
-  margin-bottom: clamp(20px, 2.8vh, 40px);
-}
-
-.statementLine {
-  display: block;
-  will-change: transform, opacity;
-}
-
-/* Body paragraph */
-.body {
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.65;
-  letter-spacing: 0.005em;
-  color: rgba(58, 52, 47, 0.6);
-  max-width: 42ch;
-  will-change: transform, opacity;
-}
-
-/* ── Nav row — bottom ────────────────────────────────────────────────────── */
-.navRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: clamp(20px, 2.5vh, 32px);
-  border-top: 1px solid rgba(58, 52, 47, 0.1);
+  margin-bottom: clamp(18px, 2.5vh, 32px);
   will-change: transform, opacity;
 }
 
@@ -129,6 +65,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
+  margin-bottom: clamp(16px, 2vh, 28px);
 }
 .dot {
   width: 24px;
@@ -164,15 +101,35 @@
   height: 7px;
 }
 
+/* Subheading — "Rootedness. Sustainability. Refinement." */
+.subheading {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(14px, 1.4vw, 20px);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: rgba(58, 52, 47, 0.55);
+  margin-bottom: clamp(14px, 1.8vh, 24px);
+  will-change: transform, opacity;
+}
+
+/* Body paragraph */
+.body {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.005em;
+  color: rgba(58, 52, 47, 0.6);
+  max-width: 42ch;
+  will-change: transform, opacity;
+}
+
 /* ── Right image card ────────────────────────────────────────────────────── */
 .imageCard {
   flex: 1;
   position: relative;
   overflow: hidden;
-  transition: border-radius 0.65s var(--ease-out-expo);
-}
-.imageCard:hover {
-  border-radius: 48px;
 }
 
 .imageInner {
@@ -181,38 +138,6 @@
   background-size: cover;
   background-position: center;
   background-color: #b5a898; /* warm fallback */
-  will-change: transform, opacity;
-  transition: transform 1.1s var(--ease-out-expo);
-}
-.imageCard:hover .imageInner {
-  transform: scale(1.04);
-}
-
-/* Always-visible bottom gradient — caption always legible */
-.imageOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(20, 16, 13, 0.62) 0%,
-    rgba(20, 16, 13, 0.10) 40%,
-    transparent 65%
-  );
-  pointer-events: none;
-}
-
-.imageCaption {
-  position: absolute;
-  bottom: clamp(16px, 2vh, 24px);
-  left: clamp(18px, 1.6vw, 28px);
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1;
-  z-index: 1;
   will-change: opacity;
 }
 
@@ -239,12 +164,8 @@
     order: 0; /* image on top */
   }
 
-  .number {
+  .heading {
     font-size: clamp(40px, 10vw, 60px);
-  }
-
-  .statement {
-    font-size: clamp(22px, 5.5vw, 32px);
   }
 
   .body {

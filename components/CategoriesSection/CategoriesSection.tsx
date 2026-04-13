@@ -21,7 +21,6 @@ export function CategoriesSection() {
   const colLabelRefs = useRef<Record<string, HTMLSpanElement | null>>({});
   const colNameRefs  = useRef<Record<string, HTMLSpanElement | null>>({});
 
-  const clickHintRefs    = useRef<Record<string, HTMLSpanElement | null>>({});
   const expandedRef      = useRef<HTMLDivElement>(null);
   const sectionRef       = useRef<HTMLElement>(null);
   const expandOffsetRef  = useRef<{ labelY: number; nameY: number }>({ labelY: 0, nameY: 0 });
@@ -29,7 +28,6 @@ export function CategoriesSection() {
   // True while a column is in the expanded/clicked state — blocks runLeave so the
   // overlay appearing (which steals mouseleave from the column) doesn't exit the image
   const isExpandedRef      = useRef(false);
-  const switchTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointerRef         = useRef<{ x: number; y: number } | null>(null);
   const preventScrollRef   = useRef<((e: Event) => void) | null>(null);
 
@@ -113,15 +111,6 @@ export function CategoriesSection() {
   /* ── Hover dispatchers ───────────────────────────────────────────────── */
   const handleEnter = (id: string) => {
     hoveredColRef.current = id;
-    const cat = CATEGORIES.find(c => c.id === id);
-    const text = `View ${cat?.name ?? ''}`.trim();
-    if (switchTimerRef.current) {
-      clearTimeout(switchTimerRef.current);
-      switchTimerRef.current = null;
-      window.dispatchEvent(new CustomEvent('cursor:switch', { detail: text }));
-    } else {
-      window.dispatchEvent(new CustomEvent('cursor:label', { detail: text }));
-    }
     const state = stateRef.current[id] ?? 'idle';
     if (state === 'entering' || state === 'visible') {
       pendingRef.current[id] = null; // cancel any queued leave
@@ -134,10 +123,6 @@ export function CategoriesSection() {
   const handleLeave = (id: string) => {
     hoveredColRef.current = null;
     if (isExpandedRef.current) return;
-    switchTimerRef.current = setTimeout(() => {
-      switchTimerRef.current = null;
-      window.dispatchEvent(new CustomEvent('cursor:reset'));
-    }, 80);
     const state = stateRef.current[id] ?? 'idle';
     if (state === 'idle' || state === 'exiting') {
       pendingRef.current[id] = null; // cancel any queued enter
@@ -172,8 +157,6 @@ export function CategoriesSection() {
           setNavTheme('dark');
           setNavStyle('minimal');
           setNavHamburgerLight(false);
-        } else {
-          window.dispatchEvent(new CustomEvent('cursor:reset'));
         }
       },
       { threshold: 0.1 },
@@ -197,7 +180,6 @@ export function CategoriesSection() {
 
   /* ── Expand handler ──────────────────────────────────────────────────── */
   const handleExpand = (cat: Category) => {
-    window.dispatchEvent(new CustomEvent('cursor:reset'));
     // Prevent scrolling by blocking wheel/touch events — avoids touching overflow CSS
     // which would remove the scrollbar and cause layout shifts on the navbar + columns.
     const preventScroll = (e: Event) => e.preventDefault();
@@ -209,13 +191,7 @@ export function CategoriesSection() {
     const clipEl = clipRefs.current[cat.id];
     if (clipEl) expandColRectRef.current = clipEl.getBoundingClientRect();
     isExpandedRef.current = true;
-    // Fade out the click hint first, then trigger the expansion
-    const hintEl = clickHintRefs.current[cat.id];
-    if (hintEl) {
-      gsap.to(hintEl, { opacity: 0, duration: 0.25, ease: 'power2.in', onComplete: () => setActive(cat) });
-    } else {
-      setActive(cat);
-    }
+    setActive(cat);
   };
 
   const clipMap: Record<Category['expandOrigin'], string> = {
@@ -361,8 +337,6 @@ export function CategoriesSection() {
         gsap.set(overlay, { display: 'none' });
         isExpandedRef.current = false;
         setActive(null);
-        const hintEl = clickHintRefs.current[closingId];
-        if (hintEl) gsap.set(hintEl, { clearProps: 'opacity' });
         if (preventScrollRef.current) {
           window.removeEventListener('wheel',     preventScrollRef.current);
           window.removeEventListener('touchmove', preventScrollRef.current);
@@ -413,7 +387,6 @@ export function CategoriesSection() {
             </div>
             <span ref={el => { colLabelRefs.current[cat.id] = el; }} className={styles.label}>{cat.label}</span>
             <span ref={el => { colNameRefs.current[cat.id] = el; }} className={styles.name}>{cat.name}</span>
-            <span ref={el => { clickHintRefs.current[cat.id] = el; }} className={styles.clickHint}>Click to explore</span>
           </div>
         ))}
       </section>

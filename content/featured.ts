@@ -19,7 +19,7 @@ export const FEATURED: FeaturedCategory[] = [
   {
     id: 'studio',
     label: 'Featured Projects',
-    name: 'Houses & Villas',
+    name: 'Residential',
     tagline: 'Architecture at the intersection of craft and vision.',
     projects: [
       { id: 's1', title: 'Villa Murcielago', location: 'Nusa Dua, Bali',     imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
@@ -30,12 +30,13 @@ export const FEATURED: FeaturedCategory[] = [
       { id: 's6', title: 'Terrace Studio',   location: 'Pererenan, Bali',    imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
       { id: 's7', title: 'Cliff Pavilion',   location: 'Uluwatu, Bali',      imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
       { id: 's8', title: 'Garden Retreat',   location: 'Ubud, Bali',         imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
+      { id: 's9', title: 'Shore House',      location: 'Sanur, Bali',         imageSrc: '/images/studio-cover.jpg',     href: '/studio', category: 'studio' },
     ],
   },
   {
     id: 'habitus',
     label: 'Featured Projects',
-    name: 'Apartments & Lofts',
+    name: 'Hospitality',
     tagline: 'Living spaces crafted for the way you actually live.',
     projects: [
       { id: 'h1', title: 'Villa Murcielago', location: 'Nusa Dua, Bali',     imageSrc: '/images/habitus-cover.jpg',    href: '/habitus', category: 'habitus' },
@@ -52,7 +53,7 @@ export const FEATURED: FeaturedCategory[] = [
   {
     id: 'residences',
     label: 'Featured Projects',
-    name: 'Bespoke Projects',
+    name: 'Commercial',
     tagline: 'Private residences conceived from the inside out.',
     projects: [
       { id: 'r1', title: 'Villa Murcielago', location: 'Nusa Dua, Bali',     imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
@@ -61,6 +62,7 @@ export const FEATURED: FeaturedCategory[] = [
       { id: 'r4', title: 'Casa Lumière',     location: 'Uluwatu, Bali',      imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
       { id: 'r5', title: 'Pavilion House',   location: 'Pererenan, Bali',    imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
       { id: 'r6', title: 'The Grove',        location: 'Ubud, Bali',         imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
+      { id: 'r7', title: 'Cliffside Loft',   location: 'Uluwatu, Bali',      imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
     ],
   },
 ];

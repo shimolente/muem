@@ -17,6 +17,7 @@ export function FloatingCTA() {
   const hasSnapped        = useRef(false);
   const snapTimerRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navStyle          = useUIStore(s => s.navStyle);
+  const floatingArrowHide = useUIStore(s => s.floatingArrowHide);
   const navStyleRef       = useRef(navStyle);
 
   /* Keep refs in sync (stale-closure guards) */
@@ -130,7 +131,7 @@ export function FloatingCTA() {
   }, [doSnap, doRestore]);
 
   /* ── Always render (never return null — required for doRestore to work) */
-  const isHidden = state === 'hidden';
+  const isHidden = state === 'hidden' || (state === 'arrow' && floatingArrowHide);
   const isPill   = state === 'pill' || state === 'snapped';
 
   return (
@@ -145,9 +146,7 @@ export function FloatingCTA() {
         isHidden ? styles.hidden  : '',
       ].filter(Boolean).join(' ')}
     >
-      {isPill && (
-        <span className={styles.ctaLabel}>Let's talk</span>
-      )}
+      {isPill && <span className={styles.ctaLabel}>Let's talk</span>}
       <i ref={iconRef} className={styles.ctaIcon}>{isPill ? '↗' : '↓'}</i>
     </Link>
   );

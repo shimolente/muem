@@ -1,35 +1,16 @@
-/*
- * ╔══════════════════════════════════════════════════════════════════════╗
- * ║  SPACING VARIANTS — switch between A and B as needed               ║
- * ╠══════════════════════════════════════════════════════════════════════╣
- * ║  SPACING A  (original — horizontal section padding, 4-col grid)    ║
- * ║    .section  → padding: clamp(112px,14vh,160px) var(--space-nav-h) ║
- * ║                          clamp(64px,8vw,120px)                     ║
- * ║    .grid     → grid-template-columns: repeat(4, 1fr)               ║
- * ║                gap: clamp(12px,1.2vw,20px)                         ║
- * ║    .filterBarWrap, .introWrap → padding: 0 var(--space-nav-h)      ║
- * ╠══════════════════════════════════════════════════════════════════════╣
- * ║  SPACING B  (current — CategoriesSection gap, uniform 6-10px)     ║
- * ║    .section  → padding-top only, no horizontal padding             ║
- * ║    .grid     → 3 cols, gap + left/right padding = clamp(6px,.55vw, ║
- * ║                10px) — same gap as the landing 3-categories section ║
- * ╚══════════════════════════════════════════════════════════════════════╝
- */
-
-/* ── Section — SPACING B: no horizontal padding on section itself ─────────── */
+/* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
   background: var(--color-off-white);
   color: var(--color-warm-dark);
   padding-top: clamp(112px, 14vh, 160px);
-  padding-bottom: clamp(64px, 8vw, 120px);
+  padding-bottom: 0; /* process section provides bottom breathing room */
 }
 
-/* ── Intro gets standard page-level padding ───────────────────────────────── */
+/* ── Intro ────────────────────────────────────────────────────────────────── */
 .introWrap {
   padding: 0 var(--space-nav-h);
 }
 
-/* ── Intro header ─────────────────────────────────────────────────────────── */
 .intro {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -44,6 +25,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding-bottom: 4px;
 }
 
 .introLabel {
@@ -77,22 +59,7 @@
   margin: 0;
 }
 
-.introCta {
-  font-family: var(--font-body);
-  font-size: clamp(12px, 0.9vw, 14px);
-  letter-spacing: 0.06em;
-  color: var(--color-warm-dark);
-  border-bottom: 1px solid currentColor;
-  border-top: none; border-left: none; border-right: none;
-  padding-bottom: 2px;
-  align-self: flex-start;
-  background: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-.introCta:hover { opacity: 0.5; }
-
-/* ── Filter bar — wide padding matches introWrap / page-level spacing ─────── */
+/* ── Filter bar — 2 FilterDropdown columns, same style as StudioGrid ─────── */
 .filterBarWrap {
   padding: 0 var(--space-nav-h);
   margin-bottom: clamp(16px, 2vh, 24px);
@@ -100,21 +67,21 @@
 
 .filterBar {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: clamp(6px, 0.55vw, 10px);
 }
 
-/* ── Project grid — SPACING B: edge padding = gap size ───────────────────── */
+/* ── Project grid ─────────────────────────────────────────────────────────── */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-auto-flow: dense; /* fills gaps left by span-2 featured cards */
+  grid-auto-flow: dense;
   gap: clamp(6px, 0.55vw, 10px);
   padding: 0 clamp(6px, 0.55vw, 10px);
   margin-bottom: clamp(32px, 4vh, 52px);
 }
 
-/* ── Project card ─────────────────────────────────────────────────────────── */
+/* ── Property card ────────────────────────────────────────────────────────── */
 .card {
   position: relative;
   display: block;
@@ -128,7 +95,6 @@
 }
 .card:hover { border-radius: 48px; }
 
-/* Featured: spans 2 columns, landscape */
 .cardFeatured {
   grid-column: span 2;
   aspect-ratio: 2 / 1;
@@ -143,7 +109,6 @@
   filter: brightness(0.85);
 }
 
-/* Bottom gradient overlay */
 .cardOverlay {
   position: absolute;
   inset: 0;
@@ -152,7 +117,38 @@
   pointer-events: none;
 }
 
-/* ── Carousel controls ───────────────────────────────────────────────────── */
+/* ── Availability badge ───────────────────────────────────────────────────── */
+/*  Nudges inward on hover so it stays clear of the rounded corners.          */
+.availBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 6px 13px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-warm-dark);
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 0.55s var(--ease-out-expo);
+}
+.card:hover .availBadge {
+  transform: translate(6px, 6px);
+}
+
+.availBadgeSold {
+  background: rgba(40, 35, 30, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Carousel controls ────────────────────────────────────────────────────── */
 .carouselBtn {
   position: absolute;
   top: 50%;
@@ -202,7 +198,7 @@
 }
 .carouselDotActive { background: #fff; }
 
-/* ── Card info ───────────────────────────────────────────────────────────── */
+/* ── Card info ────────────────────────────────────────────────────────────── */
 .cardLocation {
   font-family: var(--font-body);
   font-size: clamp(10px, 0.85vw, 12px);
@@ -278,7 +274,7 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* ── Load more — centered, pill button style ──────────────────────────────── */
+/* ── Load more ────────────────────────────────────────────────────────────── */
 .loadMoreRow {
   display: flex;
   justify-content: center;
@@ -316,20 +312,118 @@
   color: rgba(58, 52, 47, 0.38);
 }
 
+/* ── How it works ─────────────────────────────────────────────────────────── */
+.process {
+  border-top: 1px solid rgba(58, 52, 47, 0.08);
+  margin-top: clamp(48px, 7vh, 80px);
+  padding: clamp(72px, 12vh, 120px) var(--space-nav-h) clamp(72px, 12vh, 120px);
+}
+
+.processInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.processLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.38);
+  line-height: 1;
+  margin-bottom: clamp(16px, 2.5vh, 28px);
+}
+
+.processHeading {
+  font-family: var(--font-display-light); font-weight: 300;
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  color: var(--color-warm-dark);
+  margin: 0 0 clamp(48px, 8vh, 80px);
+}
+
+.processSteps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 80px);
+  width: 100%;
+  margin-bottom: clamp(48px, 7vh, 72px);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+/* Step numbers — tertiary hierarchy element.
+   Large text (64px) so 3:1 WCAG large-text threshold applies.
+   rgba(58,52,47,0.45) ≈ #948F8A on off-white: clearly visible, clearly secondary. */
+.stepNum {
+  font-family: var(--font-display-light);
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 300;
+  color: rgba(58, 52, 47, 0.45);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stepTitle {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.8vw, 26px);
+  font-weight: 400;
+  color: var(--color-warm-dark);
+  margin: 0;
+  line-height: var(--leading-snug);
+}
+
+.stepBody {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(58, 52, 47, 0.58);
+  margin: 0;
+  max-width: 40ch;
+}
+
+.processCta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-white);
+  background: var(--color-warm-dark);
+  text-decoration: none;
+  padding: 16px 40px;
+  border-radius: 100px;
+  line-height: 1;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+.processCta:hover { opacity: 0.78; transform: translateY(-1px); }
+
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
   .cardFeatured { grid-column: span 2; aspect-ratio: 2 / 1; }
-  .filterBar { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
   .introWrap { padding: 0 20px; }
   .intro { grid-template-columns: 1fr; gap: 24px; }
   .introLeft, .introRight { grid-column: 1 / -1; }
+  .filterBarWrap { padding: 0 20px; }
+  .filterBar { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .cardFeatured { grid-column: span 2; aspect-ratio: 2 / 1; }
-  .filterBar { grid-template-columns: 1fr; }
+  .processSteps { grid-template-columns: 1fr; gap: 40px; }
+  .step { align-items: flex-start; text-align: left; }
 }
 
 @media (max-width: 480px) {

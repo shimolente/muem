@@ -4,7 +4,7 @@ export interface SocialLink {
 }
 
 export interface ContactContent {
-  headline:  string;    // '\n' splits into animated lines
+  headline:  string;
   tagline:   string;
   whatsapp:  string;
   email:     string;
@@ -15,23 +15,20 @@ export interface ContactContent {
 }
 
 export const CONTACT: ContactContent = {
-  headline:  "Let's build\nsomething\nthat lasts.",
-  tagline:   "We work with clients who share our belief that architecture is a long-term commitment.",
+  headline:  "Let's create together",
+  tagline:   "Looking for a partner for your next project?\n\nLet's discuss your ideas and how to turn them into something real — without overcomplicating it. Coffee helps too.",
   whatsapp:  "+34 686 78 35 20",
   email:     "hi@muem.com",
   location:  "Canggu, Bali",
   cta:      { label: "Get in touch", href: "/contact" },
   needs: [
-    'Architecture Design',
-    'Interior Design',
-    'Landscape Design',
-    'Renovation & Restoration',
-    'Consultation',
+    'Start a project',
+    'Invest / Buy a Property',
+    'Collaboration',
     'Other',
   ],
   socials: [
     { label: "Instagram", href: "https://instagram.com/muemstudio" },
-    { label: "Behance",   href: "https://behance.net/muemstudio"   },
-    { label: "LinkedIn",  href: "https://linkedin.com/company/muem" },
+    { label: "WhatsApp",  href: "https://wa.me/34686783520"         },
   ],
 };

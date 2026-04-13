@@ -11,12 +11,12 @@ export default function StudioPage() {
     <>
       <CategoryHero
         category="Studio"
-        headline={"Design Spaces,\nCreate Home"}
-        tagline="We help the most discerning individuals and brands to cut through complexity, enhance lifestyles and exceed business goals."
+        headline={"From Concept\nto Reality"}
+        tagline="our projects."
         imageSrc="/images/studio-cover.jpg"
       />
       <StudioGrid />
-      <ServicesSection />
+      <ServicesSection navStyle="minimal" />
       <ContactSection />
     </>
   );

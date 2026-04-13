@@ -5,14 +5,15 @@
 
 export interface NavItem {
   label: string;
-  href: string;
+  href:  string;
+  sub?:  string;   /* small descriptor shown beneath label on hover */
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: 'Studio',     href: '/studio' },
-  { label: 'Habitus',    href: '/habitus' },
-  { label: 'Residences', href: '/residences' },
-  { label: 'Contact Us', href: '/contact' },
+  { label: 'Studio',      href: '/studio',     sub: 'Projects'    },
+  { label: 'Lifestyle',   href: '/habitus',    sub: 'Furnitures'  },
+  { label: 'Properties',  href: '/residences', sub: 'Real Estate' },
+  { label: "Let's Talk",  href: '/contact'                        },
 ];
 
 export const LOGO = {

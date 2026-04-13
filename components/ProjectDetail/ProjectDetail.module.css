@@ -1,0 +1,314 @@
+/*
+ * ProjectDetail — token-aligned styles
+ *
+ * Type scale used:
+ *   --text-hero     clamp(48px, 6.9vw, 100px)  — hero title only
+ *   --text-display  clamp(28px, 4.2vw,  64px)  — section statements (introSubtitle, relatedHeading)
+ *   --text-body     clamp(15px, 1.2vw,  18px)  — paragraphs, values
+ *   --text-label    clamp(12px, 0.9vw,  14px)  — nav, CTAs, meta
+ *   10px / 0.18em uppercase — meta caps labels (below min of --text-label)
+ *
+ * Spacing scale:  4 · 8 · 16 · 24 · 32 · 48 · 64px
+ * Outer h-pad:    var(--space-nav-h)
+ */
+
+/* ── Hero ─────────────────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 520px;
+  overflow: hidden;
+}
+.heroBg { position: absolute; inset: 0; z-index: 0; }
+
+.heroOverlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.18) 0%,
+    rgba(0,0,0,0.04) 35%,
+    rgba(0,0,0,0.38) 65%,
+    rgba(20,16,13,0.80) 100%
+  );
+}
+
+.heroContent {
+  position: absolute;
+  bottom: clamp(48px, 8vh, 96px);
+  left: 0; right: 0; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  gap: clamp(8px, 1.4vh, 16px);
+  padding: 0 var(--space-nav-h);
+}
+
+.heroCategory {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  line-height: 1;
+  opacity: 0; will-change: opacity, transform;
+}
+.heroTitle {
+  font-family: var(--font-display-light); font-weight: 300;
+  font-size: var(--text-hero); line-height: var(--leading-tight);
+  color: var(--color-white); margin: 0;
+  opacity: 0; will-change: opacity, transform;
+}
+.heroLocation {
+  font-family: var(--font-body);
+  font-size: var(--text-body);           /* was hardcoded 15px */
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.55); line-height: 1;
+  opacity: 0; will-change: opacity, transform;
+}
+
+/* ── Project intro ────────────────────────────────────────────────────────── */
+.intro {
+  background: var(--color-off-white);
+  padding: clamp(64px, 10vh, 112px) var(--space-nav-h) clamp(48px, 7vh, 80px);
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  gap: clamp(16px, 2.5vh, 32px);
+}
+
+.introLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(58,52,47,0.38); line-height: 1;
+}
+
+/* --text-display keeps this on the same scale as relatedHeading below */
+.introSubtitle {
+  font-family: var(--font-display-light); font-weight: 300;
+  font-size: var(--text-display);        /* was clamp(28px, 4vw, 58px) — now token */
+  line-height: var(--leading-tight);
+  color: var(--color-warm-dark); margin: 0; max-width: 18em;
+}
+
+.introBody {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(58,52,47,0.58);            /* standardised from 0.62 */
+  max-width: 62ch; margin: 0;
+}
+
+/* ── Info bar ─────────────────────────────────────────────────────────────── */
+/*  Only vertical dividers — no top/bottom border lines.
+    Each column is centred. Horizontal padding = page-level var(--space-nav-h). */
+.infoBar {
+  display: flex;
+  background: var(--color-off-white);
+  /* border-bottom removed per design review */
+}
+
+.infoItem {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  gap: 8px;                              /* was 9px — snapped to spacing scale */
+  padding: clamp(20px, 3vh, 32px) var(--space-nav-h);
+  border-right: 1px solid rgba(58,52,47,0.1);
+}
+.infoItem:last-child { border-right: none; }
+
+.infoLabel {
+  font-family: var(--font-body); font-size: 10px;
+  letter-spacing: var(--tracking-wider); /* unified from 0.2em */
+  text-transform: uppercase;
+  color: rgba(58,52,47,0.38); line-height: 1;
+}
+.infoValue {
+  font-family: var(--font-body);
+  font-size: var(--text-body);           /* was hardcoded 15px */
+  color: var(--color-warm-dark); line-height: 1;
+}
+
+/* ── Gallery — varied 3-column layout ────────────────────────────────────── */
+/*
+ *  full   → span 3  21:8   determines its own row height
+ *  wide   → span 2  4:3    determines the mixed row height
+ *  narrow → span 1  no AR  stretches to fill wide's row height (no gaps)
+ */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(4px, 0.4vw, 8px);
+  padding: clamp(4px, 0.4vw, 8px);
+  background: var(--color-off-white);
+}
+
+.galleryItem {
+  position: relative; overflow: hidden;
+  background: rgba(58,52,47,0.06);
+}
+
+.gallery_full   { grid-column: span 3; aspect-ratio: 21 / 8; }
+.gallery_wide   { grid-column: span 2; aspect-ratio: 4 / 3; }
+.gallery_narrow { grid-column: span 1; align-self: stretch; min-height: 1px; }
+
+/* ── Related projects ─────────────────────────────────────────────────────── */
+.related {
+  background: #1A1714;
+  padding-bottom: clamp(64px, 10vh, 120px);
+}
+
+.relatedIntro {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  padding: clamp(72px, 12vh, 128px) var(--space-nav-h) clamp(48px, 7vh, 72px);
+  gap: clamp(16px, 2vh, 24px);           /* was 14px min — snapped to scale */
+}
+
+.relatedSup {
+  font-family: var(--font-body); font-size: 10px;
+  letter-spacing: var(--tracking-wider); /* unified */
+  text-transform: uppercase;
+  color: rgba(245,242,238,0.38); line-height: 1;
+}
+
+/*
+ * --text-display matches .introSubtitle — both are section-level display
+ * headings and should sit on the same typographic tier.
+ * Was clamp(48px, 7vw, 96px) — now using the shared design token.
+ */
+.relatedHeading {
+  font-family: var(--font-display-light); font-weight: 300;
+  font-size: var(--text-display);        /* unified with introSubtitle */
+  line-height: var(--leading-tight);
+  color: var(--color-off-white); margin: 0;
+}
+
+.relatedBody {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(245,242,238,0.58);         /* standardised from 0.5 — matches introBody intent */
+  max-width: 52ch; margin: 0;
+}
+
+/* 4-col card grid — full bleed tight gap */
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(6px, 0.55vw, 10px);
+  padding: 0 clamp(6px, 0.55vw, 10px);
+}
+
+/* ── Card — token-matched to StudioGrid project card ─────────────────────── */
+.relatedCard {
+  position: relative; display: block;
+  aspect-ratio: 1 / 1; overflow: hidden;
+  text-decoration: none;
+  background: rgba(255,255,255,0.06);
+  transition: border-radius 0.55s var(--ease-out-expo);
+}
+.relatedCard:hover { border-radius: 48px; }
+
+.relatedImg {
+  transition: transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.35s ease;
+}
+.relatedCard:hover .relatedImg { transform: scale(1.03); filter: brightness(0.85); }
+
+.relatedOverlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.62) 100%);
+  pointer-events: none;
+}
+
+.relatedBottom {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  padding: clamp(16px, 1.8vw, 24px);
+  display: flex; flex-direction: column; gap: 4px;
+  transition: transform 0.55s var(--ease-out-expo);
+}
+.relatedCard:hover .relatedBottom { transform: translate(8px, -10px); }
+
+.relatedLocation {
+  font-family: var(--font-body);
+  font-size: clamp(10px, 0.85vw, 12px);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.62); line-height: 1; display: block;
+}
+
+.relatedName {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(19px, 1.8vw, 26px);
+  color: var(--color-white); line-height: 1.15; margin: 0;
+}
+
+.relatedMeta {
+  display: flex; gap: 14px;
+  font-family: var(--font-body);
+  font-size: var(--text-label);          /* was raw clamp — now token */
+  color: rgba(255,255,255,0.45); line-height: 1;
+  margin-top: 4px;
+}
+
+/* Explore CTA */
+.relatedCta {
+  display: flex; justify-content: center;
+  padding-top: clamp(40px, 5vh, 64px);
+}
+
+.relatedCtaLink {
+  font-family: var(--font-body);
+  font-size: var(--text-label);          /* was hardcoded 13px */
+  letter-spacing: 0.04em;
+  color: var(--color-off-white); text-decoration: none;
+  border-bottom: 1px solid rgba(245,242,238,0.35);
+  padding-bottom: 3px;
+  transition: opacity 0.2s ease;
+}
+.relatedCtaLink:hover { opacity: 0.5; }
+
+/* ── Scroll arrow ─────────────────────────────────────────────────────────── */
+.arrow {
+  position: absolute;
+  bottom: clamp(24px, 3vh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 20px;
+  color: var(--color-white);
+  opacity: 0; /* GSAP animates to 1 */
+  will-change: opacity, transform;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .heroTitle { font-size: clamp(36px, 9vw, 64px); }
+  .introSubtitle { font-size: clamp(26px, 7vw, 48px); }
+  .relatedHeading { font-size: clamp(32px, 8vw, 52px); }
+
+  .infoBar { flex-wrap: wrap; }
+  .infoItem {
+    flex: 1 1 50%; align-items: flex-start; text-align: left;
+    padding: clamp(16px, 2.5vh, 24px) 20px;
+    border-right: 1px solid rgba(58,52,47,0.1);
+    border-bottom: 1px solid rgba(58,52,47,0.1);
+  }
+  .infoItem:nth-child(even) { border-right: none; }
+  .infoItem:nth-child(3),
+  .infoItem:nth-child(4)    { border-bottom: none; }
+
+  .gallery { grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 4px; }
+  .gallery_full   { grid-column: span 2; aspect-ratio: 16 / 7; }
+  .gallery_wide   { grid-column: span 2; aspect-ratio: 4 / 3; }
+  .gallery_narrow { grid-column: span 1; aspect-ratio: 1 / 1; }
+
+  .relatedGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .relatedGrid { grid-template-columns: 1fr; }
+}

@@ -9,26 +9,14 @@
   background: transparent;
 }
 
-/* ── Content — bottom-anchored, horizontally centred ────────────────────── */
-.content {
+/* ── Content block — bottom-anchored, centred ───────────────────────────── */
+.headlineWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: clamp(32px, 6vh, 64px) var(--space-nav-h) clamp(48px, 8vh, 96px);
-}
-
-/* ── Small label above headline ─────────────────────────────────────────── */
-.label {
-  font-family: var(--font-body);
-  font-size: var(--text-label);
-  font-weight: 400;
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: clamp(12px, 2vh, 20px);
-  will-change: transform, opacity;
-  opacity: 0; /* GSAP animates to 1 */
+  padding: 0 var(--space-nav-h) clamp(80px, 14vh, 140px);
+  gap: clamp(10px, 1.6vh, 18px);
 }
 
 /* ── Headline ────────────────────────────────────────────────────────────── */
@@ -50,10 +38,24 @@
   margin-bottom: -0.08em;
 }
 
+/* ── Label — sits just below headline ───────────────────────────────────── */
+.labelWrap { display: contents; }
+
+.label {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  will-change: transform, opacity;
+  opacity: 0; /* GSAP animates to 1 */
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .headline { font-size: clamp(38px, 10vw, 72px); }
-  .content  { padding: 32px 24px 72px; }
+  .headline    { font-size: clamp(38px, 10vw, 72px); }
+  .headlineWrap { padding-bottom: 72px; }
 }
 
 @media (max-width: 480px) {

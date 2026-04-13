@@ -170,6 +170,90 @@
   border-color: var(--color-warm-dark);
 }
 
+/* ── Filled block variant (3 category filters — fills grid column) ────────── */
+.triggerFilled {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: clamp(14px, 1.8vh, 20px) clamp(20px, 2.2vw, 32px);
+  padding-right: clamp(40px, 3.5vw, 52px);
+  cursor: pointer;
+  user-select: none;
+  background: rgba(58, 52, 47, 0.07);
+  border-radius: 100px;
+  border: none;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+.triggerFilled:focus-visible {
+  outline: 2px solid rgba(58, 52, 47, 0.35);
+  outline-offset: 2px;
+}
+.triggerFilled:hover,
+.triggerFilled.triggerOpen {
+  background: rgba(58, 52, 47, 0.12);
+}
+.triggerFilled.triggerFiltered {
+  background: rgba(58, 52, 47, 0.11);
+}
+.triggerFilled.triggerFiltered .triggerValue {
+  color: var(--color-warm-dark);
+  font-weight: 500;
+}
+
+/* ── Compact pill variant (Location / Year in the new filter bar) ─────────── */
+.triggerCompact {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 36px 10px 18px; /* right: room for chevron */
+  border-radius: 100px;
+  background: rgba(58, 52, 47, 0.08);
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+.triggerCompact:hover,
+.triggerCompact.triggerOpen {
+  background: rgba(58, 52, 47, 0.85);
+}
+.triggerCompact:hover .triggerValue,
+.triggerCompact.triggerOpen .triggerValue {
+  color: #fff;
+}
+.triggerCompact .triggerValue {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-warm-dark);
+  line-height: 1;
+  pointer-events: none;
+}
+.triggerCompact.triggerFiltered .triggerValue {
+  font-weight: 500;
+}
+.triggerCompact .chevron {
+  right: 14px;
+  border-left-color: rgba(58, 52, 47, 0.5);
+  border-bottom-color: rgba(58, 52, 47, 0.5);
+}
+.triggerCompact.triggerOpen .chevron,
+.triggerCompact:hover .chevron {
+  border-left-color: rgba(255,255,255,0.7);
+  border-bottom-color: rgba(255,255,255,0.7);
+}
+.triggerCompact .panel {
+  left: 0;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .panel {

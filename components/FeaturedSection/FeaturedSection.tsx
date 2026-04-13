@@ -19,9 +19,8 @@ export function FeaturedSection() {
   const hasEntered            = useRef(false);
 
   // Text cell element refs — animated independently of cards
-  const textLabelRef   = useRef<HTMLSpanElement>(null);
-  const textTitleRef   = useRef<HTMLHeadingElement>(null);
-  const textTaglineRef = useRef<HTMLParagraphElement>(null);
+  const textLabelRef = useRef<HTMLSpanElement>(null);
+  const textTitleRef = useRef<HTMLHeadingElement>(null);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);
   const setNavStyle  = useUIStore(s => s.setNavStyle);
@@ -33,7 +32,7 @@ export function FeaturedSection() {
     catIdxRef.current = idx;
 
     const cards   = cardRefs.current.filter(Boolean);
-    const textEls = [textLabelRef.current, textTitleRef.current, textTaglineRef.current].filter(Boolean);
+    const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
     // Exit: cards stagger up, text fades out simultaneously
     gsap.to(cards, {
@@ -85,7 +84,7 @@ export function FeaturedSection() {
     if (!el) return;
 
     const cards   = cardRefs.current.filter(Boolean);
-    const textEls = [textLabelRef.current, textTitleRef.current, textTaglineRef.current].filter(Boolean);
+    const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
     gsap.set(cards,   { opacity: 0, y: 18 });
     gsap.set(textEls, { opacity: 0, y: 14 });
 
@@ -118,7 +117,7 @@ export function FeaturedSection() {
     if (!hasEntered.current) return; // skip until entrance animation has run
 
     const cards   = cardRefs.current.filter(Boolean);
-    const textEls = [textLabelRef.current, textTitleRef.current, textTaglineRef.current].filter(Boolean);
+    const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
     // Cards cascade in
     gsap.fromTo(
@@ -142,7 +141,7 @@ export function FeaturedSection() {
 
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
-      <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : ''}`}>
+      <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : cat.id === 'residences' ? styles.gridResidences : ''}`}>
 
         {/* ── Image cards — count driven by cat.projects ──────────── */}
         {cat.projects.map((project, i) => {
@@ -172,7 +171,7 @@ export function FeaturedSection() {
         <div className={styles.textCell}>
           <span ref={textLabelRef} className={styles.textLabel}>{cat.label}</span>
           <h2   ref={textTitleRef}   className={styles.textTitle}>{cat.name}</h2>
-          <p    ref={textTaglineRef} className={styles.textTagline}>{cat.tagline}</p>
+
           <div className={styles.dots} role="tablist" aria-label="Browse categories">
             {FEATURED.map((c, i) => (
               <button

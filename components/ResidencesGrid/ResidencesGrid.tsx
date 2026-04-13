@@ -6,29 +6,13 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { revealUp } from '@/lib/animation';
 import {
-  STUDIO_PROJECTS, STUDIO_INTRO, CATEGORIES,
-  type StudioProject,
-} from '@/content/studio';
+  RESIDENCES_PROJECTS, RESIDENCES_INTRO,
+  unitsAvailable, isSoldOut,
+  type ResidenceProject,
+} from '@/content/residences';
 import { FilterDropdown, type DropdownOption } from '@/components/FilterDropdown/FilterDropdown';
 import { useUIStore } from '@/store/ui';
-import styles from './StudioGrid.module.css';
-
-/* ── Build DropdownOption[] from a category's subcategories ──────────────── */
-function subOptions(catId: string): DropdownOption[] {
-  const cat = CATEGORIES.find(c => c.id === catId)!;
-  return cat.subs.map(s => ({ label: s.label, value: s.label }));
-}
-
-/* ── Derive matching topologies from selected sub-labels ─────────────────── */
-function toTopologies(catId: string, subs: string[]): string[] | null {
-  if (subs.length === 0) return null; // filter not active
-  const cat = CATEGORIES.find(c => c.id === catId)!;
-  const tops = new Set<string>();
-  for (const sub of cat.subs) {
-    if (subs.includes(sub.label)) sub.topologies.forEach(t => tops.add(t));
-  }
-  return Array.from(tops);
-}
+import styles from './ResidencesGrid.module.css';
 
 /* ── Arrow icons ──────────────────────────────────────────────────────────── */
 function ChevronLeft() {
@@ -50,11 +34,25 @@ function ChevronRight() {
   );
 }
 
-/* ── Project card with per-card image carousel ────────────────────────────── */
-function ProjectCard({ project }: { project: StudioProject }) {
+/* ── Filter option lists ──────────────────────────────────────────────────── */
+const AVAIL_OPTIONS: DropdownOption[] = [
+  { label: 'Available',  value: 'available' },
+  { label: 'Sold out',   value: 'soldout'   },
+];
+
+const TOPO_OPTIONS: DropdownOption[] = [
+  { label: 'Villas',     value: 'Villas'     },
+  { label: 'Houses',     value: 'Houses'     },
+  { label: 'Apartments', value: 'Apartments' },
+];
+
+/* ── Property card ────────────────────────────────────────────────────────── */
+function PropertyCard({ project }: { project: ResidenceProject }) {
   const [idx, setIdx] = useState(0);
   const images        = project.images;
   const hasMultiple   = images.length > 1;
+  const soldOut       = isSoldOut(project);
+  const available     = unitsAvailable(project);
 
   const prev = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
@@ -80,6 +78,13 @@ function ProjectCard({ project }: { project: StudioProject }) {
       />
       <div className={styles.cardOverlay} />
 
+      {/* Availability badge — moves with card on hover to stay clear of rounded corners */}
+      <div className={`${styles.availBadge} ${soldOut ? styles.availBadgeSold : ''}`}>
+        {soldOut
+          ? `${project.unitsSold} sold`
+          : `${available} of ${project.unitsTotal} available`}
+      </div>
+
       {hasMultiple && (
         <>
           <button type="button" className={`${styles.carouselBtn} ${styles.carouselPrev}`} onClick={prev} aria-label="Previous image">
@@ -97,7 +102,7 @@ function ProjectCard({ project }: { project: StudioProject }) {
       )}
 
       <div className={styles.cardHover} aria-hidden="true">
-        <span className={styles.seeDetail}>See Detail</span>
+        <span className={styles.seeDetail}>View Property</span>
       </div>
 
       <div className={styles.cardBottom}>
@@ -105,24 +110,22 @@ function ProjectCard({ project }: { project: StudioProject }) {
         <h3 className={styles.cardTitle}>{project.title}</h3>
         <div className={styles.cardMeta}>
           <span>{project.size}</span>
-          <span>{project.year}</span>
+          {project.priceFrom && <span>from {project.priceFrom}</span>}
         </div>
       </div>
     </Link>
   );
 }
 
-/* ── Main grid component ─────────────────────────────────────────────────── */
-export function StudioGrid() {
+/* ── Main grid component ──────────────────────────────────────────────────── */
+export function ResidencesGrid() {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
 
-  /* One sub-filter state per category */
-  const [resSubs,  setResSubs]  = useState<string[]>([]);
-  const [hosSubs,  setHosSubs]  = useState<string[]>([]);
-  const [comSubs,  setComSubs]  = useState<string[]>([]);
-  const [limit,    setLimit]    = useState(9);
+  const [availFilter, setAvailFilter] = useState<string[]>([]);
+  const [topoFilter,  setTopoFilter]  = useState<string[]>([]);
+  const [limit,       setLimit]       = useState(9);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);
   const setNavStyle  = useUIStore(s => s.setNavStyle);
@@ -151,17 +154,16 @@ export function StudioGrid() {
   }, [setNavTheme, setNavStyle, setNavBg, setNavShadow]);
 
   /* ── Filtered + paginated data ────────────────────────────────────────── */
-  const rFilter = toTopologies('residential', resSubs);
-  const hFilter = toTopologies('hospitality', hosSubs);
-  const cFilter = toTopologies('commercial',  comSubs);
-  const anyActive = rFilter !== null || hFilter !== null || cFilter !== null;
-
-  const allFiltered = STUDIO_PROJECTS.filter(p => {
-    if (!anyActive) return true;
-    if (rFilter && rFilter.includes(p.topology)) return true;
-    if (hFilter && hFilter.includes(p.topology)) return true;
-    if (cFilter && cFilter.includes(p.topology)) return true;
-    return false;
+  const allFiltered = RESIDENCES_PROJECTS.filter(p => {
+    // availability: if only 'available' → hide sold out; if only 'soldout' → hide available
+    // if both or neither selected → show all
+    const wantAvail   = availFilter.includes('available');
+    const wantSoldOut = availFilter.includes('soldout');
+    if (wantAvail && !wantSoldOut  && isSoldOut(p))  return false;
+    if (wantSoldOut && !wantAvail  && !isSoldOut(p)) return false;
+    // topology
+    if (topoFilter.length > 0 && !topoFilter.includes(p.topology)) return false;
+    return true;
   });
 
   const visible = allFiltered.slice(0, limit);
@@ -197,9 +199,9 @@ export function StudioGrid() {
   }, [visible.length, animateCards]);
 
   /* Reset limit when filters change */
-  useEffect(() => { setLimit(9); }, [resSubs, hosSubs, comSubs]);
+  useEffect(() => { setLimit(9); }, [availFilter, topoFilter]);
 
-  const lines = STUDIO_INTRO.headline.split('\n');
+  const lines = RESIDENCES_INTRO.headline.split('\n');
 
   return (
     <section ref={sectionRef} className={styles.section}>
@@ -208,7 +210,7 @@ export function StudioGrid() {
       <div className={styles.introWrap}>
         <div className={styles.intro}>
           <div className={styles.introLeft}>
-            <span className={styles.introLabel}>{STUDIO_INTRO.label}</span>
+            <span className={styles.introLabel}>{RESIDENCES_INTRO.label}</span>
             <h2 className={styles.introHeadline}>
               {lines.map((line, i) => (
                 <span key={i} className={styles.introLine}>{line}</span>
@@ -216,42 +218,28 @@ export function StudioGrid() {
             </h2>
           </div>
           <div className={styles.introRight}>
-            <p className={styles.introBody}>{STUDIO_INTRO.body}</p>
-            <button
-              className={styles.introCta}
-              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              {STUDIO_INTRO.cta.label} ↗
-            </button>
+            <p className={styles.introBody}>{RESIDENCES_INTRO.body}</p>
           </div>
         </div>
       </div>
 
-      {/* ── Filter bar — 3 columns matching image grid ───────────────────── */}
+      {/* ── Filter bar — 2 columns matching Studio style ─────────────────── */}
       <div className={styles.filterBarWrap}>
         <div className={styles.filterBar}>
           <FilterDropdown
-            label="Residential"
-            allValue="All Residential"
-            options={subOptions('residential')}
-            values={resSubs}
-            onChange={setResSubs}
+            label="Availability"
+            allValue="All Availability"
+            options={AVAIL_OPTIONS}
+            values={availFilter}
+            onChange={setAvailFilter}
             filled
           />
           <FilterDropdown
-            label="Hospitality"
-            allValue="All Hospitality"
-            options={subOptions('hospitality')}
-            values={hosSubs}
-            onChange={setHosSubs}
-            filled
-          />
-          <FilterDropdown
-            label="Commercial & other"
-            allValue="All Commercial"
-            options={subOptions('commercial')}
-            values={comSubs}
-            onChange={setComSubs}
+            label="Property type"
+            allValue="All Types"
+            options={TOPO_OPTIONS}
+            values={topoFilter}
+            onChange={setTopoFilter}
             filled
           />
         </div>
@@ -261,14 +249,14 @@ export function StudioGrid() {
       <div ref={gridRef} className={styles.grid}>
         {visible.length > 0 ? (
           visible.map(project => (
-            <ProjectCard key={project.id} project={project} />
+            <PropertyCard key={project.id} project={project} />
           ))
         ) : (
-          <p className={styles.empty}>No projects match the selected filters.</p>
+          <p className={styles.empty}>No properties match the selected filters.</p>
         )}
       </div>
 
-      {/* ── Load more — centered pill button ─────────────────────────────── */}
+      {/* ── Load more ─────────────────────────────────────────────────────── */}
       {hasMore && (
         <div className={styles.loadMoreRow}>
           <button className={styles.loadMore} onClick={() => setLimit(l => l + 3)}>
@@ -276,6 +264,43 @@ export function StudioGrid() {
           </button>
         </div>
       )}
+
+      {/* ── How it works ─────────────────────────────────────────────────── */}
+      <div className={styles.process}>
+        <div className={styles.processInner}>
+          <span className={styles.processLabel}>How it works</span>
+          <h2 className={styles.processHeading}>Simple by design.</h2>
+
+          <div className={styles.processSteps}>
+            <div className={styles.step}>
+              <span className={styles.stepNum}>01</span>
+              <h3 className={styles.stepTitle}>Choose your property</h3>
+              <p className={styles.stepBody}>
+                Browse our curated portfolio and select the development that speaks to you —
+                whether for personal use, rental yield, or long-term investment.
+              </p>
+            </div>
+
+            <div className={styles.step}>
+              <span className={styles.stepNum}>02</span>
+              <h3 className={styles.stepTitle}>Connect with the developer</h3>
+              <p className={styles.stepBody}>
+                No agencies, no middlemen. We put you in direct contact with the property
+                developer to discuss availability, terms, and next steps at your own pace.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="https://wa.me/34686783520"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.processCta}
+          >
+            Contact the developer ↗
+          </a>
+        </div>
+      </div>
 
     </section>
   );

@@ -18,6 +18,14 @@
   box-shadow: 0 1px 0 rgba(58, 52, 47, 0.08);
 }
 
+/* Subtle shadow on logo + hamburger — white elements on a light bg */
+.navbarShadow .logo img {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 6px rgba(0, 0, 0, 0.18));
+}
+.navbarShadow .hamburger .bar {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
 /* ── Logo ───────────────────────────────────────────────────────────────────── */
 .logo {
   display: flex;
@@ -26,7 +34,7 @@
 }
 
 .logo img {
-  width: clamp(28px, 3vw, 40px) !important;
+  width: clamp(40px, 4.2vw, 56px) !important;
   height: auto !important;
   filter: brightness(0) invert(1);
   transition:
@@ -66,15 +74,20 @@
   color: var(--color-white);
   opacity: 1;
   position: relative;
-  padding-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
   white-space: nowrap;
   transition: color 0.5s ease;
+  padding-bottom:42px; /* reserve space so sub text doesn't overlap items below */
 }
 
+/* Underline on hover */
 .navItem::after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: 25px;
   left: 0;
   width: 100%;
   height: 1px;
@@ -86,6 +99,34 @@
 
 .navItem:hover::after {
   transform: scaleX(1);
+}
+
+/* Main label */
+.navLabel {
+  display: block;
+  line-height: 1;
+}
+
+/* Sub descriptor — slides up from beneath label on hover */
+.navSub {
+  position: absolute;
+  top: calc(100% - 20px); /* sits below the label with comfortable gap */
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: currentColor;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.navItem:hover .navSub {
+  opacity: 0.5;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Dark theme: near-black nav text */

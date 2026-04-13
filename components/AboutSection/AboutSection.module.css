@@ -1,4 +1,4 @@
-/* ── Section — stats absolute at bottom, content truly centred ──────────── */
+/* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
   position: relative;
   z-index: 2;
@@ -11,16 +11,15 @@
   padding: 0 var(--space-nav-h);
 }
 
-/* ── Headline + body — flexbox-centred in the full viewport ─────────────── */
+/* ── Grouped center block: headline + stats as one unit ─────────────────── */
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(16px, 2.5vh, 32px);
+  gap: clamp(40px, 6vh, 72px);
 }
 
-/* ── Headline ────────────────────────────────────────────────────────────── */
 .headline {
   font-family: var(--font-display);
   font-weight: 400;
@@ -38,38 +37,37 @@
   will-change: transform, opacity;
 }
 
-/* ── Body ────────────────────────────────────────────────────────────────── */
-.body {
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  font-weight: 400;
-  line-height: var(--leading-normal);
-  letter-spacing: 0.01em;
-  color: rgba(255, 255, 255, 0.55);
-  max-width: 480px;
-  will-change: transform, opacity;
-}
-
-/* ── Stats row — absolutely pinned to bottom, so it never shifts the centre */
+/* ── Stats row — inline with headline block ─────────────────────────────── */
 .stats {
-  position: absolute;
-  bottom: clamp(48px, 6vh, 72px);
-  left: var(--space-nav-h);
-  right: var(--space-nav-h);
   display: flex;
   justify-content: center;
-  gap: clamp(40px, 7vw, 120px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: clamp(24px, 3.5vh, 40px);
+  gap: clamp(48px, 9vw, 140px);
 }
 
-/* ── Individual stat ────────────────────────────────────────────────────── */
+/* ── Individual stat ─────────────────────────────────────────────────────── */
 .stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(6px, 1vh, 10px);
   will-change: transform, opacity;
+}
+
+/* Ghost reserves final-value width so layout is stable during count-up */
+.statValueWrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.statValueGhost {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
 }
 
 .statValue {
@@ -79,25 +77,51 @@
   line-height: 1;
   color: var(--color-white);
   letter-spacing: -0.02em;
-  /* Match global h1–h4 stroke so thickness is consistent */
   -webkit-text-stroke: var(--aire-stroke) currentColor;
   paint-order: stroke fill;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
 
 .statLabel {
   font-family: var(--font-body);
-  font-size: var(--text-label);
-  font-weight: 400;
-  letter-spacing: 0.1em;
+  font-size: clamp(13px, 1vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
+  margin-top: clamp(4px, 0.6vh, 8px);
+  margin-bottom: clamp(6px, 0.8vh, 10px);
+}
+
+/* ── Tag list — descriptors below the label ─────────────────────────────── */
+.statTags {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.statTag {
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1vw, 16px);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.4;
 }
 
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .section  { padding: 88px 24px 48px; }
-  .body     { max-width: 100%; }
-  .stats    { gap: 32px; flex-wrap: wrap; justify-content: center; }
-  .stat     { min-width: 120px; }
+  .section { padding: 0 24px; }
+  .content { gap: 32px; }
+  .stats   { gap: 28px; flex-wrap: wrap; justify-content: center; }
+  .stat    { min-width: 110px; }
 }

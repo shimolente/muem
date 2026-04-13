@@ -1,187 +1,212 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   VERTICAL SCROLL-PINNED TIMELINE
-   ┌──────────────────────────────────────────────────────────────────────┐
-   │  section  (position: relative, height: 100svh + (N-1)*300px via JS) │
-   │  └── .pinned  (position: sticky; top: 0; height: 100svh)            │
-   │       ├── .overlay      (top-left text panel, z:10)                  │
-   │       ├── .bigNum        (top-right decorative, z:1)                 │
-   │       ├── .fadeTop/Bottom (gradient masks, z:5)                     │
-   │       └── .track  (position:absolute; top:calc(50%-150px))          │
-   │            └── .item × N   (grid 1fr 60px 1fr, height:300px each)   │
-   └──────────────────────────────────────────────────────────────────────┘
+   SERVICES SECTION — 3-column sticky timeline
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │  section  (position: relative, height: 100svh + (N-1)*160px via JS)     │
+   │  └── .pinned  (position: sticky; top: 0; height: 100svh; 3-col grid)    │
+   │       ├── .leftPanel    active service text, vertically centred          │
+   │       ├── .centerPanel  timeline track with header + phase rows          │
+   │       └── .rightPanel   square image, right-aligned to --space-nav-h    │
+   └──────────────────────────────────────────────────────────────────────────┘
 
-   Active dot stays at viewport centre.
-   Track is GSAP-translated Y = -progress * (N-1) * 300px.
-   Items fade+slide in from sides as progress passes their threshold.
+   Background  : #E8E5E1 (slightly darker than --color-off-white #f5f2ee)
+   Text        : dark  (--color-warm-dark = #3A342F)
+   Outer h-pad : var(--space-nav-h) = clamp(48px, 8vw, 112px)  — matches StudioGrid
+   Track top   : calc(50% - 240px)
+                 = 50% - headerHeight(80px) - STEP_H/2(80px) - optional pad(80px)
+                 → item[0]'s dot is centred at 50%; header floats just above.
 ───────────────────────────────────────────────────────────────────────────── */
 
 /* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
   position: relative;
-  background: #36422E;
+  background: #E8E5E1;
   /* height set by JS on desktop */
 }
 
-/* ── Pinned viewport ──────────────────────────────────────────────────────── */
+/* ── Pinned viewport (desktop) ───────────────────────────────────────────── */
 .pinned {
   position: sticky;
   top: 0;
   height: 100svh;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-/* ── Overlay — container (left side, full height) ────────────────────────── */
-.overlay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--space-nav-h);
-  z-index: 10;
-  pointer-events: none;
-  max-width: min(340px, 27vw);
+/* ─────────────────────────────────────────────────────────────────────────────
+   LEFT PANEL — active service text
+   · Padding matches StudioGrid outer (var(--space-nav-h)) on both sides
+   · Content is horizontally centred between the left padding edge and the
+     right boundary of the column
+───────────────────────────────────────────────────────────────────────────── */
+.leftPanel {
   display: flex;
   flex-direction: column;
+  /* same outer h-pad as StudioGrid intro, symmetric */
+  padding: clamp(80px, 12vh, 120px) var(--space-nav-h) clamp(40px, 6vh, 80px);
+  height: 100%;
+  box-sizing: border-box;
+  /* centre the text block within the column */
+  align-items: center;
+  text-align: center;
 }
 
-/* "HOW WE WORK" pinned to the top */
-.overlayLabel {
+.sectionLabel {
   font-family: var(--font-body);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-wider);
+  font-size: 11px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.38);
-  padding-top: clamp(80px, 12vh, 120px);
+  color: rgba(58, 52, 47, 0.45);
   flex-shrink: 0;
 }
 
-/* Active service content — pushed to vertical centre */
-.overlayContent {
+.activeContent {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(8px, 1.2vh, 14px);
-  animation: slideUp 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  align-items: center;
+  text-align: center;
+  gap: clamp(10px, 1.5vh, 18px);
+  animation: fadeInUp 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes slideUp {
+@keyframes fadeInUp {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0);    }
 }
 
-.overlayTagline {
+.activeTagline {
   font-family: var(--font-body);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-wider);
+  font-size: 11px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(58, 52, 47, 0.45);
 }
 
-.overlayTitle {
-  font-family: var(--font-display-light);
-  font-size: clamp(22px, 3vw, 48px);
-  font-weight: 300;
+/* Slightly thicker roman weight for better legibility on cream bg */
+.activeTitle {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 38px);
+  font-weight: 400;
   line-height: var(--leading-tight);
-  color: var(--color-white);
+  color: var(--color-warm-dark);
   margin: 0;
+  /* hairline stroke reinforces the thin serif forms */
+  -webkit-text-stroke: 0.35px rgba(58, 52, 47, 0.6);
+  paint-order: stroke fill;
 }
 
-.overlayDesc {
+.activeDesc {
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(255, 255, 255, 0.44);
+  color: rgba(58, 52, 47, 0.65);
+  max-width: 36ch;
+  text-align: center;
 }
 
-/* ── Large decorative step number ────────────────────────────────────────── */
-.bigNum {
-  position: absolute;
-  bottom: clamp(40px, 6vh, 80px);
-  right: var(--space-nav-h);
-  font-family: var(--font-display-light);
-  font-size: clamp(90px, 12vw, 180px);
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.05);
-  pointer-events: none;
-  user-select: none;
-  font-weight: 300;
-  z-index: 1;
+/* ─────────────────────────────────────────────────────────────────────────────
+   CENTRE PANEL — timeline track
+───────────────────────────────────────────────────────────────────────────── */
+.centerPanel {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  /* Soft vertical mask so items fade gracefully at top/bottom edges */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16%,
+    black 84%,
+    transparent 100%
+  );
 }
 
-/* ── Top / bottom gradient masks ─────────────────────────────────────────── */
-.fadeTop,
-.fadeBottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  pointer-events: none;
-}
-.fadeTop {
-  top: 0;
-  height: 28vh;
-  background: linear-gradient(to bottom, #36422E 0%, rgba(54, 66, 46, 0) 100%);
-}
-.fadeBottom {
-  bottom: 0;
-  height: 28vh;
-  background: linear-gradient(to top, #36422E 0%, rgba(54, 66, 46, 0) 100%);
-}
-
-/* ── Track ────────────────────────────────────────────────────────────────── */
+/* ── Track — GSAP translates this upward ─────────────────────────────────── */
 .track {
   position: absolute;
-  /* shifted right so it doesn't overlap the text overlay */
-  left: clamp(260px, 34vw, 480px);
+  /*
+   * top = 50% - headerHeight(80px) - STEP_H/2(80px)
+   * This keeps item[0]'s dot centred at exactly 50% of the panel.
+   * The 80px "From vision to delivery" header floats just above.
+   */
+  top: calc(50% - 160px);
+  left: 0;
   right: 0;
-  /* top: centres item[0]'s dot (midpoint = 150px) at viewport 50% */
-  top: calc(50% - 150px);
-  height: 2100px;             /* N(7) × STEP_H(300) */
-  z-index: 2;
   will-change: transform;
 }
 
-/* Vertical centre line spans full track height */
+/* Vertical centre line through all dots */
 .track::before {
   content: '';
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 0;
-  height: 100%;
+  /* start below the header, run through all items */
+  top: 80px; /* = header height */
+  height: calc(100% - 80px);
   width: 1px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(58, 52, 47, 0.18);
   pointer-events: none;
   z-index: 0;
 }
 
-/* ── Timeline item ────────────────────────────────────────────────────────── */
+/* ── "From vision to delivery" header row ────────────────────────────────── */
+.trackHeader {
+  height: 80px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 14px;
+}
+
+.trackHeadline {
+  font-family: var(--font-display-italic);
+  font-size: clamp(12px, 1vw, 15px);
+  color: rgba(58, 52, 47, 0.55);
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+/* ── Timeline item row ───────────────────────────────────────────────────── */
 .item {
   display: grid;
-  grid-template-columns: 1fr 60px 1fr;
-  height: 300px;
+  grid-template-columns: 1fr 48px 1fr;
+  height: 160px; /* STEP_H */
   align-items: center;
   position: relative;
 }
 
-/* ── Column helpers ───────────────────────────────────────────────────────── */
-.colLeft {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding-right: clamp(28px, 3.5vw, 56px);
-  height: 100%;
+/* Phase label — right-aligned, left of dot */
+.phaseLabel {
+  text-align: right;
+  padding-right: clamp(20px, 2.5vw, 36px);
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.38);
+  transition: color 0.35s ease;
+  line-height: 1;
 }
 
-.colRight {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding-left: clamp(28px, 3.5vw, 56px);
-  height: 100%;
+/* Phase name — left-aligned, right of dot */
+.phaseName {
+  text-align: left;
+  padding-left: clamp(20px, 2.5vw, 36px);
+  font-family: var(--font-display-light);
+  font-size: clamp(13px, 1.5vw, 22px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: rgba(58, 52, 47, 0.42);
+  transition: color 0.35s ease;
+  /* hairline stroke so the light weight reads clearly */
+  -webkit-text-stroke: 0.3px rgba(58, 52, 47, 0.3);
+  paint-order: stroke fill;
 }
 
-.colCenter {
+/* Dot column */
+.dotCol {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,66 +215,14 @@
   z-index: 2;
 }
 
-/* ── Item image ───────────────────────────────────────────────────────────── */
-.itemImage {
-  position: relative;
-  width: clamp(160px, 18vw, 260px);
-  height: clamp(100px, 12vw, 170px);
-  overflow: hidden;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-/* ── Item text content ────────────────────────────────────────────────────── */
-.itemContent {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-/* Even items (content in colLeft) → right-aligned */
-.colLeft .itemContent {
-  align-items: flex-end;
-  text-align: right;
-}
-
-/* Odd items (content in colRight) → left-aligned */
-.colRight .itemContent {
-  align-items: flex-start;
-  text-align: left;
-}
-
-.stepLabel {
-  font-family: var(--font-body);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.22);
-  line-height: 1;
-  transition: color 0.35s ease;
-}
-
-.itemTitle {
-  font-family: var(--font-display-light);
-  font-size: clamp(15px, 1.8vw, 26px);
-  font-weight: 300;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 0.55);
-  transition: color 0.35s ease;
-}
-
-/* Active item highlights */
-.itemActive .stepLabel { color: rgba(255, 255, 255, 0.6); }
-.itemActive .itemTitle  { color: rgba(255, 255, 255, 0.95); }
-
 /* ── Dot ──────────────────────────────────────────────────────────────────── */
 .dot {
   display: block;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: rgba(58, 52, 47, 0.18);
+  border: 1.5px solid rgba(58, 52, 47, 0.28);
   position: relative;
   z-index: 3;
   flex-shrink: 0;
@@ -260,103 +233,122 @@
     transform     0.4s var(--ease-out-expo);
 }
 
-/* Bullseye on active */
-.itemActive .dot {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 4px #36422E, 0 0 0 6.5px rgba(255, 255, 255, 0.38);
-  transform: scale(1.25);
+/* ── Active state ─────────────────────────────────────────────────────────── */
+.itemActive .phaseLabel {
+  color: rgba(58, 52, 47, 0.65);
 }
 
-/* ── Mobile-only row (hidden on desktop) ─────────────────────────────────── */
-.mobileRow {
+.itemActive .phaseName {
+  color: var(--color-warm-dark);
+  -webkit-text-stroke: 0.4px rgba(58, 52, 47, 0.7);
+}
+
+.itemActive .dot {
+  background: var(--color-warm-dark);
+  border-color: var(--color-warm-dark);
+  box-shadow: 0 0 0 4px #E8E5E1, 0 0 0 6.5px rgba(58, 52, 47, 0.35);
+  transform: scale(1.3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RIGHT PANEL — square image
+   · Right padding matches var(--space-nav-h) so image edge aligns with
+     the rest of the page content
+───────────────────────────────────────────────────────────────────────────── */
+.rightPanel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  /* right pad = page edge; left pad just provides column gutter */
+  padding: clamp(40px, 6vh, 80px) var(--space-nav-h) clamp(40px, 6vh, 80px) clamp(20px, 2.5vw, 40px);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.imageCard {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 6px;
+  transition: border-radius 0.55s var(--ease-out-expo);
+  animation: imageFade 0.55s ease both;
+  flex-shrink: 0;
+}
+
+.imageCard:hover {
+  border-radius: 24px;
+}
+
+@keyframes imageFade {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE — vertical list (desktop hidden)
+───────────────────────────────────────────────────────────────────────────── */
+.mobileList {
   display: none;
 }
-.mobileText {
+
+.mobileItem {
+  padding: 32px var(--space-nav-h);
+  border-top: 1px solid rgba(58, 52, 47, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobileMeta {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
+.mobilePhase {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.45);
+}
+
+.mobileName {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 400;
+  color: var(--color-warm-dark);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.mobileBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobileDesc {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(58, 52, 47, 0.65);
+  margin: 0;
+}
+
 .mobileImage {
   position: relative;
   width: 100%;
-  height: 140px;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
   overflow: hidden;
-  border-radius: 6px;
-  flex-shrink: 0;
 }
 
-/* ── Mobile ───────────────────────────────────────────────────────────────── */
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* undo JS height, let content scroll naturally */
-  .section { height: auto !important; padding: 80px 0 64px; }
-
-  /* pinned no longer sticky on mobile */
-  .pinned {
-    position: relative;
-    height: auto;
-    overflow: visible;
-  }
-
-  .track {
-    position: relative;   /* keeps ::before anchored to track */
-    height: auto;
-    transform: none !important;
-    top: auto;
-    left: auto;
-    right: auto;
-  }
-
-  .track::before {
-    /* re-anchor line to the dot column */
-    left: 22px;
-    transform: none;
-    height: 100%;
-    top: 0;
-  }
-
-  /* 2-col grid: [dot 44px] [content] */
-  .item {
-    grid-template-columns: 44px 1fr;
-    grid-template-rows: auto;
-    height: auto;
-    padding: 24px 20px 24px 0;
-  }
-
-  /* Hide the desktop alternating columns */
-  .colLeft  { display: none; }
-  .colRight { display: none; }
-
-  .colCenter {
-    grid-column: 1;
-    grid-row: 1;
-    padding: 0;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 5px;
-    height: auto;
-  }
-
-  /* Show mobile row in the second column */
-  .mobileRow {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    grid-column: 2;
-    grid-row: 1;
-    padding-left: 16px;
-  }
-
-  .mobileText .itemContent {
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  /* override any GSAP inline styles on desktop elements */
-  .itemContent,
-  .itemImage { opacity: 1 !important; transform: none !important; }
-
-  /* fades / overlay / bigNum hidden on mobile */
-  .fadeTop, .fadeBottom { display: none; }
-  .overlay, .bigNum     { display: none; }
+  .section { height: auto !important; padding: 64px 0; }
+  .pinned  { display: none; }
+  .mobileList { display: block; }
 }

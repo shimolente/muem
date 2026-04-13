@@ -22,6 +22,7 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
   const pillRef     = useRef<HTMLDivElement>(null);
   const taglineRef  = useRef<HTMLParagraphElement>(null);
   const linesRef    = useRef<HTMLSpanElement[]>([]);
+  const arrowRef    = useRef<HTMLDivElement>(null);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -35,9 +36,9 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('light');          // white logo + links over dark image
-          setNavStyle('full');           // show all nav links (inner-page nav)
-          setNavHamburgerLight(false);   // reset any override from homepage
+          setNavTheme('light');          // white logo over dark image
+          setNavStyle('minimal');        // logo + hamburger only, no text links
+          setNavHamburgerLight(true);    // hamburger is white over dark image
           setNavBg('transparent');       // no bg fill over hero image
         }
       },
@@ -66,7 +67,18 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
             { opacity: 1, y: 0,  duration: 1.0, stagger: 0.12 },
             0.3,
           )
-          .fromTo(tag,   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.65);
+          .fromTo(tag,   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.65)
+          .fromTo(arrowRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6 }, 0.9);
+
+        // Bounce loop
+        gsap.to(arrowRef.current, {
+          y: 6,
+          duration: 0.75,
+          ease: 'power1.inOut',
+          repeat: -1,
+          yoyo: true,
+          delay: 1.2,
+        });
       });
     });
   }, []);
@@ -129,6 +141,9 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
           {tagline}
         </p>
       </div>
+
+      {/* Scroll arrow — centred at bottom */}
+      <div ref={arrowRef} className={styles.arrow} aria-hidden="true">↓</div>
 
     </section>
   );

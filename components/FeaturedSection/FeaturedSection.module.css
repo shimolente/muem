@@ -136,45 +136,32 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0; /* controlled via margins on children for precise hierarchy spacing */
   text-align: center;
-  padding: clamp(14px, 1.8vw, 28px);
-  /* no background — sits against the section's off-white */
+  gap: clamp(6px, 0.8vh, 12px);
 }
 
-/* Tier 1 — micro label ("CREATE") */
+/* Tier 1 — micro label ("Featured Projects") */
 .textLabel {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(58, 52, 47, 0.4);
   line-height: 1;
-  margin-bottom: clamp(10px, 1.4vh, 18px);
 }
-/* Tier 2 — display name ("Houses & Villas") — the hero element */
+/* Tier 2 — display name ("Residential") */
 .textTitle {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(26px, 2.6vw, 46px);
+  font-size: clamp(36px, 4.5vw, 72px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--color-warm-dark);
-  margin: 0 0 clamp(10px, 1.4vh, 18px);
-}
-/* Tier 3 — supporting tagline */
-.textTagline {
-  font-family: var(--font-body);
-  font-size: 18px;
-  font-weight: 400;
-  color: rgba(58, 52, 47, 0.5);
-  line-height: 1.55;
-  letter-spacing: -0.01em;
-  margin: 0 0 clamp(14px, 2vh, 24px);
+  margin: 0;
 }
 
-/* Pagination dots — large transparent hit area, small visual dot */
+/* Pagination dots */
 .dots {
   display: flex;
   align-items: center;
@@ -227,12 +214,22 @@
     "e i g g h h";
 }
 
-/* Houses & Villas: 6-col internal grid, right column split, 8 image cards */
+/* Commercial: C spans 2 cols top-right, D+G split row 2, E+F equal bottom */
+.gridResidences {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "a a b b c c"
+    "a a t t d g"
+    "e e e f f f";
+}
+
+/* Residential: 6-col, D split into D (row1) + I (row2), 9 image cards */
 .gridStudio {
   grid-template-columns: repeat(6, 1fr);
   grid-template-areas:
     "a a b b c d"
-    "a a t t c d"
+    "a a t t c i"
     "e e f g h h";
 }
 
@@ -250,6 +247,18 @@
       "a a"
       "b b"
       "c d"
+      "t t"
+      "e e"
+      "f f";
+  }
+  .gridResidences {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "a a"
+      "b b"
+      "c d"
+      "g g"
       "t t"
       "e e"
       "f f";

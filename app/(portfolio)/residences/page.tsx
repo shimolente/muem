@@ -1,5 +1,21 @@
 import type { Metadata } from 'next';
-export const metadata: Metadata = { title: 'Residences' };
+import { CategoryHero }    from '@/components/CategoryHero/CategoryHero';
+import { ResidencesGrid }  from '@/components/ResidencesGrid/ResidencesGrid';
+import { ContactSection }  from '@/components/ContactSection/ContactSection';
+
+export const metadata: Metadata = { title: 'Properties' };
+
 export default function ResidencesPage() {
-  return <div style={{ paddingTop: '120px', color: 'white', padding: '120px 56px' }}>Residences — coming soon</div>;
+  return (
+    <>
+      <CategoryHero
+        category="Properties"
+        headline={"Design &\nInvestment."}
+        tagline="curated real estate."
+        imageSrc="/images/residences-cover.jpg"
+      />
+      <ResidencesGrid />
+      <ContactSection />
+    </>
+  );
 }

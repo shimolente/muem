@@ -21,6 +21,7 @@ export function Navbar() {
   const navLogoLight      = useUIStore(s => s.navLogoLight);
   const navHamburgerLight = useUIStore(s => s.navHamburgerLight);
   const navBg             = useUIStore(s => s.navBg);
+  const navShadow         = useUIStore(s => s.navShadow);
   const preloaderDone     = useUIStore(s => s.preloaderDone);
 
   // ── Navbar entrance — fires once when preloader finishes ──────────────────
@@ -133,9 +134,10 @@ export function Navbar() {
     <>
       <header ref={navbarRef} className={[
         styles.navbar,
-        isDark    ? styles.navbarDark    : '',
-        isMinimal ? styles.navbarMinimal : '',
-        hasBg     ? styles.navbarWithBg  : '',
+        isDark      ? styles.navbarDark    : '',
+        isMinimal   ? styles.navbarMinimal : '',
+        hasBg       ? styles.navbarWithBg  : '',
+        navShadow   ? styles.navbarShadow  : '',
       ].filter(Boolean).join(' ')}>
 
         <Link
@@ -146,7 +148,7 @@ export function Navbar() {
           data-nav-logo
           style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
-          <Image src={LOGO.src} alt={LOGO.alt} width={36} height={36} priority />
+          <Image src={LOGO.src} alt={LOGO.alt} width={56} height={56} priority />
         </Link>
 
         <nav
@@ -162,7 +164,10 @@ export function Navbar() {
               className={styles.navItem}
               onMouseEnter={() => handleItemEnter(i)}
             >
-              {item.label}
+              <span className={styles.navLabel}>{item.label}</span>
+              {item.sub && (
+                <span className={styles.navSub}>{item.sub}</span>
+              )}
             </Link>
           ))}
         </nav>
