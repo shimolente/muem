@@ -1,8 +1,12 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // When Supabase Storage is wired up, add its hostname here:
-  // images: { remotePatterns: [{ hostname: '*.supabase.co' }] },
+  images: {
+    remotePatterns: [
+      // Sanity CDN — serves all uploaded images
+      { hostname: 'cdn.sanity.io' },
+    ],
+  },
 };
 
 export default nextConfig;
