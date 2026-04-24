@@ -43,7 +43,7 @@
 
 .label {
   font-family: var(--font-body);
-  font-size: var(--text-label);
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;

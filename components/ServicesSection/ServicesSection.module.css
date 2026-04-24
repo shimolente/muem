@@ -19,7 +19,7 @@
 /* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
   position: relative;
-  background: #E8E5E1;
+  background: var(--color-services-bg);
   /* height set by JS on desktop */
 }
 
@@ -48,15 +48,27 @@
   /* centre the text block within the column */
   align-items: center;
   text-align: center;
+  background: var(--color-services-left); /* slightly darker than section bg */
 }
 
-.sectionLabel {
+/* "HOW WE WORK" — pinned at top of center column */
+.centerLabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: clamp(28px, 4vh, 48px);
+  padding-bottom: clamp(40px, 6vh, 64px);
+  text-align: center;
+  z-index: 2;
+  background: linear-gradient(to bottom, var(--color-services-bg) 55%, transparent 100%);
   font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.45);
-  flex-shrink: 0;
+  color: rgba(var(--c-warm), 0.45);
+  margin: 0;
+  pointer-events: none;
 }
 
 .activeContent {
@@ -70,6 +82,9 @@
   animation: fadeInUp 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Extra space between title and body paragraph */
+.activeDesc { margin-top: clamp(10px, 1.5vh, 18px); }
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0);    }
@@ -80,7 +95,7 @@
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.45);
+  color: rgba(var(--c-warm), 0.45);
 }
 
 /* Slightly thicker roman weight for better legibility on cream bg */
@@ -92,7 +107,7 @@
   color: var(--color-warm-dark);
   margin: 0;
   /* hairline stroke reinforces the thin serif forms */
-  -webkit-text-stroke: 0.35px rgba(58, 52, 47, 0.6);
+  -webkit-text-stroke: 0.35px rgba(var(--c-warm), 0.6);
   paint-order: stroke fill;
 }
 
@@ -100,7 +115,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(58, 52, 47, 0.65);
+  color: rgba(var(--c-warm), 0.65);
   max-width: 36ch;
   text-align: center;
 }
@@ -112,12 +127,11 @@
   position: relative;
   overflow: hidden;
   height: 100%;
-  /* Soft vertical mask so items fade gracefully at top/bottom edges */
+  /* Fade only at bottom — top is clear so the section label is visible */
   mask-image: linear-gradient(
     to bottom,
-    transparent 0%,
-    black 16%,
-    black 84%,
+    black 0%,
+    black 80%,
     transparent 100%
   );
 }
@@ -146,7 +160,7 @@
   top: 80px; /* = header height */
   height: calc(100% - 80px);
   width: 1px;
-  background: rgba(58, 52, 47, 0.18);
+  background: rgba(var(--c-warm), 0.18);
   pointer-events: none;
   z-index: 0;
 }
@@ -163,7 +177,7 @@
 .trackHeadline {
   font-family: var(--font-display-italic);
   font-size: clamp(12px, 1vw, 15px);
-  color: rgba(58, 52, 47, 0.55);
+  color: rgba(var(--c-warm), 0.55);
   letter-spacing: 0.01em;
   text-align: center;
 }
@@ -182,10 +196,10 @@
   text-align: right;
   padding-right: clamp(20px, 2.5vw, 36px);
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.38);
+  color: rgba(var(--c-warm), 0.38);
   transition: color 0.35s ease;
   line-height: 1;
 }
@@ -198,10 +212,10 @@
   font-size: clamp(13px, 1.5vw, 22px);
   font-weight: 300;
   line-height: 1.2;
-  color: rgba(58, 52, 47, 0.42);
+  color: rgba(var(--c-warm), 0.42);
   transition: color 0.35s ease;
   /* hairline stroke so the light weight reads clearly */
-  -webkit-text-stroke: 0.3px rgba(58, 52, 47, 0.3);
+  -webkit-text-stroke: 0.3px rgba(var(--c-warm), 0.3);
   paint-order: stroke fill;
 }
 
@@ -221,8 +235,8 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(58, 52, 47, 0.18);
-  border: 1.5px solid rgba(58, 52, 47, 0.28);
+  background: rgba(var(--c-warm), 0.18);
+  border: 1.5px solid rgba(var(--c-warm), 0.28);
   position: relative;
   z-index: 3;
   flex-shrink: 0;
@@ -235,18 +249,18 @@
 
 /* ── Active state ─────────────────────────────────────────────────────────── */
 .itemActive .phaseLabel {
-  color: rgba(58, 52, 47, 0.65);
+  color: rgba(var(--c-warm), 0.65);
 }
 
 .itemActive .phaseName {
   color: var(--color-warm-dark);
-  -webkit-text-stroke: 0.4px rgba(58, 52, 47, 0.7);
+  -webkit-text-stroke: 0.4px rgba(var(--c-warm), 0.7);
 }
 
 .itemActive .dot {
   background: var(--color-warm-dark);
   border-color: var(--color-warm-dark);
-  box-shadow: 0 0 0 4px #E8E5E1, 0 0 0 6.5px rgba(58, 52, 47, 0.35);
+  box-shadow: 0 0 0 4px var(--color-services-bg), 0 0 0 6.5px rgba(var(--c-warm), 0.35);
   transform: scale(1.3);
 }
 
@@ -256,29 +270,19 @@
      the rest of the page content
 ───────────────────────────────────────────────────────────────────────────── */
 .rightPanel {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  /* right pad = page edge; left pad just provides column gutter */
-  padding: clamp(40px, 6vh, 80px) var(--space-nav-h) clamp(40px, 6vh, 80px) clamp(20px, 2.5vw, 40px);
+  position: relative;
+  overflow: hidden;
   height: 100%;
-  box-sizing: border-box;
 }
 
 .imageCard {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 420px;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   overflow: hidden;
-  border-radius: 6px;
-  transition: border-radius 0.55s var(--ease-out-expo);
+  border-radius: 0;
   animation: imageFade 0.55s ease both;
-  flex-shrink: 0;
-}
-
-.imageCard:hover {
-  border-radius: 24px;
 }
 
 @keyframes imageFade {
@@ -295,7 +299,7 @@
 
 .mobileItem {
   padding: 32px var(--space-nav-h);
-  border-top: 1px solid rgba(58, 52, 47, 0.1);
+  border-top: 1px solid rgba(var(--c-warm), 0.1);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -312,7 +316,7 @@
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.45);
+  color: rgba(var(--c-warm), 0.45);
 }
 
 .mobileName {
@@ -334,7 +338,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(58, 52, 47, 0.65);
+  color: rgba(var(--c-warm), 0.65);
   margin: 0;
 }
 

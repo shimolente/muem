@@ -85,6 +85,34 @@
   --z-content: 2;
   --z-nav:     10;
   --z-cursor:  100;
+
+  /* ── Colour helpers ──────────────────────────────────────────────────────────
+   * RGB triplet so components can use rgba(var(--c-warm), 0.x) everywhere.
+   * Override in [data-design="v2"] to shift the whole warm palette.
+   */
+  --c-warm: 58, 52, 47;          /* warm brown — used in rgba() throughout  */
+  --color-overlay-dark: #1F1A16; /* CategoriesSection dark hover overlay    */
+  --color-text-nav-dark: #29241D;/* Navbar text on light bg                 */
+  --color-services-bg:   #E8E5E1;/* ServicesSection section background      */
+  --color-services-left: #D9D5CF;/* ServicesSection left panel              */
+}
+
+/* ── Design v2 — Muem brandbook palette ─────────────────────────────────────
+   Activated by ?design=v2 via <DesignTheme> which sets data-design on <html>.
+   v1 (default) uses the values in :root above.
+   ─────────────────────────────────────────────────────────────────────────── */
+[data-design="v2"] {
+  --color-off-white:     #F4F3F0;  /* muem white / beige light                */
+  --color-warm-dark:     #35322F;  /* muem brown dark                         */
+  --color-black:         #323232;  /* muem black                              */
+  --color-green-light:   #EBECEA;  /* muem green light                        */
+  --color-green-dark:    #41443E;  /* muem green dark                         */
+  /* Derived from the brand palette */
+  --c-warm:              53, 50, 47; /* muem brown dark as RGB triplet        */
+  --color-overlay-dark:  #2E3028;    /* green-dark tinted overlay             */
+  --color-text-nav-dark: #35322F;    /* muem brown dark for nav text          */
+  --color-services-bg:   #EBECEA;    /* muem green light for Services section */
+  --color-services-left: #E1E2E0;    /* slightly deeper green for left panel  */
 }
 
 html {

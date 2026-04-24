@@ -1,8 +1,8 @@
-/* ── Section ──────────────────────────────────────────────────────────────── */
+/* ── Section — half-height so next section peeks in the same screen ──────── */
 .section {
   position: relative;
-  height: 100svh;
-  min-height: 520px;
+  height: 50svh;
+  min-height: 260px;
   overflow: hidden;
 }
 
@@ -31,7 +31,7 @@
 /* ── Content — bottom-anchored, horizontally centered ───────────────────── */
 .content {
   position: absolute;
-  bottom: clamp(96px, 14vh, 160px);
+  bottom: clamp(28px, 4vh, 48px);
   left: 0;
   right: 0;
   z-index: 2;
@@ -57,16 +57,19 @@
   will-change: opacity, transform;
 }
 
-/* ── Headline ─────────────────────────────────────────────────────────────── */
+/* ── Headline — single line, reduced size ─────────────────────────────────── */
 .headline {
   font-family: var(--font-display-light);
-  font-size: var(--text-hero);
+  font-size: clamp(24px, 2.8vw, 44px);
   font-weight: 300;
   line-height: var(--leading-tight);
   color: var(--color-white);
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;   /* flow spans in a row instead of stacking */
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.25em;           /* space between line spans */
   text-align: center;
   margin: 0;
 }
@@ -92,30 +95,14 @@
   will-change: opacity, transform;
 }
 
-/* ── Scroll arrow ─────────────────────────────────────────────────────────── */
+/* ── Scroll arrow — hidden ────────────────────────────────────────────────── */
 .arrow {
-  position: absolute;
-  bottom: clamp(24px, 3vh, 40px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  font-size: 20px;
-  color: var(--color-white);
-  opacity: 0; /* GSAP animates to 1 */
-  will-change: opacity, transform;
-  pointer-events: none;
-  line-height: 1;
+  display: none;
 }
 
 /* ── Mobile ───────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .content {
-    bottom: 36px;
-    gap: 12px;
-    padding: 0 20px;
-  }
-  .tagline {
-    max-width: 100%;
-    font-size: 14px;
-  }
+  .section  { height: 45svh; min-height: 220px; }
+  .content  { bottom: 24px; gap: 10px; padding: 0 20px; }
+  .tagline  { max-width: 100%; font-size: 14px; }
 }

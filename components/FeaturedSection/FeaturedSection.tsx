@@ -8,6 +8,45 @@ import styles from './FeaturedSection.module.css';
 
 const AUTOPLAY_MS = 9000;
 
+// Per-card directional offsets keyed by category id.
+// Each entry maps to the visual grid slots (A, B, C…) in order.
+const DIRS_BY_CAT: Record<string, { x: number; y: number }[]> = {
+  // Studio: gridStudio — "a a b b c d / a a t t c i / e e f g h h"
+  studio: [
+    { x: -90, y:   0 },  // A — left tall
+    { x:   0, y: -80 },  // B — top center
+    { x:  80, y:   0 },  // C — right mid
+    { x:  80, y: -40 },  // D — top-right corner
+    { x: -60, y:  70 },  // E — bottom-left
+    { x:   0, y:  80 },  // F — bottom center-left
+    { x:   0, y:  80 },  // G — bottom center-right
+    { x:  60, y:  70 },  // H — bottom-right
+    { x:  80, y:   0 },  // I — mid-right
+  ],
+  // Habitus: gridHabitus — "a a b c d d / e f t t h h / e i g g h h"
+  habitus: [
+    { x: -80, y: -60 },  // A — top-left
+    { x:   0, y: -80 },  // B — top center-left
+    { x:   0, y: -80 },  // C — top center-right
+    { x:  80, y: -60 },  // D — top-right
+    { x: -90, y:   0 },  // E — left tall
+    { x: -60, y:  20 },  // F — mid-left
+    { x:   0, y:  80 },  // G — bottom center
+    { x:  90, y:   0 },  // H — right tall
+    { x: -50, y:  70 },  // I — bottom-left
+  ],
+  // Residences: gridResidences — "a a b b c c / a a t t d g / e e e f f f"
+  residences: [
+    { x: -90, y:   0 },  // A — left tall
+    { x:   0, y: -80 },  // B — top center-left
+    { x:  80, y: -60 },  // C — top-right
+    { x:  90, y:   0 },  // D — mid-right
+    { x: -60, y:  80 },  // E — bottom-left wide
+    { x:  60, y:  80 },  // F — bottom-right wide
+    { x:  90, y:  30 },  // G — mid-far-right
+  ],
+};
+
 export function FeaturedSection() {
   const [catIdx, setCatIdx]   = useState(0);
   const [display, setDisplay] = useState(0); // rendered data — lags catIdx during exit transition
@@ -17,6 +56,9 @@ export function FeaturedSection() {
   const cardRefs              = useRef<(HTMLAnchorElement | null)[]>([]);
   const sectionRef            = useRef<HTMLElement>(null);
   const hasEntered            = useRef(false);
+  // Track which category indices have had their first-visit directional entrance.
+  // Studio (0) is pre-marked — it's handled by the section entrance animation.
+  const seenCategoriesRef     = useRef<Set<number>>(new Set([0]));
 
   // Text cell element refs — animated independently of cards
   const textLabelRef = useRef<HTMLSpanElement>(null);
@@ -85,20 +127,26 @@ export function FeaturedSection() {
 
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
-    gsap.set(cards,   { opacity: 0, y: 18 });
+
+    // Set each card to its directional start position (Studio dirs — initial category)
+    const initDirs = DIRS_BY_CAT['studio'] ?? [];
+    cards.forEach((card, i) => {
+      const d = initDirs[i] ?? { x: 0, y: 20 };
+      gsap.set(card, { opacity: 0, x: d.x, y: d.y });
+    });
     gsap.set(textEls, { opacity: 0, y: 14 });
 
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasEntered.current) {
           hasEntered.current = true;
-          // Cards stagger in
+          // Cards slide in from their directional offset, staggered
           gsap.to(cards, {
-            opacity: 1, y: 0,
-            stagger: 0.07, duration: 0.85, ease: 'power3.out', delay: 0.1,
+            opacity: 1, x: 0, y: 0,
+            stagger: 0.09, duration: 0.9, ease: 'power3.out', delay: 0.1,
             onComplete: () => startAutoplay(),
           });
-          // Text hierarchy: label → title → tagline, each with a beat
+          // Text: label → title, slight delay so cards lead
           gsap.to(textEls, {
             opacity: 1, y: 0,
             stagger: 0.12, duration: 0.7, ease: 'power3.out', delay: 0.35,
@@ -119,17 +167,37 @@ export function FeaturedSection() {
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
-    // Cards cascade in
-    gsap.fromTo(
-      cards,
-      { opacity: 0, y: 12 },
-      {
-        opacity: 1, y: 0,
-        stagger: 0.06, duration: 0.65, ease: 'power3.out',
+    const catId        = FEATURED[display].id;
+    const isFirstVisit = !seenCategoriesRef.current.has(display);
+
+    if (isFirstVisit) {
+      // Mark seen before animating so rapid tab clicks don't re-trigger
+      seenCategoriesRef.current.add(display);
+      // Directional entrance — each card slides in from its grid-position edge
+      const dirs = DIRS_BY_CAT[catId] ?? [];
+      cards.forEach((card, i) => {
+        const d = dirs[i] ?? { x: 0, y: 20 };
+        gsap.set(card, { opacity: 0, x: d.x, y: d.y });
+      });
+      gsap.to(cards, {
+        opacity: 1, x: 0, y: 0,
+        stagger: 0.09, duration: 0.9, ease: 'power3.out',
         onComplete: () => { isAnimating.current = false; },
-      },
-    );
-    // Text hierarchy stagger in — slight delay so cards lead
+      });
+    } else {
+      // Subsequent visits — simple cascade in from slight offset below
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 12 },
+        {
+          opacity: 1, y: 0,
+          stagger: 0.06, duration: 0.65, ease: 'power3.out',
+          onComplete: () => { isAnimating.current = false; },
+        },
+      );
+    }
+
+    // Text always does the same gentle stagger in
     gsap.fromTo(
       textEls,
       { opacity: 0, y: 10 },

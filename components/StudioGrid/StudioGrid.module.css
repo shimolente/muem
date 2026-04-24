@@ -95,7 +95,7 @@
 /* ── Filter bar — wide padding matches introWrap / page-level spacing ─────── */
 .filterBarWrap {
   padding: 0 var(--space-nav-h);
-  margin-bottom: clamp(16px, 2vh, 24px);
+  margin-bottom: clamp(64px, 8vh, 96px);
 }
 
 .filterBar {

@@ -68,7 +68,7 @@ export function HeroSection() {
         {/* Big headline */}
         <h1 ref={headlineRef} className={styles.headline}>
           {words.map((word, i) => {
-            const isItalic = word.replace(/[^a-zA-Z]/g, '') === 'Luxury';
+            const isItalic = word.replace(/[^a-zA-Z]/g, '').toLowerCase() === 'luxury';
             return (
               <span key={i} className={styles.wordClip}>
                 <span
@@ -76,9 +76,10 @@ export function HeroSection() {
                   style={{
                     display: 'inline-block',
                     fontFamily: isItalic ? 'var(--font-display-italic)' : undefined,
+                    color:      isItalic ? '#F4F3EF' : undefined,
                   }}
                 >
-                  {word}{i < words.length - 1 ? '\u00A0' : ''}
+                  {word}{i < words.length - 1 ? '\u00A0\u00A0' : ''}
                 </span>
               </span>
             );

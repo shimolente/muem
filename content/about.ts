@@ -30,8 +30,8 @@ export const ABOUT: AboutContent = {
       tags:  ['Residential', 'Hospitality', 'Commercial'],
     },
     {
-      value: '15+',
-      label: 'm² Designed',
+      value: '15k+',
+      label: 'Designed m²',
       tags:  ['Rootedness', 'Sustainability', 'Refinement'],
     },
     {

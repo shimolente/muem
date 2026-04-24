@@ -132,39 +132,41 @@
 /* ── Centre text cell ─────────────────────────────────────────────────────── */
 .textCell {
   grid-area: t;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  gap: clamp(6px, 0.8vh, 12px);
 }
 
-/* Tier 1 — micro label ("Featured Projects") */
+/* Tier 1 — micro label — sits at bottom of top 1fr row */
 .textLabel {
+  align-self: end;
+  padding-bottom: clamp(18px, 2.8vh, 32px);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.4);
+  color: rgba(var(--c-warm), 0.4);
   line-height: 1;
 }
-/* Tier 2 — display name ("Residential") */
+/* Tier 2 — display name — middle auto row = dead center */
 .textTitle {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(36px, 4.5vw, 72px);
+  font-size: 64px;
   line-height: 1;
   letter-spacing: -0.03em;
   color: var(--color-warm-dark);
   margin: 0;
 }
 
-/* Pagination dots */
+/* Pagination dots — sits at top of bottom 1fr row */
 .dots {
+  align-self: start;
+  padding-top: clamp(18px, 2.8vh, 32px);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 2px;
 }
 /* Each button is 24×24 transparent — large hit area */
@@ -188,12 +190,12 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: rgba(58, 52, 47, 0.22);
+  background: rgba(var(--c-warm), 0.22);
   transition: background 0.25s ease, width 0.25s ease, height 0.25s ease;
   flex-shrink: 0;
 }
 .dot:hover::before {
-  background: rgba(58, 52, 47, 0.5);
+  background: rgba(var(--c-warm), 0.5);
   width: 8px;
   height: 8px;
 }

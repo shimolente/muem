@@ -57,21 +57,28 @@ export function CategoriesSection() {
     const origin = getOrigin(id);
     if (origin === 'left')  setNavLogoLight(true);
     if (origin === 'right') setNavHamburgerLight(true);
-    gsap.set(curtain, { y: '0%' });
-    gsap.fromTo(clip, { y: '101%' }, { y: '0%', duration: 1.1, ease: 'power4.out' });
-    gsap.to(curtain, {
-      y: '-101%',
-      duration: 0.9,
-      ease: 'power4.out',
-      delay: 0.28,
-      onComplete: () => {
-        stateRef.current[id] = 'visible';
-        if (pendingRef.current[id] === 'leave') {
-          pendingRef.current[id] = null;
-          runLeave(id);
-        }
+    // Lift curtain immediately — image visible from start so rounded clip has contrast
+    gsap.set(curtain, { y: '-101%' });
+    // y: full duration — clip slides up and settles
+    gsap.fromTo(clip,
+      { y: '101%' },
+      {
+        y: '0%', duration: 1.1, ease: 'power4.out',
+        onComplete: () => {
+          stateRef.current[id] = 'visible';
+          if (pendingRef.current[id] === 'leave') {
+            pendingRef.current[id] = null;
+            runLeave(id);
+          }
+        },
       },
-    });
+    );
+    // Top corners only (bottom never visible coming from below)
+    // Shorter duration so clip is already sharp before it fully lands
+    gsap.fromTo(clip,
+      { borderTopLeftRadius: '400px', borderTopRightRadius: '400px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' },
+      { borderTopLeftRadius: '0px',    borderTopRightRadius: '0px',    duration: 0.72, ease: 'power2.out' },
+    );
   }
 
   function runLeave(id: string) {
@@ -85,15 +92,23 @@ export function CategoriesSection() {
     // Fully lift the curtain so the image (not a white box) is visible during exit
     gsap.set(curtain, { y: '-101%' });
     // If interrupted mid-entry, snap clip to fully-arrived position first
-    if (wasEntering) gsap.set(clip, { y: '0%' });
+    if (wasEntering) gsap.set(clip, { y: '0%', borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' });
     // Remove overlay class so text fades in parallel with the exit
     setOverlayIds(prev => { const s = new Set(prev); s.delete(id); return s; });
+    // Bottom corners only (top never visible as it exits upward), short delay so rounding trails the motion
+    gsap.to(clip, {
+      borderBottomLeftRadius: '9999px', borderBottomRightRadius: '9999px',
+      borderTopLeftRadius: '0px',       borderTopRightRadius: '0px',
+      duration: 0.5, ease: 'power2.in', delay: 0.1,
+    });
+    // y: clip exits upward
     gsap.to(clip, {
       y: '-101%',
       duration: 0.75,
       ease: 'power3.inOut',
       onComplete: () => {
-        gsap.set(clip,    { y: '101%' });
+        // Reset to enter-ready state: top corners rounded, bottom sharp
+        gsap.set(clip,    { y: '101%', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' });
         gsap.set(curtain, { y: '0%' }); // reset curtain for next enter
         stateRef.current[id] = 'idle';
         // Restore logo/hamburger color once the clip is fully gone

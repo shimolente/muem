@@ -147,7 +147,11 @@ export function FloatingCTA() {
       ].filter(Boolean).join(' ')}
     >
       {isPill && <span className={styles.ctaLabel}>Let's talk</span>}
-      <i ref={iconRef} className={styles.ctaIcon}>{isPill ? '↗' : '↓'}</i>
+      <i ref={iconRef} className={styles.ctaIcon}>
+        {isPill
+          ? <img src="/arrow.svg" alt="" className={styles.ctaArrow} />
+          : '↓'}
+      </i>
     </Link>
   );
 }

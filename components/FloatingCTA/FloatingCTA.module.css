@@ -48,22 +48,21 @@
 .cta.pill {
   left: auto;
   right: clamp(24px, 2.5vw, 40px);
-  width: clamp(130px, 14vw, 160px);
-  background: linear-gradient(135deg, rgba(20, 16, 13, 0.63) 0%, rgba(31, 26, 22, 0.50) 100%);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  gap: clamp(8px, 0.8vw, 12px);
-  justify-content: center;
-  padding: 4px 20px;
+  width: clamp(115px, 12vw, 140px);
+  background: linear-gradient(135deg, rgba(20, 16, 13, 0.25) 0%, rgba(31, 26, 22, 0.18) 100%);
+  backdrop-filter: blur(72px);
+  -webkit-backdrop-filter: blur(72px);
+  gap: clamp(6px, 0.6vw, 10px);
+  justify-content: flex-end;   /* text + arrow sit together at right; left border shifts right */
+  padding: 4px 0 4px 10px;
 }
 
 /* ── Label ───────────────────────────────────────────────────────────────── */
 .ctaLabel {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--color-white);
   white-space: nowrap;
   opacity: 0;
@@ -83,6 +82,22 @@
   flex-shrink: 0;
   line-height: 1;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* In pill state: give the icon a slot equal to the button height (44px = cap
+   diameter) so the glyph is visually centred within the right circular cap. */
+.cta.pill .ctaIcon {
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ctaArrow {
+  width: 13px;
+  height: 13px;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */

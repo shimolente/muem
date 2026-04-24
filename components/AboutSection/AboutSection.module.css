@@ -11,13 +11,12 @@
   padding: 0 var(--space-nav-h);
 }
 
-/* ── Grouped center block: headline + stats as one unit ─────────────────── */
+/* ── Headline wrapper — sits at flex centre of section ──────────────────── */
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(40px, 6vh, 72px);
 }
 
 .headline {
@@ -37,11 +36,15 @@
   will-change: transform, opacity;
 }
 
-/* ── Stats row — inline with headline block ─────────────────────────────── */
+/* ── Stats row — pinned to section bottom ───────────────────────────────── */
 .stats {
+  position: absolute;
+  bottom: clamp(48px, 7vh, 80px);
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  gap: clamp(48px, 9vw, 140px);
+  gap: clamp(4px, 11vw, 420px);
 }
 
 /* ── Individual stat ─────────────────────────────────────────────────────── */
@@ -60,25 +63,23 @@
 }
 
 .statValueGhost {
-  font-family: var(--font-display);
-  font-size: var(--text-display);
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: clamp(22px, 3vw, 42px);
+  font-weight: 300;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   visibility: hidden;
   pointer-events: none;
   user-select: none;
 }
 
 .statValue {
-  font-family: var(--font-display);
-  font-size: var(--text-display);
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: clamp(22px, 3vw, 42px);
+  font-weight: 300;
   line-height: 1;
   color: var(--color-white);
-  letter-spacing: -0.02em;
-  -webkit-text-stroke: var(--aire-stroke) currentColor;
-  paint-order: stroke fill;
+  letter-spacing: -0.01em;
   position: absolute;
   top: 0;
   left: 50%;
@@ -88,14 +89,13 @@
 
 .statLabel {
   font-family: var(--font-body);
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: clamp(13px, 1vw, 150px);
   font-weight: 600;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
   margin-top: clamp(4px, 0.6vh, 8px);
-  margin-bottom: clamp(6px, 0.8vh, 10px);
+  margin-bottom: clamp(14px, 2vh, 22px);
 }
 
 /* ── Tag list — descriptors below the label ─────────────────────────────── */
@@ -111,8 +111,8 @@
 
 .statTag {
   font-family: var(--font-body);
-  font-size: clamp(14px, 1vw, 16px);
-  font-weight: 400;
+  font-size: clamp(11px, 0.75vw, 13px);
+  font-weight: 300;
   letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1.4;
@@ -121,7 +121,6 @@
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section { padding: 0 24px; }
-  .content { gap: 32px; }
-  .stats   { gap: 28px; flex-wrap: wrap; justify-content: center; }
+  .stats   { gap: 28px; flex-wrap: wrap; bottom: clamp(32px, 5vh, 56px); padding: 0 24px; }
   .stat    { min-width: 110px; }
 }

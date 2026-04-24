@@ -49,7 +49,7 @@
 .darkOverlay {
   position: absolute;
   inset: 0;
-  background: #1F1A16;
+  background: var(--color-overlay-dark);
   opacity: 0.5;
   pointer-events: none;
 }
@@ -82,13 +82,13 @@
 .name {
   position: absolute;
   z-index: 2;
-  /* Centered — sits below the serif label */
-  top: 57%;
+  /* Centered — sits below the serif label, slightly lower */
+  top: 63%;
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: clamp(13px, 1.1vw, 17px);
+  font-size: clamp(11px, 0.85vw, 14px);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--color-warm-dark);
@@ -214,7 +214,7 @@
   text-align: center;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: clamp(13px, 1.1vw, 17px);
+  font-size: clamp(11px, 0.85vw, 14px);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--color-white);

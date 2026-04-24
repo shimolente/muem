@@ -1,3 +1,4 @@
+import { Suspense }             from 'react';
 import { HeroBackground }      from '@/components/HeroBackground/HeroBackground';
 import { HeroSection }         from '@/components/HeroSection/HeroSection';
 import { AboutSection }        from '@/components/AboutSection/AboutSection';
@@ -7,16 +8,19 @@ import { PhilosophySection }   from '@/components/PhilosophySection/PhilosophySe
 import { ContactSection }      from '@/components/ContactSection/ContactSection';
 import { FloatingCTA }         from '@/components/FloatingCTA/FloatingCTA';
 import { SnapEnabler }         from '@/components/SnapEnabler/SnapEnabler';
+import { DesignTheme }         from '@/components/DesignTheme/DesignTheme';
 
 /**
  * Homepage — sections stack on the root scroll.
  * Lenis (LenisProvider) smooths the scroll.
  * SectionSnap intercepts wheel events and snaps between [data-snap-section] elements.
  * HeroBackground sits fixed behind everything.
+ * DesignTheme reads ?design=v1|v2 and applies data-design to <html>.
  */
 export default function HomePage() {
   return (
     <>
+      <Suspense><DesignTheme /></Suspense>
       <SnapEnabler />
       <HeroBackground />
       <HeroSection />

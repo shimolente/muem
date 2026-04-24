@@ -18,7 +18,7 @@ export interface FeaturedCategory {
 export const FEATURED: FeaturedCategory[] = [
   {
     id: 'studio',
-    label: 'Featured Projects',
+    label: 'Featured projects',
     name: 'Residential',
     tagline: 'Architecture at the intersection of craft and vision.',
     projects: [
@@ -35,7 +35,7 @@ export const FEATURED: FeaturedCategory[] = [
   },
   {
     id: 'habitus',
-    label: 'Featured Projects',
+    label: 'Featured projects',
     name: 'Hospitality',
     tagline: 'Living spaces crafted for the way you actually live.',
     projects: [
@@ -52,7 +52,7 @@ export const FEATURED: FeaturedCategory[] = [
   },
   {
     id: 'residences',
-    label: 'Featured Projects',
+    label: 'Featured projects',
     name: 'Commercial',
     tagline: 'Private residences conceived from the inside out.',
     projects: [

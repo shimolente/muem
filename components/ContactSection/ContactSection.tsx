@@ -1,27 +1,16 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import gsap from 'gsap';
 import { CONTACT } from '@/content/contact';
-import { LOGO } from '@/content/nav';
 import { useUIStore } from '@/store/ui';
 import styles from './ContactSection.module.css';
-
-const FOOTER_LINKS = [
-  { label: 'Studio',        href: '/studio'       },
-  { label: 'Habitus',       href: '/habitus'       },
-  { label: 'Residences',    href: '/residences'    },
-  { label: 'Muem Studio',   href: '/studio'        },
-  { label: 'Opportunities', href: '/opportunities' },
-] as const;
 
 const COFFEE_COUNT = 84;
 
 function InstagramIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none" />
@@ -31,7 +20,7 @@ function InstagramIcon() {
 
 function WhatsAppIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
     </svg>
   );
@@ -150,24 +139,26 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
           {/* Dark gradient overlay */}
           <div className={styles.leftGradient} />
 
-          {/* Text content — above gradient */}
+          {/* Text content — grid: label top · headline dead-centre · tagline bottom */}
           <div className={styles.leftContent}>
 
-            {/* Copy group: label + headline + tagline — tightly spaced */}
-            <div className={styles.copyBlock}>
-              <span ref={labelRef} className={styles.sectionLabel}>Get in touch</span>
-              <h2 ref={headlineRef} className={styles.headline}>{CONTACT.headline}</h2>
-              <div ref={taglineRef} className={styles.tagline}>
-                {taglineParagraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
+            {/* Row 1 — label, aligned to bottom of row */}
+            <span ref={labelRef} className={styles.sectionLabel}>Get in touch</span>
+
+            {/* Row 2 — headline, dead centre */}
+            <h2 ref={headlineRef} className={styles.headline}>{CONTACT.headline}</h2>
+
+            {/* Row 3 — tagline, aligned to top of row */}
+            <div ref={taglineRef} className={styles.tagline}>
+              {taglineParagraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </div>
 
-            {/* Stat — pinned to bottom */}
+            {/* Stat — pinned to bottom via absolute */}
             <div ref={statRef} className={styles.stat}>
               <span ref={numRef} className={styles.statNumber}>0</span>
-              <span className={styles.statLabel}>Coffees shared with clients</span>
+              <span className={styles.statLabel}>Coconuts shared with clients</span>
             </div>
 
           </div>
@@ -177,56 +168,34 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
         <div className={styles.rightPanel}>
           <form ref={formRef} className={styles.form} onSubmit={e => e.preventDefault()}>
 
-            <div className={styles.formRow}>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Your Name *</label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="Your full name"
-                  autoComplete="name"
-                  required
-                />
-              </div>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Email Address *</label>
-                <input
-                  type="email"
-                  className={styles.input}
-                  placeholder="Your email address"
-                  autoComplete="email"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Phone Number *</label>
-                <input
-                  type="tel"
-                  className={styles.input}
-                  placeholder="+1 234 567 8900"
-                  autoComplete="tel"
-                  required
-                />
-              </div>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Location</label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="City, Country"
-                  autoComplete="address-level2"
-                />
-              </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}></label>
+              <input
+                type="text"
+                className={styles.input}
+                placeholder="Your name"
+                autoComplete="name"
+                required
+              />
             </div>
 
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Looking for:</label>
+              <label className={styles.fieldLabel}></label>
+              <input
+                type="email"
+                className={styles.input}
+                placeholder="Your email address"
+                autoComplete="email"
+                required
+              />
+            </div>
+
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}></label>
               <div className={styles.selectWrapper}>
                 <select className={styles.select} defaultValue="" required>
-                  <option value="" disabled>Select an option</option>
+                  <option value="" disabled>Looking for:</option>
                   {CONTACT.needs.map(n => (
                     <option key={n} value={n}>{n}</option>
                   ))}
@@ -235,7 +204,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
             </div>
 
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Message *</label>
+              <label className={styles.fieldLabel}></label>
               <textarea
                 className={styles.textarea}
                 placeholder="Tell us about your project..."
@@ -255,52 +224,38 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
               Send Message
             </button>
 
-            <div className={styles.socialRow}>
-              {CONTACT.socials.map(s => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.socialIcon}
-                  aria-label={s.label}
-                >
-                  {s.label === 'Instagram' ? <InstagramIcon /> : <WhatsAppIcon />}
-                </a>
-              ))}
-            </div>
-
           </form>
+
+          {/* Social icons — pinned to bottom, aligned with "84" stat */}
+          <div className={styles.socialRow}>
+            {CONTACT.socials.map(s => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.socialIcon}
+                aria-label={s.label}
+              >
+                {s.label === 'Instagram' ? <InstagramIcon /> : <WhatsAppIcon />}
+              </a>
+            ))}
+          </div>
+
+          {/* Cookie + copyright — bottom of right column */}
+          <div className={styles.rightMeta}>
+            <a href="/cookie-policy" className={styles.metaLink}>Cookie Policy</a>
+            <span className={styles.metaSep}>·</span>
+            <span className={styles.metaCopyright}>© {year} Muem Studio</span>
+            <span id="footer-cta" className={styles.footerCtaTarget} aria-hidden="true" />
+          </div>
+
         </div>
 
       </div>
 
-      {/* ── Footer bar — FloatingCTA snaps to #footer-cta ────────────── */}
-      <div id="footer-marker" className={styles.footerBar}>
-        <Link href={LOGO.href} className={styles.footerLogo}>
-          <Image
-            src={LOGO.src}
-            alt={LOGO.alt}
-            width={22}
-            height={22}
-            className={styles.footerLogoImg}
-          />
-          <span className={styles.footerLogoWordmark}>Muem Studio</span>
-        </Link>
-
-        <nav className={styles.footerNav}>
-          {FOOTER_LINKS.map(link => (
-            <Link key={link.label} href={link.href} className={styles.footerNavLink}>
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className={styles.footerRight}>
-          <span className={styles.footerCopyright}>© {year} Muem Studio</span>
-          <span id="footer-cta" className={styles.footerCtaTarget} aria-hidden="true" />
-        </div>
-      </div>
+      {/* Invisible anchor — triggers FloatingCTA snap on scroll ─────── */}
+      <div id="footer-marker" className={styles.footerAnchor} aria-hidden="true" />
 
     </section>
   );

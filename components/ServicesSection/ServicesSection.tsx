@@ -88,7 +88,6 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
 
         {/* Left: active service text — vertically centred */}
         <div className={styles.leftPanel}>
-          <p className={styles.sectionLabel}>How We Work</p>
           <div key={activeIdx} className={styles.activeContent}>
             {active.tagline && (
               <p className={styles.activeTagline}>{active.tagline}</p>
@@ -100,6 +99,9 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
 
         {/* Centre: scrolling timeline */}
         <div className={styles.centerPanel}>
+          {/* Section label — pinned at top, outside the scrolling track */}
+          <p className={styles.centerLabel}>How We Work</p>
+
           {/* Track — GSAP translates upward on scroll */}
           <div ref={trackRef} className={styles.track}>
 

@@ -15,7 +15,7 @@
 /* Cream background — inner-page grid sections */
 .navbarWithBg {
   background: var(--color-off-white);
-  box-shadow: 0 1px 0 rgba(58, 52, 47, 0.08);
+  box-shadow: 0 1px 0 rgba(var(--c-warm), 0.08);
 }
 
 /* Subtle shadow on logo + hamburger — white elements on a light bg */
@@ -80,14 +80,13 @@
   gap: 0;
   white-space: nowrap;
   transition: color 0.5s ease;
-  padding-bottom:42px; /* reserve space so sub text doesn't overlap items below */
 }
 
 /* Underline on hover */
 .navItem::after {
   content: '';
   position: absolute;
-  bottom: 25px;
+  bottom: -1px;
   left: 0;
   width: 100%;
   height: 1px;
@@ -110,7 +109,7 @@
 /* Sub descriptor — slides up from beneath label on hover */
 .navSub {
   position: absolute;
-  top: calc(100% - 20px); /* sits below the label with comfortable gap */
+  top: calc(100% + 6px); /* sits below the label without affecting nav height */
   left: 50%;
   transform: translateX(-50%) translateY(2px);
   font-family: var(--font-body);
@@ -131,7 +130,7 @@
 
 /* Dark theme: near-black nav text */
 .navbarDark .navItem {
-  color: #29241D;
+  color: var(--color-text-nav-dark);
 }
 
 /* ── Hamburger ──────────────────────────────────────────────────────────────── */

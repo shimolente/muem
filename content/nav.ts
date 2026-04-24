@@ -17,7 +17,7 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export const LOGO = {
-  src:  '/muem-logo.svg',
+  src:  '/muem-logo-mark.svg',
   alt:  'Muem Studio',
   href: '/',
 };

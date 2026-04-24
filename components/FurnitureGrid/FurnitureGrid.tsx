@@ -117,7 +117,7 @@ export function FurnitureGrid() {
         if (entry.isIntersecting) {
           setNavTheme('dark');
           setNavStyle('minimal');
-          setNavBg('cream');
+          setNavBg('transparent');
           setNavShadow(true);
         } else {
           setNavShadow(false);

@@ -74,7 +74,7 @@
 /* ── Category filter row ──────────────────────────────────────────────────── */
 .filterWrap {
   padding: 0 var(--space-nav-h);
-  margin-bottom: clamp(20px, 3vh, 32px);
+  margin-bottom: clamp(80px, 12vh, 128px);
 }
 
 .filterRow {

@@ -118,8 +118,8 @@ export function AboutSection() {
   return (
     <section ref={sectionRef} className={styles.section} data-snap-section="about">
 
+      {/* ── Headline — dead-centred in section ───────────────────── */}
       <div className={styles.content}>
-        {/* ── Headline ─────────────────────────────────────────────── */}
         <h2 className={styles.headline}>
           {lines.map((line, i) => (
             <span
@@ -131,30 +131,30 @@ export function AboutSection() {
             </span>
           ))}
         </h2>
+      </div>
 
-        {/* ── Stats row ────────────────────────────────────────────── */}
-        <div ref={statsRef} className={styles.stats}>
-          {ABOUT.stats.map((stat, i) => (
-            <div key={stat.label} className={styles.stat}>
-              {/* Ghost holds the final value's width so layout never shifts during count-up */}
-              <span className={styles.statValueWrap}>
-                <span className={styles.statValueGhost} aria-hidden="true">{stat.value}</span>
-                <span
-                  ref={el => { numRefs.current[i] = el; }}
-                  className={styles.statValue}
-                >
-                  0
-                </span>
+      {/* ── Stats row — pinned to bottom of section ──────────────── */}
+      <div ref={statsRef} className={styles.stats}>
+        {ABOUT.stats.map((stat, i) => (
+          <div key={stat.label} className={styles.stat}>
+            {/* Ghost holds the final value's width so layout never shifts during count-up */}
+            <span className={styles.statValueWrap}>
+              <span className={styles.statValueGhost} aria-hidden="true">{stat.value}</span>
+              <span
+                ref={el => { numRefs.current[i] = el; }}
+                className={styles.statValue}
+              >
+                0
               </span>
-              <span className={styles.statLabel}>{stat.label}</span>
-              <ul className={styles.statTags}>
-                {stat.tags.map(tag => (
-                  <li key={tag} className={styles.statTag}>{tag}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+            </span>
+            <span className={styles.statLabel}>{stat.label}</span>
+            <ul className={styles.statTags}>
+              {stat.tags.map(tag => (
+                <li key={tag} className={styles.statTag}>{tag}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
 
     </section>

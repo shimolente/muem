@@ -16,7 +16,7 @@ export interface ContactContent {
 
 export const CONTACT: ContactContent = {
   headline:  "Let's create together",
-  tagline:   "Looking for a partner for your next project?\n\nLet's discuss your ideas and how to turn them into something real — without overcomplicating it. Coffee helps too.",
+  tagline:   "Looking for a partner for your next project?\n\nLet's discuss your ideas and how to turn them into something real — without overcomplicating it. Coconut helps too.",
   whatsapp:  "+34 686 78 35 20",
   email:     "hi@muem.com",
   location:  "Canggu, Bali",
