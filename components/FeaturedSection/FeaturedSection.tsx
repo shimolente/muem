@@ -9,51 +9,55 @@ import styles from './FeaturedSection.module.css';
 const AUTOPLAY_MS = 9000;
 
 // Per-card directional offsets keyed by category id.
-// Each entry maps to the visual grid slots (A, B, C…) in order.
-const DIRS_BY_CAT: Record<string, { x: number; y: number }[]> = {
-  // Studio: gridStudio — "a a b b c d / a a t t c i / e e f g h h"
+// '±100%' = slide completely outside the cell frame (clipped by overflow:hidden on .cell).
+// Each entry maps to visual grid slots (A, B, C…) in project array order.
+const DIRS_BY_CAT: Record<string, { x: string | number; y: string | number }[]> = {
+  // Studio: gridStudio — "a a b b c d / a a t t c i / e e f g h h"  (9 cards)
   studio: [
-    { x: -90, y:   0 },  // A — left tall
-    { x:   0, y: -80 },  // B — top center
-    { x:  80, y:   0 },  // C — right mid
-    { x:  80, y: -40 },  // D — top-right corner
-    { x: -60, y:  70 },  // E — bottom-left
-    { x:   0, y:  80 },  // F — bottom center-left
-    { x:   0, y:  80 },  // G — bottom center-right
-    { x:  60, y:  70 },  // H — bottom-right
-    { x:  80, y:   0 },  // I — mid-right
+    { x: '-100%', y: 0 },    // A — left tall 2×2, enters from left
+    { x: 0, y: '-100%' },    // B — top center-left 2col, enters from top
+    { x: '100%', y: 0 },     // C — right-centre tall 1col, enters from right
+    { x: '100%', y: 0 },     // D — top-right corner 1col, enters from right
+    { x: '-100%', y: 0 },    // E — bottom-left 2col, enters from left
+    { x: 0, y: '100%' },     // F — bottom centre-left 1col, enters from bottom
+    { x: 0, y: '100%' },     // G — bottom centre-right 1col, enters from bottom
+    { x: '100%', y: 0 },     // H — bottom-right 2col, enters from right
+    { x: '100%', y: 0 },     // I — mid-right 1col, enters from right
   ],
-  // Habitus: gridHabitus — "a a b c d d / e f t t h h / e i g g h h"
+  // Habitus: gridHabitus — "a a b c d d / e f t t h h / e i g g h h"  (9 cards)
   habitus: [
-    { x: -80, y: -60 },  // A — top-left
-    { x:   0, y: -80 },  // B — top center-left
-    { x:   0, y: -80 },  // C — top center-right
-    { x:  80, y: -60 },  // D — top-right
-    { x: -90, y:   0 },  // E — left tall
-    { x: -60, y:  20 },  // F — mid-left
-    { x:   0, y:  80 },  // G — bottom center
-    { x:  90, y:   0 },  // H — right tall
-    { x: -50, y:  70 },  // I — bottom-left
+    { x: '-100%', y: 0 },    // A — top-left wide, enters from left
+    { x: 0, y: '-100%' },    // B — top centre-left, enters from top
+    { x: 0, y: '-100%' },    // C — top centre-right, enters from top
+    { x: '100%', y: 0 },     // D — top-right wide, enters from right
+    { x: '-100%', y: 0 },    // E — left tall, enters from left
+    { x: '-100%', y: 0 },    // F — mid-left, enters from left
+    { x: 0, y: '100%' },     // G — bottom centre, enters from bottom
+    { x: '100%', y: 0 },     // H — right tall, enters from right
+    { x: 0, y: '100%' },     // I — bottom-left, enters from bottom
   ],
-  // Residences: gridResidences — "a a b b c c / a a t t d g / e e e f f f"
+  // Residences: gridResidences — "a a b b c c / a a t t d g / e e f f g g / e e h h g g"  (8 cards)
   residences: [
-    { x: -90, y:   0 },  // A — left tall
-    { x:   0, y: -80 },  // B — top center-left
-    { x:  80, y: -60 },  // C — top-right
-    { x:  90, y:   0 },  // D — mid-right
-    { x: -60, y:  80 },  // E — bottom-left wide
-    { x:  60, y:  80 },  // F — bottom-right wide
-    { x:  90, y:  30 },  // G — mid-far-right
+    { x: '-100%', y: 0 },    // A — left tall 2×2, enters from left
+    { x: 0, y: '-100%' },    // B — top centre-left 2col, enters from top
+    { x: '100%', y: 0 },     // C — top-right 2col, enters from right
+    { x: '100%', y: 0 },     // D — mid-right 1col, enters from right
+    { x: 0, y: '100%' },     // E — bottom-left tall 2col, enters from bottom
+    { x: 0, y: '100%' },     // F — middle-top 2col, enters from bottom
+    { x: '100%', y: 0 },     // G — right tall 2col, enters from right
+    { x: 0, y: '100%' },     // H — middle-bottom 2col, enters from bottom
   ],
 };
 
 export function FeaturedSection() {
-  const [catIdx, setCatIdx]   = useState(0);
-  const [display, setDisplay] = useState(0); // rendered data — lags catIdx during exit transition
-  const isAnimating           = useRef(false);
+  const [catIdx, setCatIdx]       = useState(0);
+  const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
+  const [mobileIdx, setMobileIdx] = useState(0);
+  const mobileScrollerRef         = useRef<HTMLDivElement>(null);
+  const isAnimating               = useRef(false);
   const catIdxRef             = useRef(0);   // mirrors catIdx — avoids stale closure in autoplay
   const autoTimerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
-  const cardRefs              = useRef<(HTMLAnchorElement | null)[]>([]);
+  const cardRefs              = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef            = useRef<HTMLElement>(null);
   const hasEntered            = useRef(false);
   // Track which category indices have had their first-visit directional entrance.
@@ -76,7 +80,7 @@ export function FeaturedSection() {
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
-    // Exit: cards stagger up, text fades out simultaneously
+    // Exit: cards fade out, text fades out
     gsap.to(cards, {
       opacity: 0, y: -12, stagger: 0.04, duration: 0.28, ease: 'power2.in',
       onComplete: () => {
@@ -132,7 +136,7 @@ export function FeaturedSection() {
     const initDirs = DIRS_BY_CAT['studio'] ?? [];
     cards.forEach((card, i) => {
       const d = initDirs[i] ?? { x: 0, y: 20 };
-      gsap.set(card, { opacity: 0, x: d.x, y: d.y });
+      gsap.set(card, { x: d.x, y: d.y });
     });
     gsap.set(textEls, { opacity: 0, y: 14 });
 
@@ -140,10 +144,10 @@ export function FeaturedSection() {
       ([entry]) => {
         if (entry.isIntersecting && !hasEntered.current) {
           hasEntered.current = true;
-          // Cards slide in from their directional offset, staggered
+          // Cards slide completely in from outside their cell frame
           gsap.to(cards, {
-            opacity: 1, x: 0, y: 0,
-            stagger: 0.09, duration: 0.9, ease: 'power3.out', delay: 0.1,
+            x: 0, y: 0, opacity: 1,
+            stagger: 0.09, duration: 0.85, ease: 'power3.out', delay: 0.1,
             onComplete: () => startAutoplay(),
           });
           // Text: label → title, slight delay so cards lead
@@ -173,24 +177,24 @@ export function FeaturedSection() {
     if (isFirstVisit) {
       // Mark seen before animating so rapid tab clicks don't re-trigger
       seenCategoriesRef.current.add(display);
-      // Directional entrance — each card slides in from its grid-position edge
+      // Directional entrance — each card slides in from its grid-position edge (no fade)
       const dirs = DIRS_BY_CAT[catId] ?? [];
       cards.forEach((card, i) => {
         const d = dirs[i] ?? { x: 0, y: 20 };
-        gsap.set(card, { opacity: 0, x: d.x, y: d.y });
+        gsap.set(card, { x: d.x, y: d.y });
       });
       gsap.to(cards, {
-        opacity: 1, x: 0, y: 0,
-        stagger: 0.09, duration: 0.9, ease: 'power3.out',
+        x: 0, y: 0, opacity: 1,
+        stagger: 0.09, duration: 0.85, ease: 'power3.out',
         onComplete: () => { isAnimating.current = false; },
       });
     } else {
-      // Subsequent visits — simple cascade in from slight offset below
+      // Subsequent visits — partial slide in with fade
       gsap.fromTo(
         cards,
-        { opacity: 0, y: 12 },
+        { y: '40%', opacity: 0 },
         {
-          opacity: 1, y: 0,
+          y: 0, opacity: 1,
           stagger: 0.06, duration: 0.65, ease: 'power3.out',
           onComplete: () => { isAnimating.current = false; },
         },
@@ -209,6 +213,46 @@ export function FeaturedSection() {
 
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
+
+      {/* ── Mobile-only: horizontal scroll-snap between categories ────── */}
+      <div
+        ref={mobileScrollerRef}
+        className={styles.mobileScroller}
+        aria-hidden="true"
+        onScroll={() => {
+          const el = mobileScrollerRef.current;
+          if (el) setMobileIdx(Math.round(el.scrollLeft / el.clientWidth));
+        }}
+      >
+        {FEATURED.map((c, ci) => (
+          <div key={c.id} className={styles.mobileCategory}>
+            <div className={styles.mobileMiddle}>
+              <span className={styles.mobileLabel}>{c.label}</span>
+              <h2 className={styles.mobileTitle}>{c.name}</h2>
+              <div className={styles.mobileDots} aria-hidden="true">
+                {FEATURED.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`${styles.mobileDot} ${i === ci ? styles.mobileDotActive : ''}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.mobileProjects}>
+              {c.projects.slice(0, 4).map(p => (
+                <a key={p.id} href={p.href} className={styles.mobileCard}
+                   style={{ backgroundImage: `url(${p.imageSrc})` }}
+                   aria-label={`${p.title} — ${p.location}`}>
+                  <div className={styles.mobileCardOverlay} />
+                  <span className={styles.mobileCardTitle}>{p.title}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : cat.id === 'residences' ? styles.gridResidences : ''}`}>
 
         {/* ── Image cards — count driven by cat.projects ──────────── */}
@@ -218,18 +262,23 @@ export function FeaturedSection() {
             <a
               key={`${display}-${slot}`}
               href={project.href}
-              ref={el => { cardRefs.current[i] = el; }}
               className={`${styles.cell} ${styles[`cell${slot}`]}`}
               aria-label={`${project.title} — ${project.location}`}
             >
+              {/* cellInner is the GSAP target — slides within the clipped cell frame */}
               <div
-                className={styles.cellImage}
-                style={{ backgroundImage: project.imageSrc ? `url(${project.imageSrc})` : undefined }}
-              />
-              <div className={styles.cellOverlay} />
-              <div className={styles.cellMeta}>
-                <span className={styles.cellLocation}>{project.location}</span>
-                <span className={styles.cellTitle}>{project.title}</span>
+                ref={el => { cardRefs.current[i] = el; }}
+                className={styles.cellInner}
+              >
+                <div
+                  className={styles.cellImage}
+                  style={{ backgroundImage: project.imageSrc ? `url(${project.imageSrc})` : undefined }}
+                />
+                <div className={styles.cellOverlay} />
+                <div className={styles.cellMeta}>
+                  <span className={styles.cellLocation}>{project.location}</span>
+                  <span className={styles.cellTitle}>{project.title}</span>
+                </div>
               </div>
             </a>
           );

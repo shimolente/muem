@@ -47,6 +47,15 @@
 .cellH { grid-area: h; }
 .cellI { grid-area: i; }
 
+/* Inner wrapper — slides within the cell frame.
+   .cell overflow:hidden acts as the clip window so the slide looks
+   like the content is revealing from inside its box, not flying in. */
+.cellInner {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* keeps ::after gradients (z-index:1) above during GSAP transform */
+}
+
 /* Background image — scales on hover */
 .cellImage {
   position: absolute;
@@ -143,7 +152,7 @@
   align-self: end;
   padding-bottom: clamp(18px, 2.8vh, 32px);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 400;
   letter-spacing: 0.18em;
   color: rgba(var(--c-warm), 0.4);
@@ -216,17 +225,18 @@
     "e i g g h h";
 }
 
-/* Commercial: C spans 2 cols top-right, D+G split row 2, E+F equal bottom */
+/* Residences / Commercial: A tall-left 2×2, B+C top-right, D+G mid-right, E tall-left, F+H mid 2-stack, G tall-right */
 .gridResidences {
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   grid-template-areas:
     "a a b b c c"
     "a a t t d g"
-    "e e e f f f";
+    "e e f f g g"
+    "e e h h g g";
 }
 
-/* Residential: 6-col, D split into D (row1) + I (row2), 9 image cards */
+/* Studio / Residential: A tall-left 2×2, B+C top-center, D+I right edge, text centre, wide bottom */
 .gridStudio {
   grid-template-columns: repeat(6, 1fr);
   grid-template-areas:
@@ -235,40 +245,133 @@
     "e e f g h h";
 }
 
-/* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE — replace bento grid with horizontal-scroll category pages.
+   Each "page" is full viewport: top row (3 thumbs), title, bottom row (3 thumbs).
+───────────────────────────────────────────────────────────────────────────── */
+
+.mobileScroller {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .section {
-    height: auto;
+    height: 100svh;
     min-height: unset;
+    padding: 0;
+    overflow: hidden;
+  }
+  /* Hide desktop bento on mobile */
+  .grid { display: none; }
+
+  .mobileScroller {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobileScroller::-webkit-scrollbar { display: none; }
+
+  .mobileCategory {
+    flex: 0 0 100%;
+    width: 100vw;
+    height: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 8px;
     padding: 14px;
+    box-sizing: border-box;
   }
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    grid-template-areas:
-      "a a"
-      "b b"
-      "c d"
-      "t t"
-      "e e"
-      "f f";
+
+  .mobileProjects {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    min-height: 0;
   }
-  .gridResidences {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    grid-template-areas:
-      "a a"
-      "b b"
-      "c d"
-      "g g"
-      "t t"
-      "e e"
-      "f f";
+
+  .mobileCard {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-color: #b5a898;
+    border-radius: 4px;
+    overflow: hidden;
+    text-decoration: none;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
   }
-  /* Give each image cell a fixed aspect ratio on mobile */
-  .cell { aspect-ratio: 4 / 3; }
-  .textCell {
-    aspect-ratio: unset;
-    padding: 28px 20px;
+
+  .mobileCardOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(20, 16, 13, 0.55) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .mobileCardTitle {
+    position: relative;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-white);
+    line-height: 1.2;
+    z-index: 1;
+  }
+
+  .mobileMiddle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+    padding: 18px 14px;
+  }
+
+  .mobileLabel {
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: rgba(var(--c-warm), 0.5);
+    line-height: 1;
+  }
+
+  .mobileTitle {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(36px, 10vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-warm-dark);
+    margin: 0;
+  }
+
+  .mobileDots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: clamp(8px, 1vh, 12px);
+  }
+
+  .mobileDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(var(--c-warm), 0.25);
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+
+  .mobileDotActive {
+    background: var(--color-warm-dark);
+    transform: scale(1.2);
   }
 }

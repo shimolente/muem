@@ -63,6 +63,8 @@ export const FEATURED: FeaturedCategory[] = [
       { id: 'r5', title: 'Pavilion House',   location: 'Pererenan, Bali',    imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
       { id: 'r6', title: 'The Grove',        location: 'Ubud, Bali',         imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
       { id: 'r7', title: 'Cliffside Loft',   location: 'Uluwatu, Bali',      imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
+      { id: 'r8', title: 'Rooftop Suite',    location: 'Seminyak, Bali',     imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
+      { id: 'r9', title: 'Sunset Villa',     location: 'Jimbaran, Bali',     imageSrc: '/images/residences-cover.jpg', href: '/residences', category: 'residences' },
     ],
   },
 ];
