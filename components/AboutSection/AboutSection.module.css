@@ -9,11 +9,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(32px, 6vh, 64px);
   padding: 0 var(--space-nav-h);
 }
 
-/* ── Headline wrapper — sits at flex centre of section ──────────────────── */
+/* ── Headline wrapper — dead-centred in section ─────────────────────────── */
 .content {
   display: flex;
   flex-direction: column;
@@ -38,11 +37,16 @@
   will-change: transform, opacity;
 }
 
-/* ── Stats row — flows below headline in column layout ──────────────────── */
+/* ── Stats row — pinned to bottom, spread full-width (desktop) ──────────── */
 .stats {
+  position: absolute;
+  bottom: clamp(40px, 7vh, 72px);
+  left: var(--space-nav-h);
+  right: var(--space-nav-h);
   display: flex;
   justify-content: center;
-  gap: clamp(4px, 11vw, 420px);
+  align-items: center;
+  gap: 250px;
 }
 
 /* ── Individual stat ─────────────────────────────────────────────────────── */
@@ -50,6 +54,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   will-change: transform, opacity;
 }
 
@@ -57,7 +62,7 @@
 .statValueWrap {
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .statValueGhost {
@@ -80,8 +85,7 @@
   letter-spacing: -0.01em;
   position: absolute;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   white-space: nowrap;
 }
 
@@ -116,9 +120,25 @@
   line-height: 1.4;
 }
 
-/* ── Mobile ──────────────────────────────────────────────────────────────── */
+/* ── Mobile — restore centered layout ───────────────────────────────────── */
 @media (max-width: 768px) {
-  .section { padding: 0 24px; gap: clamp(24px, 4vh, 40px); }
-  .stats   { gap: 28px; flex-wrap: wrap; padding: 0 24px; }
-  .stat    { min-width: 110px; }
+  .section { padding: 0 24px; justify-content: center; gap: clamp(24px, 4vh, 40px); }
+
+  .stats {
+    position: static;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 28px;
+    padding: 0;
+  }
+
+  .stat {
+    align-items: center;
+    text-align: center;
+    min-width: 110px;
+  }
+
+  .statValueWrap { justify-content: center; }
+  .statValue     { left: 50%; transform: translateX(-50%); }
+  .statTags      { align-items: center; }
 }
