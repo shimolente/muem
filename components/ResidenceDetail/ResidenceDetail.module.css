@@ -137,7 +137,6 @@
   justify-content: center;
   gap: clamp(16px, 2vw, 28px);
   background: var(--color-off-white);
-  border-top: 1px solid rgba(58,52,47,0.07);
   padding: clamp(18px, 2.8vh, 28px) var(--space-nav-h);
 }
 

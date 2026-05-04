@@ -8,51 +8,22 @@ import styles from './FeaturedSection.module.css';
 
 const AUTOPLAY_MS = 9000;
 
-// Per-card directional offsets keyed by category id.
-// '±100%' = slide completely outside the cell frame (clipped by overflow:hidden on .cell).
-// Each entry maps to visual grid slots (A, B, C…) in project array order.
-const DIRS_BY_CAT: Record<string, { x: string | number; y: string | number }[]> = {
-  // Studio: gridStudio — "a a b b c d / a a t t c i / e e f g h h"  (9 cards)
-  studio: [
-    { x: '-100%', y: 0 },    // A — left tall 2×2, enters from left
-    { x: 0, y: '-100%' },    // B — top center-left 2col, enters from top
-    { x: '100%', y: 0 },     // C — right-centre tall 1col, enters from right
-    { x: '100%', y: 0 },     // D — top-right corner 1col, enters from right
-    { x: '-100%', y: 0 },    // E — bottom-left 2col, enters from left
-    { x: 0, y: '100%' },     // F — bottom centre-left 1col, enters from bottom
-    { x: 0, y: '100%' },     // G — bottom centre-right 1col, enters from bottom
-    { x: '100%', y: 0 },     // H — bottom-right 2col, enters from right
-    { x: '100%', y: 0 },     // I — mid-right 1col, enters from right
-  ],
-  // Habitus: gridHabitus — "a a b c d d / e f t t h h / e i g g h h"  (9 cards)
-  habitus: [
-    { x: '-100%', y: 0 },    // A — top-left wide, enters from left
-    { x: 0, y: '-100%' },    // B — top centre-left, enters from top
-    { x: 0, y: '-100%' },    // C — top centre-right, enters from top
-    { x: '100%', y: 0 },     // D — top-right wide, enters from right
-    { x: '-100%', y: 0 },    // E — left tall, enters from left
-    { x: '-100%', y: 0 },    // F — mid-left, enters from left
-    { x: 0, y: '100%' },     // G — bottom centre, enters from bottom
-    { x: '100%', y: 0 },     // H — right tall, enters from right
-    { x: 0, y: '100%' },     // I — bottom-left, enters from bottom
-  ],
-  // Residences: gridResidences — "a a b b c c / a a t t d g / e e f f g g / e e h h g g"  (8 cards)
-  residences: [
-    { x: '-100%', y: 0 },    // A — left tall 2×2, enters from left
-    { x: 0, y: '-100%' },    // B — top centre-left 2col, enters from top
-    { x: '100%', y: 0 },     // C — top-right 2col, enters from right
-    { x: '100%', y: 0 },     // D — mid-right 1col, enters from right
-    { x: 0, y: '100%' },     // E — bottom-left tall 2col, enters from bottom
-    { x: 0, y: '100%' },     // F — middle-top 2col, enters from bottom
-    { x: '100%', y: 0 },     // G — right tall 2col, enters from right
-    { x: 0, y: '100%' },     // H — middle-bottom 2col, enters from bottom
-  ],
-};
+// Four cardinal directions — no diagonals.
+const DIRS_POOL: { x: string | number; y: string | number }[] = [
+  { x: '-100%', y: 0 },
+  { x: '100%',  y: 0 },
+  { x: 0, y: '-100%' },
+  { x: 0, y:  '100%' },
+];
+
+function getRandomDirs(count: number) {
+  return Array.from({ length: count }, () => DIRS_POOL[Math.floor(Math.random() * DIRS_POOL.length)]);
+}
 
 export function FeaturedSection() {
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
-  const [mobileIdx, setMobileIdx] = useState(0);
+  const [, setMobileIdx] = useState(0);
   const mobileScrollerRef         = useRef<HTMLDivElement>(null);
   const isAnimating               = useRef(false);
   const catIdxRef             = useRef(0);   // mirrors catIdx — avoids stale closure in autoplay
@@ -132,8 +103,8 @@ export function FeaturedSection() {
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
-    // Set each card to its directional start position (Studio dirs — initial category)
-    const initDirs = DIRS_BY_CAT['studio'] ?? [];
+    // Set each card to a random directional start position
+    const initDirs = getRandomDirs(cards.length);
     cards.forEach((card, i) => {
       const d = initDirs[i] ?? { x: 0, y: 20 };
       gsap.set(card, { x: d.x, y: d.y });
@@ -171,14 +142,13 @@ export function FeaturedSection() {
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
-    const catId        = FEATURED[display].id;
     const isFirstVisit = !seenCategoriesRef.current.has(display);
 
     if (isFirstVisit) {
       // Mark seen before animating so rapid tab clicks don't re-trigger
       seenCategoriesRef.current.add(display);
-      // Directional entrance — each card slides in from its grid-position edge (no fade)
-      const dirs = DIRS_BY_CAT[catId] ?? [];
+      // Directional entrance — random cardinal directions per card
+      const dirs = getRandomDirs(cards.length);
       cards.forEach((card, i) => {
         const d = dirs[i] ?? { x: 0, y: 20 };
         gsap.set(card, { x: d.x, y: d.y });
@@ -226,6 +196,17 @@ export function FeaturedSection() {
       >
         {FEATURED.map((c, ci) => (
           <div key={c.id} className={styles.mobileCategory}>
+            <div className={styles.mobileCards}>
+              {c.projects.slice(0, 2).map(p => (
+                <a key={p.id} href={p.href} className={styles.mobileCard}
+                   style={{ backgroundImage: `url(${p.imageSrc})` }}
+                   aria-label={`${p.title} — ${p.location}`}>
+                  <div className={styles.mobileCardOverlay} />
+                  <span className={styles.mobileCardTitle}>{p.title}</span>
+                </a>
+              ))}
+            </div>
+
             <div className={styles.mobileMiddle}>
               <span className={styles.mobileLabel}>{c.label}</span>
               <h2 className={styles.mobileTitle}>{c.name}</h2>
@@ -239,8 +220,8 @@ export function FeaturedSection() {
               </div>
             </div>
 
-            <div className={styles.mobileProjects}>
-              {c.projects.slice(0, 4).map(p => (
+            <div className={styles.mobileCards}>
+              {c.projects.slice(2, 4).map(p => (
                 <a key={p.id} href={p.href} className={styles.mobileCard}
                    style={{ backgroundImage: `url(${p.imageSrc})` }}
                    aria-label={`${p.title} — ${p.location}`}>

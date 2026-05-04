@@ -1,0 +1,477 @@
+/*
+ * FurnitureDetail — product detail page
+ *
+ * Layout:
+ *   product   → 2-col split: sticky image left (56%), info right (44%)
+ *   collection → full-width 2-col: text left (44%), image right (56%)
+ *   related    → dark section, 4-col card grid (identical to ProjectDetail)
+ *
+ * Tokens:
+ *   --text-hero / --text-display / --text-body / --text-label
+ *   --space-nav-h / --leading-tight / --leading-normal / --tracking-wider
+ */
+
+/* ── Product section ──────────────────────────────────────────────────────── */
+.product {
+  display: grid;
+  grid-template-columns: 56fr 44fr;
+  background: var(--color-off-white);
+  min-height: 100svh;
+}
+
+/* ── Left — sticky image panel ───────────────────────────────────────────── */
+.imagePanel {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 0.55vw, 10px);
+  padding: clamp(6px, 0.55vw, 10px);
+  background: rgba(58, 52, 47, 0.04);
+}
+
+.imageMain {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: rgba(58, 52, 47, 0.06);
+}
+
+.imageMainImg {
+  transition: opacity 0.35s ease;
+}
+
+/* Thumbnail strip */
+.thumbStrip {
+  display: flex;
+  gap: clamp(6px, 0.55vw, 10px);
+  height: clamp(64px, 8vw, 88px);
+  flex-shrink: 0;
+}
+
+.thumb {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: rgba(58, 52, 47, 0.06);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+.thumb:hover   { opacity: 0.75; }
+.thumbActive   { opacity: 1; }
+.thumbActive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-warm-dark);
+  pointer-events: none;
+}
+
+/* ── Right — info panel ───────────────────────────────────────────────────── */
+.infoPanel {
+  padding: clamp(72px, 10vh, 112px) clamp(32px, 4vw, 64px) clamp(64px, 8vh, 96px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* vertically centre when content is shorter than the image panel */
+  justify-content: center;
+}
+
+/* Breadcrumb — collection · category */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: clamp(16px, 2.5vh, 28px);
+}
+
+.breadcrumbCollection,
+.breadcrumbCategory {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.45);
+  line-height: 1;
+}
+
+.breadcrumbDot {
+  font-size: 10px;
+  color: rgba(58, 52, 47, 0.25);
+  line-height: 1;
+  user-select: none;
+}
+
+/* Product name */
+.name {
+  font-family: var(--font-display-light);
+  font-weight: 300;
+  font-size: clamp(32px, 3.6vw, 58px);
+  line-height: var(--leading-tight);
+  color: var(--color-warm-dark);
+  margin: 0 0 clamp(10px, 1.5vh, 16px);
+}
+
+/* Tagline */
+.subtitle {
+  font-family: var(--font-display-italic);
+  font-size: clamp(14px, 1.2vw, 18px);
+  color: rgba(58, 52, 47, 0.48);
+  margin: 0 0 clamp(16px, 2.5vh, 28px);
+  line-height: var(--leading-snug);
+}
+
+/* Price */
+.price {
+  font-family: var(--font-body);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-warm-dark);
+  margin: 0 0 clamp(20px, 3vh, 32px);
+  line-height: 1;
+}
+
+/* Divider */
+.rule {
+  border: none;
+  border-top: 1px solid rgba(58, 52, 47, 0.1);
+  margin: 0 0 clamp(20px, 3vh, 32px);
+}
+
+/* Spec grid */
+.specs {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.4vh, 16px);
+  margin: 0 0 clamp(20px, 3vh, 32px);
+}
+
+.specRow {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.specLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.38);
+  line-height: 1.4;
+}
+
+.specValue {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--color-warm-dark);
+  line-height: var(--leading-snug);
+  margin: 0;
+}
+
+/* Description */
+.description {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(58, 52, 47, 0.62);
+  margin: 0 0 clamp(24px, 4vh, 40px);
+  max-width: 52ch;
+}
+
+/* CTAs */
+.ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.ctaPrimary {
+  font-family: var(--font-body);
+  font-size: clamp(12px, 0.95vw, 14px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-off-white);
+  background: var(--color-warm-dark);
+  text-decoration: none;
+  padding: clamp(13px, 1.8vh, 17px) clamp(28px, 2.5vw, 40px);
+  border-radius: 100px;
+  line-height: 1;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+.ctaPrimary:hover { opacity: 0.78; transform: translateY(-1px); }
+
+.ctaSecondary {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  letter-spacing: 0.04em;
+  color: rgba(58, 52, 47, 0.55);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(58, 52, 47, 0.22);
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.ctaSecondary:hover {
+  color: var(--color-warm-dark);
+  border-color: rgba(58, 52, 47, 0.55);
+}
+
+/* ── About the collection ─────────────────────────────────────────────────── */
+.collection {
+  background: var(--color-off-white);
+  border-top: 1px solid rgba(58, 52, 47, 0.08);
+}
+
+.collectionInner {
+  display: grid;
+  grid-template-columns: 44fr 56fr;
+  min-height: clamp(420px, 55vh, 660px);
+}
+
+.collectionText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(64px, 10vh, 112px) clamp(32px, 4vw, 64px) clamp(64px, 10vh, 112px) var(--space-nav-h);
+  gap: clamp(12px, 2vh, 20px);
+}
+
+.collectionLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(58, 52, 47, 0.38);
+  line-height: 1;
+}
+
+.collectionName {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(22px, 2.4vw, 36px);
+  line-height: var(--leading-snug);
+  color: var(--color-warm-dark);
+  margin: 0;
+}
+
+.collectionTagline {
+  font-family: var(--font-display-italic);
+  font-size: clamp(14px, 1.4vw, 20px);
+  color: rgba(58, 52, 47, 0.50);
+  margin: 0;
+  line-height: var(--leading-snug);
+}
+
+.collectionBody {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(58, 52, 47, 0.62);
+  max-width: 48ch;
+  margin: 0;
+}
+
+.collectionImage {
+  position: relative;
+  overflow: hidden;
+  background: rgba(58, 52, 47, 0.06);
+}
+
+/* ── Related pieces section ───────────────────────────────────────────────── */
+/* Identical to ProjectDetail .related for visual consistency */
+.related {
+  background: #1A1714;
+  padding-bottom: clamp(64px, 10vh, 120px);
+}
+
+.relatedIntro {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  padding: clamp(72px, 12vh, 128px) var(--space-nav-h) clamp(48px, 7vh, 72px);
+  gap: clamp(16px, 2vh, 24px);
+}
+
+.relatedSup {
+  font-family: var(--font-body); font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(245, 242, 238, 0.38); line-height: 1;
+}
+
+.relatedHeading {
+  font-family: var(--font-display-light); font-weight: 300;
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  color: var(--color-off-white); margin: 0;
+}
+
+.relatedBody {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: rgba(245, 242, 238, 0.55);
+  max-width: 52ch; margin: 0;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(6px, 0.55vw, 10px);
+  padding: 0 clamp(6px, 0.55vw, 10px);
+}
+
+.relatedCard {
+  position: relative; display: block;
+  aspect-ratio: 3 / 4; overflow: hidden;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+  transition: border-radius 0.55s var(--ease-out-expo);
+}
+.relatedCard:hover { border-radius: 48px; }
+
+.relatedImg {
+  transition: transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.35s ease;
+}
+.relatedCard:hover .relatedImg { transform: scale(1.03); filter: brightness(0.85); }
+
+.relatedOverlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(to bottom, transparent 35%, rgba(0, 0, 0, 0.72) 100%);
+  pointer-events: none;
+}
+
+.relatedBottom {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  padding: clamp(16px, 1.8vw, 22px);
+  display: flex; flex-direction: column; gap: 5px;
+  transition: transform 0.55s var(--ease-out-expo);
+}
+.relatedCard:hover .relatedBottom { transform: translate(8px, -10px); }
+
+.relatedCategory {
+  font-family: var(--font-body);
+  font-size: clamp(10px, 0.75vw, 11px);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55); line-height: 1; display: block;
+}
+
+.relatedName {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(17px, 1.6vw, 23px);
+  color: var(--color-white); line-height: 1.15; margin: 0;
+}
+
+.relatedMeta {
+  display: flex; gap: 14px;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: rgba(255, 255, 255, 0.42); line-height: 1;
+  margin-top: 2px;
+}
+
+.relatedCta {
+  display: flex; justify-content: center;
+  padding-top: clamp(40px, 5vh, 64px);
+}
+
+.relatedCtaLink {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  letter-spacing: 0.04em;
+  color: var(--color-off-white); text-decoration: none;
+  border-bottom: 1px solid rgba(245, 242, 238, 0.35);
+  padding-bottom: 3px;
+  transition: opacity 0.2s ease;
+}
+.relatedCtaLink:hover { opacity: 0.5; }
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Product section — stack vertically */
+  .product {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  /* Image panel — static, not sticky */
+  .imagePanel {
+    position: static;
+    height: auto;
+    padding: 0;
+    gap: 4px;
+    background: rgba(58, 52, 47, 0.04);
+  }
+
+  .imageMain {
+    aspect-ratio: 4 / 3;
+    flex: unset;
+  }
+
+  .thumbStrip {
+    height: clamp(54px, 14vw, 68px);
+    padding: 0 4px 4px;
+    gap: 4px;
+  }
+
+  /* Info panel — full-width */
+  .infoPanel {
+    padding: 32px 24px 48px;
+    justify-content: flex-start;
+  }
+
+  .name { font-size: clamp(28px, 8vw, 44px); }
+
+  .specRow {
+    grid-template-columns: 88px 1fr;
+  }
+
+  .description { max-width: 100%; }
+
+  .ctas { width: 100%; }
+  .ctaPrimary { width: 100%; text-align: center; padding: 15px 24px; }
+
+  /* Collection — stack: image top, text bottom */
+  .collectionInner {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .collectionImage {
+    aspect-ratio: 4 / 3;
+    position: relative;
+  }
+  .collectionText {
+    padding: 40px 24px 48px;
+  }
+  .collectionBody { max-width: 100%; }
+
+  /* Related — horizontal scroll */
+  .relatedGrid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .relatedGrid::-webkit-scrollbar { display: none; }
+
+  .relatedCard {
+    flex: 0 0 72vw;
+    scroll-snap-align: start;
+    aspect-ratio: 3 / 4;
+  }
+
+  .relatedHeading { font-size: clamp(32px, 8vw, 52px); }
+}

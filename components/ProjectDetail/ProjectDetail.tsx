@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
@@ -30,11 +30,13 @@ const GALLERY_PATTERN = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full'] as 
 type GallerySlot = typeof GALLERY_PATTERN[number];
 
 export function ProjectDetail({ project, related }: Props) {
-  const heroRef     = useRef<HTMLElement>(null);
-  const categoryRef = useRef<HTMLSpanElement>(null);
-  const titleRef    = useRef<HTMLHeadingElement>(null);
-  const locationRef = useRef<HTMLSpanElement>(null);
-  const arrowRef    = useRef<HTMLDivElement>(null);
+  const heroRef          = useRef<HTMLElement>(null);
+  const categoryRef      = useRef<HTMLSpanElement>(null);
+  const titleRef         = useRef<HTMLHeadingElement>(null);
+  const locationRef      = useRef<HTMLSpanElement>(null);
+  const arrowRef         = useRef<HTMLDivElement>(null);
+  const relatedScrollRef = useRef<HTMLDivElement>(null);
+  const [relatedIdx, setRelatedIdx] = useState(0);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -156,13 +158,21 @@ export function ProjectDetail({ project, related }: Props) {
           </div>
 
           {/* Cards — styled identically to StudioGrid project cards */}
-          <div className={styles.relatedGrid}>
+          <div
+            ref={relatedScrollRef}
+            className={styles.relatedGrid}
+            onScroll={() => {
+              const el = relatedScrollRef.current;
+              if (!el) return;
+              setRelatedIdx(Math.min(related.length - 1, Math.round(el.scrollLeft / (el.scrollWidth / related.length))));
+            }}
+          >
             {related.map(p => (
               <Link key={p.id} href={p.href} className={styles.relatedCard}>
                 <Image
                   src={p.images[0]} alt={p.title}
                   fill
-                  sizes="(max-width:768px) 100vw, 25vw"
+                  sizes="(max-width:768px) 72vw, 25vw"
                   style={{ objectFit: 'cover' }}
                   className={styles.relatedImg}
                 />
@@ -178,6 +188,15 @@ export function ProjectDetail({ project, related }: Props) {
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+
+          <div className={styles.relatedScrollDots} aria-hidden="true">
+            {related.map((_, i) => (
+              <span
+                key={i}
+                className={`${styles.relatedScrollDot} ${i === relatedIdx ? styles.relatedScrollDotActive : ''}`}
+              />
             ))}
           </div>
 

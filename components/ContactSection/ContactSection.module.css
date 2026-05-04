@@ -50,12 +50,13 @@
   background: rgba(20, 16, 13, 1);
 }
 
-/* Text content — 3-row grid: headline is dead-centre, label/tagline float around it */
+/* Text content — 3-row grid. Tighter top fr pulls headline/tagline UP from
+   dead-centre so the block sits in the upper-half above the absolute stat */
 .leftContent {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-rows: 1fr auto 1fr;
+  grid-template-rows: 0.55fr auto 1.45fr;
   row-gap: clamp(14px, 2vh, 22px);
   justify-items: center;
   text-align: center;
@@ -122,6 +123,20 @@
   align-items: center;
   gap: 6px;
   will-change: transform, opacity;
+}
+
+/* Number + coconut icon — row, icon to right of number */
+.statNumberRow {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1vw, 18px);
+}
+
+.statIcon {
+  width:  clamp(36px, 3.6vw, 56px);
+  height: clamp(36px, 3.6vw, 56px);
+  display: block;
+  filter: brightness(0) invert(1) opacity(0.85);
 }
 
 .statNumber {
@@ -302,10 +317,12 @@
 }
 .submitBtn:hover { opacity: 0.75; }
 
-/* Social icons row — below button */
+/* Social icons row — pinned at the same vertical centre as the left "Coconuts
+   shared" stat block. Stat block extends ~90px upward from its `bottom: 40-72`,
+   so its visual centre sits ~85-115px from viewport bottom; matching that here. */
 .socialRow {
   position: absolute;
-  bottom: clamp(40px, 6vh, 72px);
+  bottom: clamp(60px, 8vh, 95px);
   left: 0;
   right: 0;
   display: flex;
@@ -391,28 +408,76 @@
     flex-direction: column;
   }
 
+  /* Left panel — full width, content flows naturally, stat in flow at bottom */
   .leftPanel {
     width: 100%;
-    min-height: 380px;
+    min-height: unset;
+    padding: 56px 24px 40px;
   }
 
+  /* Reset desktop grid — flex column, stat sits at end naturally */
   .leftContent {
-    padding: 40px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    padding: 0;
+    height: auto;
   }
 
+  .headline {
+    font-size: clamp(30px, 8vw, 44px);
+  }
+
+  .tagline p {
+    font-size: 15px;
+    max-width: 100%;
+  }
+
+  /* Stat — out of absolute, flows in column */
+  .stat {
+    position: static;
+    margin-top: 16px;
+  }
+
+  .statNumberRow {
+    gap: 14px;
+  }
+
+  .statNumber {
+    font-size: clamp(54px, 16vw, 80px);
+  }
+
+  .statIcon {
+    width:  clamp(38px, 10vw, 52px);
+    height: clamp(38px, 10vw, 52px);
+  }
+
+  /* Right panel — full width, socials + meta flow naturally below form */
   .rightPanel {
     width: 100%;
-    padding: 32px 22px 28px;
+    padding: 32px 22px 24px;
     align-items: stretch;
+    gap: 24px;
   }
 
   .form {
     max-width: 100%;
   }
 
-  .headline { font-size: clamp(28px, 7vw, 44px); }
-
   .formRow { grid-template-columns: 1fr; }
 
-  .rightMeta { bottom: 12px; }
+  .socialRow {
+    position: static;
+    bottom: auto;
+    gap: 56px;
+    padding-top: 8px;
+  }
+
+  .rightMeta {
+    position: static;
+    bottom: auto;
+  }
+
+  .sectionLabel { align-self: center; }
 }

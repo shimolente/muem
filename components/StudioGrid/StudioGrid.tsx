@@ -260,22 +260,26 @@ export function StudioGrid() {
       {/* ── Card grid ────────────────────────────────────────────────────── */}
       <div ref={gridRef} className={styles.grid}>
         {visible.length > 0 ? (
-          visible.map(project => (
-            <ProjectCard key={project.id} project={project} />
-          ))
+          <>
+            {visible.map(project => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+            {hasMore && (
+              <button
+                type="button"
+                className={styles.loadMoreCard}
+                onClick={() => setLimit(l => l + 3)}
+                aria-label="Load more projects"
+              >
+                <span className={styles.loadMoreLabel}>Load more</span>
+                <span className={styles.loadMoreArrow} aria-hidden="true">↓</span>
+              </button>
+            )}
+          </>
         ) : (
           <p className={styles.empty}>No projects match the selected filters.</p>
         )}
       </div>
-
-      {/* ── Load more — centered pill button ─────────────────────────────── */}
-      {hasMore && (
-        <div className={styles.loadMoreRow}>
-          <button className={styles.loadMore} onClick={() => setLimit(l => l + 3)}>
-            Load more
-          </button>
-        </div>
-      )}
 
     </section>
   );

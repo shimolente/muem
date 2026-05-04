@@ -11,6 +11,7 @@ import styles from './Navbar.module.css';
 export function Navbar() {
   const itemRefs     = useRef<(HTMLAnchorElement | null)[]>([]);
   const overlayRef   = useRef<HTMLDivElement>(null);
+  const backdropRef  = useRef<HTMLDivElement>(null);
   const logoRef      = useRef<HTMLAnchorElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const navbarRef    = useRef<HTMLElement>(null);
@@ -71,7 +72,9 @@ export function Navbar() {
     const el = navbarRef.current;
     if (!el) return;
     const onHide = () => gsap.to(el, { yPercent: -100, opacity: 0, duration: 0.4, ease: 'power3.in' });
-    const onShow = () => gsap.to(el, { yPercent: 0,    opacity: 1, duration: 0.5, ease: 'power3.out' });
+    const onShow = () => { gsap.to(el, { yPercent: 0, opacity: 1, duration: 0.5, ease: 'power3.out',
+      onComplete: () => { gsap.set(el, { clearProps: 'transform' }); },
+    }); };
     window.addEventListener('nav:hide', onHide);
     window.addEventListener('nav:show', onShow);
     return () => {
@@ -95,30 +98,33 @@ export function Navbar() {
     });
   };
 
-  // ── Mobile overlay ─────────────────────────────────────────────────────────
+  // ── Mobile panel + backdrop ────────────────────────────────────────────────
   useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
+    const panel    = overlayRef.current;
+    const backdrop = backdropRef.current;
+    if (!panel || !backdrop) return;
 
     if (open) {
-      gsap.set(overlay, { display: 'flex' });
-      gsap.fromTo(
-        overlay,
-        { clipPath: 'inset(0 0 100% 0)' },
-        { clipPath: 'inset(0 0 0% 0)', duration: 0.6, ease: 'power3.inOut' },
-      );
-      const items = overlay.querySelectorAll('[data-menu-item]');
+      // Show both — panel slides in from right, backdrop fades in
+      gsap.set(panel,    { display: 'flex', x: '100%' });
+      gsap.set(backdrop, { display: 'block' });
+      gsap.to(panel,    { x: '0%',  duration: 0.52, ease: 'power3.inOut' });
+      gsap.to(backdrop, { opacity: 1, duration: 0.35, ease: 'power2.out' });
+      // Items stagger in from right after panel settles
+      const items = panel.querySelectorAll('[data-menu-item]');
       gsap.fromTo(
         items,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.07, duration: 0.5, ease: 'power3.out', delay: 0.3 },
+        { x: 24, opacity: 0 },
+        { x: 0, opacity: 1, stagger: 0.07, duration: 0.45, ease: 'power3.out', delay: 0.28 },
       );
     } else {
-      gsap.to(overlay, {
-        clipPath: 'inset(0 0 100% 0)',
-        duration: 0.5,
-        ease: 'power3.inOut',
-        onComplete: () => { gsap.set(overlay, { display: 'none' }); },
+      gsap.to(panel,    {
+        x: '100%', duration: 0.42, ease: 'power3.inOut',
+        onComplete: () => { gsap.set(panel, { display: 'none' }); },
+      });
+      gsap.to(backdrop, {
+        opacity: 0, duration: 0.3, ease: 'power2.in',
+        onComplete: () => { gsap.set(backdrop, { display: 'none' }); },
       });
     }
   }, [open]);
@@ -189,6 +195,16 @@ export function Navbar() {
         </button>
       </header>
 
+      {/* Backdrop — dims + blurs page behind the panel, click to dismiss */}
+      <div
+        ref={backdropRef}
+        className={`${styles.mobileBackdrop} ${open ? styles.backdropOpen : ''}`}
+        style={{ display: 'none' }}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Side panel — 1/3 width, right edge */}
       <div ref={overlayRef} className={styles.mobileOverlay} style={{ display: 'none' }}>
         <nav aria-label="Mobile navigation">
           {NAV_ITEMS.map(item => (

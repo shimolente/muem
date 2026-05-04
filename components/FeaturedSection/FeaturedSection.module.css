@@ -2,6 +2,7 @@
 .section {
   position: relative;
   z-index: 2;
+  width: 100%;
   height: 100svh;
   min-height: 600px;
   background: var(--color-off-white);
@@ -85,23 +86,6 @@
 }
 .cell:hover .cellOverlay { opacity: 1; }
 
-/* Top-to-bottom gradient on first-row cards — keeps nav hamburger legible */
-.cellA::after,
-.cellB::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(
-    to bottom,
-    rgba(20, 16, 13, 0.45) 0%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
 
 /* Location + project title — hidden by default, reveals on card hover */
 .cellMeta {
@@ -225,15 +209,13 @@
     "e i g g h h";
 }
 
-/* Residences / Commercial: A tall-left 2×2, B+C top-right, D+G mid-right, E tall-left, F+H mid 2-stack, G tall-right */
+/* Residences / Commercial: 9 items — 3-row bento, 3 visual columns */
 .gridResidences {
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(4, 1fr);
   grid-template-areas:
     "a a b b c c"
-    "a a t t d g"
-    "e e f f g g"
-    "e e h h g g";
+    "a a t t d e"
+    "f f g h i i";
 }
 
 /* Studio / Residential: A tall-left 2×2, B+C top-center, D+I right edge, text centre, wide bottom */
@@ -284,13 +266,13 @@
     scroll-snap-align: start;
     scroll-snap-stop: always;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 1fr auto 1fr;
     gap: 8px;
     padding: 14px;
     box-sizing: border-box;
   }
 
-  .mobileProjects {
+  .mobileCards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;

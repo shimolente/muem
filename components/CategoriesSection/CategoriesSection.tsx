@@ -1,14 +1,18 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { CATEGORIES, type Category } from '@/content/categories';
+import { FEATURED } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
 import styles from './CategoriesSection.module.css';
 
 type ColState = 'idle' | 'entering' | 'visible' | 'exiting';
 
 export function CategoriesSection() {
+  const router = useRouter();
+
   // overlayIds tracks which columns currently have the image overlay visible
   // (driven by GSAP state, not mouse state — so text stays white while animating)
   const [overlayIds, setOverlayIds] = useState<Set<string>>(new Set());
@@ -125,6 +129,7 @@ export function CategoriesSection() {
 
   /* ── Hover dispatchers ───────────────────────────────────────────────── */
   const handleEnter = (id: string) => {
+    if (window.matchMedia('(hover: none)').matches) return;
     hoveredColRef.current = id;
     const state = stateRef.current[id] ?? 'idle';
     if (state === 'entering' || state === 'visible') {
@@ -136,6 +141,7 @@ export function CategoriesSection() {
   };
 
   const handleLeave = (id: string) => {
+    if (window.matchMedia('(hover: none)').matches) return;
     hoveredColRef.current = null;
     if (isExpandedRef.current) return;
     const state = stateRef.current[id] ?? 'idle';
@@ -144,11 +150,9 @@ export function CategoriesSection() {
       return;
     }
     if (state === 'entering') {
-      // Let the enter finish, then exit — prevents the snap from interrupting mid-slide
       pendingRef.current[id] = 'leave';
       return;
     }
-    // state === 'visible' — exit immediately
     runLeave(id);
   };
 
@@ -192,6 +196,15 @@ export function CategoriesSection() {
     cursorObserver.observe(section);
     return () => { navObserver.disconnect(); cursorObserver.disconnect(); };
   }, [setNavTheme, setNavStyle]);
+
+  /* ── Click handler — mobile navigates, desktop expands ─────────────── */
+  const handleClick = (cat: Category) => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      router.push(cat.href);
+      return;
+    }
+    handleExpand(cat);
+  };
 
   /* ── Expand handler ──────────────────────────────────────────────────── */
   const handleExpand = (cat: Category) => {
@@ -256,8 +269,10 @@ export function CategoriesSection() {
     const labelEl  = overlay.querySelector('[data-reveal="label"]') as HTMLElement | null;
     const middleEl = overlay.querySelector('[data-reveal="middle"]') as HTMLElement | null;
     const nameEl   = overlay.querySelector('[data-reveal="name"]')  as HTMLElement | null;
+    const circleEls = overlay.querySelectorAll<HTMLElement>('[data-expand-circle]');
     // Already opacity:0 from JSX, but also kill any leftover GSAP state
     gsap.set([labelEl, middleEl, nameEl], { opacity: 0 });
+    gsap.set(circleEls, { opacity: 0, scale: 0.7, transformOrigin: 'center center' });
 
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
@@ -304,7 +319,11 @@ export function CategoriesSection() {
         tl.to(overlay, { clipPath: 'inset(0 0% 0 0%)', duration: 0.75, ease: 'power3.inOut' }, 0)
           .to(labelEl,  { y: 0, duration: 0.65, ease: 'power3.out' }, '-=0.4')
           .to(nameEl,   { y: 0, duration: 0.65, ease: 'power3.out' }, '<')
-          .to(middleEl, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.25');
+          .to(middleEl, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.25')
+          .to(circleEls, {
+            opacity: 1, scale: 1,
+            duration: 0.7, stagger: 0.12, ease: 'power3.out',
+          }, '-=0.45');
       })
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -322,13 +341,15 @@ export function CategoriesSection() {
     const labelEl        = overlay.querySelector('[data-reveal="label"]') as HTMLElement | null;
     const middleEl       = overlay.querySelector('[data-reveal="middle"]') as HTMLElement | null;
     const nameEl         = overlay.querySelector('[data-reveal="name"]')  as HTMLElement | null;
+    const circleEls      = overlay.querySelectorAll<HTMLElement>('[data-expand-circle]');
     const closingId      = active.id;
     const { labelY, nameY } = expandOffsetRef.current;
 
     const tl = gsap.timeline();
 
-    // 1. Fade out body+CTA, animate label/name back to hover positions
+    // 1. Fade out body+CTA + circles, animate label/name back to hover positions
     tl.to(middleEl, { opacity: 0, y: 12, duration: 0.2, ease: 'power2.in' })
+      .to(circleEls, { opacity: 0, scale: 0.7, duration: 0.3, stagger: 0.05, ease: 'power2.in' }, '<')
       .to(labelEl,  { y: labelY, duration: 0.5, ease: 'power3.in' }, '<0.05')
       .to(nameEl,   { y: nameY,  duration: 0.5, ease: 'power3.in' }, '<');
 
@@ -382,11 +403,11 @@ export function CategoriesSection() {
             className={`${styles.column} ${overlayIds.has(cat.id) ? styles.columnHovered : ''}`}
             onMouseEnter={() => handleEnter(cat.id)}
             onMouseLeave={() => handleLeave(cat.id)}
-            onClick={() => handleExpand(cat)}
+            onClick={() => handleClick(cat)}
             role="button"
             tabIndex={0}
             aria-label={`View ${cat.name}`}
-            onKeyDown={e => e.key === 'Enter' && handleExpand(cat)}
+            onKeyDown={e => e.key === 'Enter' && handleClick(cat)}
             data-col-id={cat.id}
           >
             <div
@@ -410,6 +431,17 @@ export function CategoriesSection() {
       <div ref={expandedRef} className={styles.expanded} style={{ display: 'none' }} onClick={handleClose}>
         {active && (
           <>
+            {/* Circular project images — positioned per origin, sit on the photo backdrop */}
+            <div className={`${styles.expandedImages} ${styles[`expandedImagesOrigin_${active.expandOrigin}`]}`} aria-hidden="true">
+              {(FEATURED.find(f => f.id === active.id)?.projects.slice(0, 3) ?? []).map((p, i) => (
+                <div
+                  key={p.id}
+                  data-expand-circle
+                  className={`${styles.expandedCircle} ${styles[`expandedCircle${i + 1}`]}`}
+                  style={{ backgroundImage: `url(${p.imageSrc})` }}
+                />
+              ))}
+            </div>
             <div
               data-expand-panel
               className={`${styles.expandedPanel} ${

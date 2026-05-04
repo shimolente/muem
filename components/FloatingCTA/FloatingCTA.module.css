@@ -49,9 +49,11 @@
   left: auto;
   right: clamp(24px, 2.5vw, 40px);
   width: clamp(115px, 12vw, 140px);
-  background: linear-gradient(135deg, rgba(20, 16, 13, 0.25) 0%, rgba(31, 26, 22, 0.18) 100%);
-  backdrop-filter: blur(72px);
-  -webkit-backdrop-filter: blur(72px);
+  /* Gradient stays visible — opacity up so button reads as a button.
+     Behind it: heavy blur on whatever sits underneath (page content). */
+  background: linear-gradient(135deg, rgba(20, 16, 13, 0.45) 0%, rgba(31, 26, 22, 0.32) 100%);
+  backdrop-filter: blur(60px) saturate(160%);
+  -webkit-backdrop-filter: blur(60px) saturate(160%);
   gap: clamp(6px, 0.6vw, 10px);
   justify-content: flex-end;   /* text + arrow sit together at right; left border shifts right */
   padding: 4px 0 4px 10px;

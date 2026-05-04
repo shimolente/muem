@@ -20,5 +20,5 @@ export const HERO: HeroContent = {
   overlayColor:   '#3A342F',
   overlayOpacity: 0.39,
   scrollLabel:    'Scroll',
-  label:          'Create\u00A0\u00A0\u00A0Live\u00A0\u00A0\u00A0Explore',  // small caption below headline
+  label:          'Create\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Live\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Explore',  // small caption below headline
 };

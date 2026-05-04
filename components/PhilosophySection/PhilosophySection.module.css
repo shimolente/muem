@@ -144,32 +144,58 @@
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section {
-    height: auto;
-    min-height: unset;
+    height: 100svh;
+    min-height: 560px;
     flex-direction: column;
-    padding: 14px;
-    gap: 14px;
-  }
-
-  .textPanel {
-    width: 100%;
-    padding: 28px 22px 24px;
-    order: 1;
+    padding: 0;
+    gap: 0;
   }
 
   .imageCard {
     width: 100%;
     flex: unset;
-    aspect-ratio: 3 / 2;
-    order: 0; /* image on top */
+    height: 52svh;
+    order: 0;
+  }
+
+  .textPanel {
+    width: 100%;
+    flex: 1;
+    height: auto;
+    padding: 20px 24px 24px;
+    order: 1;
+    justify-content: center;
+    gap: 10px;
+    overflow: visible;
+  }
+
+  .sectionLabel {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    margin-bottom: 2px;
+  }
+
+  .pillarsContent {
+    gap: 0;
   }
 
   .heading {
-    font-size: clamp(40px, 10vw, 60px);
+    font-size: clamp(28px, 8vw, 40px);
+    margin-bottom: 10px;
+  }
+
+  .dots {
+    margin-bottom: 10px;
+  }
+
+  .subheading {
+    font-size: clamp(12px, 3.5vw, 15px);
+    margin-bottom: 8px;
   }
 
   .body {
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.5;
     max-width: 100%;
   }
 }

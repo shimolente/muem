@@ -109,7 +109,7 @@ export function FloatingCTA() {
 
     gsap.killTweensOf(el);
     /* Clear all inline GSAP-set props so CSS class values re-apply */
-    gsap.set(el, { clearProps: 'top,left,width,height,bottom,right,opacity' });
+    gsap.set(el, { clearProps: 'top,left,width,height,bottom,right,opacity,transform' });
 
     setState(navStyleRef.current === 'minimal' ? 'pill' : 'arrow');
   }, []);

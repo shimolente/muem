@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
@@ -93,6 +93,60 @@ function FurnitureCard({ item }: { item: FurnitureItem }) {
     </Link>
   );
 }
+
+/* ── Category icons ──────────────────────────────────────────────────────── */
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  All: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  ),
+  Chairs: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 4h12v8H6z" />
+      <path d="M4 12h16v3H4z" />
+      <path d="M7 15v5M17 15v5" />
+    </svg>
+  ),
+  Tables: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="9" width="20" height="3" rx="1" />
+      <path d="M5 12v7M19 12v7" />
+    </svg>
+  ),
+  Consoles: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="8" width="20" height="6" rx="1" />
+      <path d="M5 14v4M19 14v4" />
+      <path d="M9 11h6" />
+    </svg>
+  ),
+  Shelving: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="2.5" rx="0.5" />
+      <rect x="2" y="10.5" width="20" height="2.5" rx="0.5" />
+      <rect x="2" y="18" width="20" height="2.5" rx="0.5" />
+      <path d="M5 5.5v5M19 5.5v5M5 13v5M19 13v5" />
+    </svg>
+  ),
+  Sofas: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 13V9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4" />
+      <path d="M2 13h20v4H2z" />
+      <path d="M5 17v2M19 17v2" />
+      <path d="M2 13a2 2 0 0 1 2-2M22 13a2 2 0 0 0-2-2" />
+    </svg>
+  ),
+  Extras: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12h14" />
+      <circle cx="12" cy="12" r="9" />
+    </svg>
+  ),
+};
 
 /* ── Main grid ────────────────────────────────────────────────────────────── */
 export function FurnitureGrid() {
@@ -194,16 +248,20 @@ export function FurnitureGrid() {
         </div>
       </div>
 
-      {/* ── Category pill filter ─────────────────────────────────────────── */}
+      {/* ── Category circle filter ───────────────────────────────────────── */}
       <div className={styles.filterWrap}>
         <div className={styles.filterRow}>
           {(['All', ...FURNITURE_CATEGORIES] as const).map(cat => (
             <button
               key={cat}
-              className={`${styles.filterPill} ${activeCategory === cat ? styles.filterPillActive : ''}`}
+              className={`${styles.filterCircle} ${activeCategory === cat ? styles.filterCircleActive : ''}`}
               onClick={() => setActiveCategory(cat as FurnitureCategory | 'All')}
+              aria-label={cat}
             >
-              {cat}
+              <span className={styles.filterCircleIcon}>
+                {CATEGORY_ICONS[cat]}
+              </span>
+              <span className={styles.filterCircleLabel}>{cat}</span>
             </button>
           ))}
         </div>
@@ -212,22 +270,26 @@ export function FurnitureGrid() {
       {/* ── Card grid ────────────────────────────────────────────────────── */}
       <div ref={gridRef} className={styles.grid}>
         {visible.length > 0 ? (
-          visible.map(item => (
-            <FurnitureCard key={item.id} item={item} />
-          ))
+          <>
+            {visible.map(item => (
+              <FurnitureCard key={item.id} item={item} />
+            ))}
+            {hasMore && (
+              <button
+                type="button"
+                className={styles.loadMoreCard}
+                onClick={() => setLimit(l => l + 4)}
+                aria-label="Load more items"
+              >
+                <span className={styles.loadMoreLabel}>Load more</span>
+                <span className={styles.loadMoreArrow} aria-hidden="true">↓</span>
+              </button>
+            )}
+          </>
         ) : (
           <p className={styles.empty}>No items in this category yet.</p>
         )}
       </div>
-
-      {/* ── Load more ────────────────────────────────────────────────────── */}
-      {hasMore && (
-        <div className={styles.loadMoreRow}>
-          <button className={styles.loadMore} onClick={() => setLimit(l => l + 4)}>
-            Load more
-          </button>
-        </div>
-      )}
 
     </section>
   );

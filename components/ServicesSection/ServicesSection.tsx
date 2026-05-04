@@ -143,30 +143,43 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
 
       </div>
 
-      {/* ── Mobile: vertical list (desktop hidden) ────────────────────── */}
-      <div className={styles.mobileList}>
-        {SERVICES.map((s, i) => (
-          <div key={s.id} className={styles.mobileItem}>
-            <div className={styles.mobileMeta}>
+      {/* ── Mobile: horizontal scroll (desktop hidden) ───────────────── */}
+      <div className={styles.mobileScroller}>
+        <p className={styles.mobileLabel}>How We Work</p>
+        <div
+          className={styles.mobileList}
+          onScroll={e => {
+            const el = e.currentTarget;
+            setActiveIdx(Math.min(N - 1, Math.round(el.scrollLeft / (el.scrollWidth / N))));
+          }}
+        >
+          {SERVICES.map((s, i) => (
+            <div key={s.id} className={styles.mobileItem}>
               <span className={styles.mobilePhase}>
                 Phase {String(i + 1).padStart(2, '0')}
               </span>
               <h3 className={styles.mobileName}>{s.name}</h3>
-            </div>
-            <div className={styles.mobileBody}>
-              <p className={styles.mobileDesc}>{s.description[0]}</p>
               <div className={styles.mobileImage}>
                 <Image
                   src={s.image}
                   alt={s.name}
                   fill
-                  sizes="80vw"
+                  sizes="78vw"
                   style={{ objectFit: 'cover' }}
                 />
               </div>
+              <p className={styles.mobileDesc}>{s.description[0]}</p>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div className={styles.mobileDots} aria-hidden="true">
+          {SERVICES.map((_, i) => (
+            <span
+              key={i}
+              className={`${styles.mobileDot} ${i === activeIdx ? styles.mobileDotActive : ''}`}
+            />
+          ))}
+        </div>
       </div>
 
     </section>

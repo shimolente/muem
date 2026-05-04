@@ -39,6 +39,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
   const taglineRef  = useRef<HTMLDivElement>(null);
   const statRef     = useRef<HTMLDivElement>(null);
   const numRef      = useRef<HTMLSpanElement>(null);
+  const iconRef     = useRef<HTMLImageElement>(null);
   const formRef     = useRef<HTMLFormElement>(null);
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
@@ -98,8 +99,23 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
         },
         onComplete() {
           if (numRef.current) numRef.current.textContent = COFFEE_COUNT.toString();
+          // Drop the coconut icon once the number finishes counting
+          const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+          if (isDesktop && iconRef.current) {
+            gsap.to(iconRef.current, {
+              y: 0,
+              duration: 0.95,
+              ease: 'elastic.out(1, 0.35)',
+            });
+          }
         },
       });
+
+      // Coconut drop — desktop only, fires once counter completes
+      const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+      if (isDesktop && iconRef.current) {
+        gsap.set(iconRef.current, { y: -44 });
+      }
     }
 
     if (isPage) {
@@ -157,7 +173,10 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
 
             {/* Stat — pinned to bottom via absolute */}
             <div ref={statRef} className={styles.stat}>
-              <span ref={numRef} className={styles.statNumber}>0</span>
+              <div className={styles.statNumberRow}>
+                <span ref={numRef} className={styles.statNumber}>0</span>
+                <img ref={iconRef} src="/coconut.svg" alt="" className={styles.statIcon} />
+              </div>
               <span className={styles.statLabel}>Coconuts shared with clients</span>
             </div>
 

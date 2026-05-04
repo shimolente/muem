@@ -133,7 +133,7 @@ export function ResidenceDetail({ project, related }: Props) {
           {project.bedrooms != null && (
             <div className={styles.specsChip}>
               {/* Bed icon */}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
                 <rect x="1" y="10" width="14" height="3" rx="0.5"/>
                 <path d="M3 10V8a1 1 0 011-1h4a1 1 0 011 1v2"/>
                 <path d="M9 10V8a1 1 0 011-1h2a1 1 0 011 1v2"/>
@@ -150,7 +150,7 @@ export function ResidenceDetail({ project, related }: Props) {
               <span className={styles.specsDot} aria-hidden="true">·</span>
               <div className={styles.specsChip}>
                 {/* Bath/shower icon */}
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
                   <path d="M2 9h12v1.5a4 4 0 01-4 4H6a4 4 0 01-4-4V9z"/>
                   <path d="M4 9V5a2 2 0 012-2h.5"/>
                   <line x1="5" y1="14.5" x2="4.5" y2="16"/>
@@ -167,7 +167,7 @@ export function ResidenceDetail({ project, related }: Props) {
               <span className={styles.specsDot} aria-hidden="true">·</span>
               <div className={styles.specsChip}>
                 {/* Car port icon */}
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
                   <path d="M2 9h12M3 9l1.5-4h7L13 9"/>
                   <rect x="1" y="9" width="14" height="4" rx="0.5"/>
                   <circle cx="4.5" cy="13" r="1"/>

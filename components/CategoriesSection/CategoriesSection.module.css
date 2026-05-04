@@ -251,6 +251,83 @@
 .closeBtn span:last-child  { transform: rotate(-45deg); }
 .closeBtn:hover span { background: white; }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   EXPANDED — circular project images
+   Three round photos placed in the empty image area around the text panel.
+   Position varies per category origin (left / center / right).
+───────────────────────────────────────────────────────────────────────────── */
+
+.expandedImages {
+  position: absolute;
+  inset: 0;
+  z-index: 1;            /* above clip image (z 7 outside .expanded), below panel (z 2) */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.expandedCircle {
+  position: absolute;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.18);
+  will-change: transform, opacity;
+}
+
+/* All circles use `top` only (no translateY) so GSAP scale tweens don't fight
+   a pre-existing transform. Vertical "centering" achieved with computed top. */
+
+/* ── Origin: LEFT (Studio) — panel on left 33%, circles cluster on right ───── */
+.expandedImagesOrigin_left .expandedCircle1 {
+  top: 10%; left: 60%;
+  width: clamp(180px, 19vw, 320px);
+  aspect-ratio: 1;
+}
+.expandedImagesOrigin_left .expandedCircle2 {
+  top: 38%; left: 78%;
+  width: clamp(150px, 16vw, 260px);
+  aspect-ratio: 1;
+}
+.expandedImagesOrigin_left .expandedCircle3 {
+  top: 60%; left: 50%;
+  width: clamp(170px, 18vw, 290px);
+  aspect-ratio: 1;
+}
+
+/* ── Origin: CENTER (Habitus) — panel centre, circles flank both sides ─────── */
+.expandedImagesOrigin_center .expandedCircle1 {
+  top: 12%; left: 8%;
+  width: clamp(160px, 17vw, 280px);
+  aspect-ratio: 1;
+}
+.expandedImagesOrigin_center .expandedCircle2 {
+  top: 60%; left: 12%;
+  width: clamp(140px, 15vw, 240px);
+  aspect-ratio: 1;
+}
+.expandedImagesOrigin_center .expandedCircle3 {
+  top: 38%; right: 6%;
+  width: clamp(180px, 19vw, 300px);
+  aspect-ratio: 1;
+}
+
+/* ── Origin: RIGHT (Residences) — panel on right 33%, circles cluster left ─── */
+.expandedImagesOrigin_right .expandedCircle1 {
+  top: 10%; left: 8%;
+  width: clamp(180px, 19vw, 320px);
+  aspect-ratio: 1;
+}
+.expandedImagesOrigin_right .expandedCircle2 {
+  top: 38%; left: 28%;
+  width: clamp(150px, 16vw, 260px);
+  aspect-ratio: 1;
+}
+.expandedImagesOrigin_right .expandedCircle3 {
+  top: 60%; left: 14%;
+  width: clamp(170px, 18vw, 290px);
+  aspect-ratio: 1;
+}
+
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section {
@@ -262,6 +339,46 @@
     flex: none;
     height: 33.33svh;
   }
+
+  /* Image always visible — no hover animation needed (mobile has no hover).
+     !important overrides any GSAP-set inline transform from desktop logic. */
+  .imageClip {
+    transform: translateY(0) !important;
+  }
+  .curtain {
+    display: none;
+  }
+  .darkOverlay {
+    opacity: 0.5;
+  }
+  /* Text is always "hovered" white over the dark image */
+  .label, .name {
+    color: var(--color-white) !important;
+  }
+
+  /* Expanded view — circles scaled down + repositioned for narrow viewport */
   .expandedPanel  { width: 100%; left: 0 !important; }
   .expandedMiddle { left: clamp(20px, 6vw, 40px); right: clamp(20px, 6vw, 40px); }
+
+  .expandedCircle1,
+  .expandedCircle2,
+  .expandedCircle3 {
+    width: 38vw !important;
+    aspect-ratio: 1;
+  }
+  .expandedImagesOrigin_left .expandedCircle1,
+  .expandedImagesOrigin_center .expandedCircle1,
+  .expandedImagesOrigin_right .expandedCircle1 {
+    top: 8%; left: 6%; right: auto;
+  }
+  .expandedImagesOrigin_left .expandedCircle2,
+  .expandedImagesOrigin_center .expandedCircle2,
+  .expandedImagesOrigin_right .expandedCircle2 {
+    top: 8%; right: 6%; left: auto;
+  }
+  .expandedImagesOrigin_left .expandedCircle3,
+  .expandedImagesOrigin_center .expandedCircle3,
+  .expandedImagesOrigin_right .expandedCircle3 {
+    bottom: 8%; left: 31vw; top: auto; right: auto;
+  }
 }
