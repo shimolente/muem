@@ -1,0 +1,179 @@
+// Muem Studio CMS — data model
+// See CLAUDE.md "Entities" section for field rationale.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────────────────────
+enum Role {
+  ADMIN
+}
+
+enum ProjectCategory {
+  Residential
+  Hospitality
+  Commercial
+  FoodAndBeverage
+  Retail
+}
+
+enum FeaturedCategory {
+  Residential
+  Hospitality
+  Commercial
+}
+
+enum ProjectStatus {
+  Completed
+  InProgress
+  Concept
+}
+
+enum PropertyTopology {
+  Villa
+  Apartment
+  Townhouse
+  Land
+  Commercial
+}
+
+enum FurnitureCategory {
+  Chairs
+  Tables
+  Consoles
+  Shelving
+  Sofas
+  Extras
+}
+
+// ── Auth (single admin) ────────────────────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ── Studio Projects ────────────────────────────────────────────────────────
+model StudioProject {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  title       String
+  subtitle    String?
+  description String?
+  location    String?
+  topology    String?
+  category    ProjectCategory?
+  size        String?
+  year        Int?
+  status      ProjectStatus    @default(Completed)
+  images      String[]
+  featured    Boolean          @default(false)
+  sortOrder   Int              @default(0)
+  publishedAt DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  featuredSlots FeaturedSlot[]
+
+  @@index([deletedAt, publishedAt])
+  @@index([sortOrder])
+  @@index([category])
+}
+
+// ── Properties (real estate) ───────────────────────────────────────────────
+model Property {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  title       String
+  subtitle    String?
+  description String?
+  location    String?
+  topology    PropertyTopology?
+  size        String?
+  year        Int?
+  status      ProjectStatus     @default(Completed)
+  priceFrom   String?
+  bedrooms    Int?
+  bathrooms   Int?
+  carPort     Int?
+  unitsTotal  Int?
+  unitsSold   Int               @default(0)
+  images      String[]
+  featured    Boolean           @default(false)
+  sortOrder   Int               @default(0)
+  publishedAt DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([deletedAt, publishedAt])
+  @@index([sortOrder])
+}
+
+// ── Furniture ──────────────────────────────────────────────────────────────
+model Furniture {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  name        String
+  collection  String?
+  category    FurnitureCategory
+  material    String?
+  price       String?
+  subtitle    String?
+  description String?
+  dimensions  String?
+  finish      String?
+  leadTime    String?
+  origin      String?
+  images      String[]
+  featured    Boolean           @default(false)
+  sortOrder   Int               @default(0)
+  publishedAt DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([deletedAt, publishedAt])
+  @@index([sortOrder])
+  @@index([category])
+}
+
+// ── Featured Projects (homepage bento selection) ───────────────────────────
+model FeaturedSlot {
+  id        String           @id @default(cuid())
+  category  FeaturedCategory
+  projectId String
+  sortOrder Int              @default(0)
+  createdAt DateTime         @default(now())
+
+  project StudioProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([category, projectId])
+  @@index([category, sortOrder])
+}
+
+// ── Contact form submissions ───────────────────────────────────────────────
+model ContactSubmission {
+  id         String    @id @default(cuid())
+  name       String
+  email      String
+  lookingFor String
+  message    String
+  read       Boolean   @default(false)
+  repliedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([read, createdAt])
+}

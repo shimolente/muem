@@ -1,3 +1,18 @@
+/* ── Submit feedback ─────────────────────────────────────────────────────── */
+.submitFeedback {
+  margin-top: 12px;
+  font-size: var(--text-label);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.72);
+}
+.submitFeedback[data-state="success"] {
+  color: #b3d4a8;
+}
+.submitFeedback[data-state="error"] {
+  color: #e9a09a;
+}
+
 /* ── Section — flex column: main content + footer bar ────────────────────── */
 .section {
   position: relative;

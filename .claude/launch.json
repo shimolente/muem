@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "muem-dev",
+      "runtimeExecutable": "/Users/pasha_c698_1/Projects/muem/.claude/start-dev.sh",
+      "runtimeArgs": [],
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}

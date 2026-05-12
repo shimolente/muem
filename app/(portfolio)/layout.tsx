@@ -1,3 +1,6 @@
+import '../../styles/fonts.css';
+import '../../styles/global.css';
+
 import { Cursor }        from '@/components/Cursor/Cursor';
 import { Navbar }        from '@/components/Navbar/Navbar';
 import { LenisProvider } from '@/components/LenisProvider/LenisProvider';

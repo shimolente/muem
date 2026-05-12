@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Section — Layout Options</title>
+  <link rel="stylesheet" href="styles/fonts.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-display:        'Aire Roman Pro', Georgia, serif;
+      --font-display-italic: 'Aire Light Italic Pro', Georgia, serif;
+      --font-body:           'brandon-grotesque', 'Brandon Grotesque', Helvetica, sans-serif;
+      --color-bg:            #1a1713;
+      --color-white:         #ffffff;
+      --aire-stroke:         1px;
+    }
+
+    body {
+      background: #111;
+      font-family: var(--font-body);
+      color: #fff;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      text-align: center;
+      padding: 48px 24px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .page-header h1 {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* ── Layout nav ── */
+    .layout-nav {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 24px;
+      position: sticky;
+      top: 0;
+      background: rgba(17,17,17,0.95);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .layout-btn {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      background: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 8px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .layout-btn.active,
+    .layout-btn:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    /* ── Section wrapper (simulates 100svh viewport) ── */
+    .screen {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 600px;
+      background: var(--color-bg);
+    }
+    .screen.active { display: block; }
+
+    /* ── Shared: option label in corner ── */
+    .option-badge {
+      position: absolute;
+      top: 28px;
+      left: 40px;
+      font-family: var(--font-body);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* ── Shared: stat ── */
+    .stat { display: flex; flex-direction: column; align-items: center; }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-weight: 400;
+      line-height: 1;
+      color: var(--color-white);
+      letter-spacing: -0.02em;
+      -webkit-text-stroke: var(--aire-stroke) currentColor;
+      paint-order: stroke fill;
+    }
+
+    .stat-label {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap;
+    }
+
+    .stat-tags { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .stat-tag {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.4;
+    }
+
+    /* ════════════════════════════════════════
+       OPTION A — Editorial Split
+       "Less talk." top-third
+       4 stats centred middle band
+       "More design." bottom-third
+    ════════════════════════════════════════ */
+    #optionA .headline-top {
+      position: absolute;
+      top: 18%;
+      left: 0; right: 0;
+      text-align: center;
+    }
+    #optionA .headline-bottom {
+      position: absolute;
+      bottom: 18%;
+      left: 0; right: 0;
+      text-align: center;
+    }
+    #optionA .headline-word {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 6vw, 88px);
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--color-white);
+      letter-spacing: -0.01em;
+      -webkit-text-stroke: var(--aire-stroke) currentColor;
+      paint-order: stroke fill;
+    }
+    #optionA .stats-mid {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      gap: clamp(40px, 7vw, 120px);
+      padding: 32px 80px;
+    }
+    #optionA .stats-mid .stat-value { font-size: clamp(36px, 4.5vw, 64px); }
+    #optionA .stats-mid .stat-label { margin-top: 6px; }
+    #optionA .stats-mid .stat-tags { margin-top: 8px; }
+
+    /* divider lines flanking the stats band */
+    #optionA .stats-mid::before,
+    #optionA .stats-mid::after {
+      content: '';
+      position: absolute;
+      left: 80px; right: 80px;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    #optionA .stats-mid::before { top: 0; }
+    #optionA .stats-mid::after  { bottom: 0; }
+
+
+    /* ════════════════════════════════════════
+       OPTION B — Number Dominance
+       Giant numbers as hero, headline above as caption
+    ════════════════════════════════════════ */
+    #optionB .content-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 100%;
+      padding: 0 80px;
+    }
+    #optionB .headline {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 2vw, 28px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.01em;
+      margin-bottom: clamp(32px, 5vh, 56px);
+      -webkit-text-stroke: 0px;
+    }
+    #optionB .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: clamp(32px, 5vw, 96px);
+      align-items: flex-end;
+    }
+    #optionB .stat-value {
+      font-size: clamp(72px, 9vw, 132px);
+      line-height: 0.9;
+      display: block;
+    }
+    #optionB .stat-label {
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    #optionB .stat-tags { margin-top: 10px; }
+
+
+    /* ════════════════════════════════════════
+       OPTION C — Grouped Center Block
+       Headline + thin rule + stats, all as one unit, vertically centred
+    ════════════════════════════════════════ */
+    #optionC .block {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 100%;
+      padding: 0 80px;
+    }
+    #optionC .headline {
+      font-family: var(--font-display);
+      font-size: clamp(42px, 5.5vw, 80px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--color-white);
+      letter-spacing: -0.01em;
+      -webkit-text-stroke: var(--aire-stroke) currentColor;
+      paint-order: stroke fill;
+      display: flex;
+      flex-direction: column;
+      gap: 0.05em;
+    }
+    #optionC .divider {
+      width: 1px;
+      height: 48px;
+      background: rgba(255,255,255,0.2);
+      margin: 32px auto;
+    }
+    #optionC .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: clamp(40px, 7vw, 120px);
+    }
+    #optionC .stat-value { font-size: clamp(32px, 4vw, 56px); }
+    #optionC .stat-label { margin-top: 6px; }
+    #optionC .stat-tags { margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>About Section — Layout Options</h1>
+    <p>Click A / B / C to switch between concepts. Same copy, different compositions.</p>
+  </div>
+
+  <div class="layout-nav">
+    <button class="layout-btn active" onclick="show('A')">Option A — Editorial Split</button>
+    <button class="layout-btn" onclick="show('B')">Option B — Number Dominance</button>
+    <button class="layout-btn" onclick="show('C')">Option C — Grouped Center</button>
+  </div>
+
+  <!-- ═══ OPTION A ═══ -->
+  <div id="optionA" class="screen active">
+    <span class="option-badge">A — Editorial Split</span>
+
+    <div class="headline-top">
+      <span class="headline-word">Less talk.</span>
+    </div>
+
+    <div class="stats-mid">
+      <div class="stat">
+        <span class="stat-value">3+</span>
+        <span class="stat-label">Expertise</span>
+        <ul class="stat-tags">
+          <li class="stat-tag">Architecture</li>
+          <li class="stat-tag">Furniture</li>
+          <li class="stat-tag">Real Estate</li>
+        </ul>
+      </div>
+      <div class="stat">
+        <span class="stat-value">30+</span>
+        <span class="stat-label">Projects</span>
+        <ul class="stat-tags">
+          <li class="stat-tag">Residential</li>
+          <li class="stat-tag">Hospitality</li>
+          <li class="stat-tag">Commercial</li>
+        </ul>
+      </div>
+      <div class="stat">
+        <span class="stat-value">15+</span>
+        <span class="stat-label">m² Designed</span>
+        <ul class="stat-tags">
+          <li class="stat-tag">Rootedness</li>
+          <li class="stat-tag">Sustainability</li>
+          <li class="stat-tag">Refinement</li>
+        </ul>
+      </div>
+      <div class="stat">
+        <span class="stat-value">10+</span>
+        <span class="stat-label">Years</span>
+        <ul class="stat-tags">
+          <li class="stat-tag">International</li>
+          <li class="stat-tag">Experience</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="headline-bottom">
+      <span class="headline-word">More design.</span>
+    </div>
+  </div>
+
+  <!-- ═══ OPTION B ═══ -->
+  <div id="optionB" class="screen">
+    <span class="option-badge">B — Number Dominance</span>
+
+    <div class="content-wrap">
+      <p class="headline">Less talk. More design.</p>
+
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-value">3+</span>
+          <span class="stat-label">Expertise</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">Architecture</li>
+            <li class="stat-tag">Furniture</li>
+            <li class="stat-tag">Real Estate</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <span class="stat-value">30+</span>
+          <span class="stat-label">Projects</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">Residential</li>
+            <li class="stat-tag">Hospitality</li>
+            <li class="stat-tag">Commercial</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <span class="stat-value">15+</span>
+          <span class="stat-label">m² Designed</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">Rootedness</li>
+            <li class="stat-tag">Sustainability</li>
+            <li class="stat-tag">Refinement</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <span class="stat-value">10+</span>
+          <span class="stat-label">Years</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">International</li>
+            <li class="stat-tag">Experience</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OPTION C ═══ -->
+  <div id="optionC" class="screen">
+    <span class="option-badge">C — Grouped Center</span>
+
+    <div class="block">
+      <h2 class="headline">
+        <span>Less talk.</span>
+        <span>More design.</span>
+      </h2>
+
+      <div class="divider"></div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-value">3+</span>
+          <span class="stat-label">Expertise</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">Architecture</li>
+            <li class="stat-tag">Furniture</li>
+            <li class="stat-tag">Real Estate</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <span class="stat-value">30+</span>
+          <span class="stat-label">Projects</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">Residential</li>
+            <li class="stat-tag">Hospitality</li>
+            <li class="stat-tag">Commercial</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <span class="stat-value">15+</span>
+          <span class="stat-label">m² Designed</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">Rootedness</li>
+            <li class="stat-tag">Sustainability</li>
+            <li class="stat-tag">Refinement</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <span class="stat-value">10+</span>
+          <span class="stat-label">Years</span>
+          <ul class="stat-tags">
+            <li class="stat-tag">International</li>
+            <li class="stat-tag">Experience</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function show(letter) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('option' + letter).classList.add('active');
+      document.querySelectorAll('.layout-btn')[letter.charCodeAt(0) - 65].classList.add('active');
+    }
+  </script>
+</body>
+</html>

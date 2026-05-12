@@ -6,7 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { revealUp } from '@/lib/animation';
 import {
-  RESIDENCES_PROJECTS, RESIDENCES_INTRO,
+  RESIDENCES_INTRO,
   unitsAvailable, isSoldOut,
   type ResidenceProject,
 } from '@/content/residences';
@@ -118,7 +118,7 @@ function PropertyCard({ project }: { project: ResidenceProject }) {
 }
 
 /* ── Main grid component ──────────────────────────────────────────────────── */
-export function ResidencesGrid() {
+export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
@@ -154,7 +154,7 @@ export function ResidencesGrid() {
   }, [setNavTheme, setNavStyle, setNavBg, setNavShadow]);
 
   /* ── Filtered + paginated data ────────────────────────────────────────── */
-  const allFiltered = RESIDENCES_PROJECTS.filter(p => {
+  const allFiltered = projects.filter(p => {
     // availability: if only 'available' → hide sold out; if only 'soldout' → hide available
     // if both or neither selected → show all
     const wantAvail   = availFilter.includes('available');

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { revealUp } from '@/lib/animation';
 import {
-  FURNITURE_ITEMS, FURNITURE_INTRO, FURNITURE_CATEGORIES,
+  FURNITURE_INTRO, FURNITURE_CATEGORIES,
   type FurnitureItem, type FurnitureCategory,
 } from '@/content/furniture';
 import { useUIStore } from '@/store/ui';
@@ -149,7 +149,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 /* ── Main grid ────────────────────────────────────────────────────────────── */
-export function FurnitureGrid() {
+export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
   const sectionRef  = useRef<HTMLElement>(null);
   const gridRef     = useRef<HTMLDivElement>(null);
   const hasEntered  = useRef(false);
@@ -185,8 +185,8 @@ export function FurnitureGrid() {
 
   /* ── Filtered + paginated data ────────────────────────────────────────── */
   const filtered = activeCategory === 'All'
-    ? FURNITURE_ITEMS
-    : FURNITURE_ITEMS.filter(i => i.category === activeCategory);
+    ? items
+    : items.filter(i => i.category === activeCategory);
 
   const visible = filtered.slice(0, limit);
   const hasMore = filtered.length > limit;

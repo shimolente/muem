@@ -9,15 +9,12 @@ import { ContactSection }      from '@/components/ContactSection/ContactSection'
 import { FloatingCTA }         from '@/components/FloatingCTA/FloatingCTA';
 import { SnapEnabler }         from '@/components/SnapEnabler/SnapEnabler';
 import { DesignTheme }         from '@/components/DesignTheme/DesignTheme';
+import { getFeaturedCategories } from '@/lib/queries/featured';
 
-/**
- * Homepage — sections stack on the root scroll.
- * Lenis (LenisProvider) smooths the scroll.
- * SectionSnap intercepts wheel events and snaps between [data-snap-section] elements.
- * HeroBackground sits fixed behind everything.
- * DesignTheme reads ?design=v1|v2 and applies data-design to <html>.
- */
-export default function HomePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const featured = await getFeaturedCategories();
   return (
     <>
       <Suspense><DesignTheme /></Suspense>
@@ -26,7 +23,7 @@ export default function HomePage() {
       <HeroSection />
       <AboutSection />
       <CategoriesSection />
-      <FeaturedSection />
+      <FeaturedSection categories={featured} />
       <PhilosophySection />
       <ContactSection />
       <FloatingCTA />

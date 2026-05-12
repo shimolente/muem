@@ -1,6 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import '../styles/fonts.css';
-import '../styles/global.css';
 
 export const metadata: Metadata = {
   title: {
@@ -18,7 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {/* Brandon Grotesque via Adobe Fonts */}
+        {/* Brandon Grotesque via Adobe Fonts — public site only, but loading
+            here is harmless on admin (just an extra HTTP request) */}
         <link rel="stylesheet" href="https://use.typekit.net/vxw0vrh.css" />
         <link
           rel="preload"

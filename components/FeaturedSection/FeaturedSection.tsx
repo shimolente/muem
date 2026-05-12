@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
-import { FEATURED } from '@/content/featured';
+import type { FeaturedCategory } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
 import styles from './FeaturedSection.module.css';
 
@@ -20,7 +20,7 @@ function getRandomDirs(count: number) {
   return Array.from({ length: count }, () => DIRS_POOL[Math.floor(Math.random() * DIRS_POOL.length)]);
 }
 
-export function FeaturedSection() {
+export function FeaturedSection({ categories: FEATURED }: { categories: FeaturedCategory[] }) {
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
   const [, setMobileIdx] = useState(0);

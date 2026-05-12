@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useTransition } from 'react';
 import gsap from 'gsap';
 import { CONTACT } from '@/content/contact';
 import { useUIStore } from '@/store/ui';
@@ -40,6 +40,9 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
   const statRef     = useRef<HTMLDivElement>(null);
   const numRef      = useRef<HTMLSpanElement>(null);
   const iconRef     = useRef<HTMLImageElement>(null);
+  const [isPending, startTransition] = useTransition();
+  const [submitState, setSubmitState] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMsg, setSubmitMsg] = useState<string>('');
   const formRef     = useRef<HTMLFormElement>(null);
 
   const setNavTheme = useUIStore(s => s.setNavTheme);
@@ -185,27 +188,73 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
 
         {/* Right: form */}
         <div className={styles.rightPanel}>
-          <form ref={formRef} className={styles.form} onSubmit={e => e.preventDefault()}>
+          <form
+            ref={formRef}
+            className={styles.form}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (isPending) return;
+              const fd = new FormData(e.currentTarget);
+              const payload = {
+                name:       String(fd.get('name')       ?? '').trim(),
+                email:      String(fd.get('email')      ?? '').trim(),
+                lookingFor: String(fd.get('lookingFor') ?? '').trim(),
+                message:    String(fd.get('message')    ?? '').trim(),
+              };
+              const form = e.currentTarget;
+              startTransition(async () => {
+                try {
+                  const res = await fetch('/api/contact', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(payload),
+                  });
+                  const json = await res.json().catch(() => ({}));
+                  if (!res.ok || !json.ok) {
+                    setSubmitState('error');
+                    setSubmitMsg(
+                      res.status === 429
+                        ? 'Too many requests — try again in a minute.'
+                        : json?.error === 'VALIDATION_FAILED'
+                          ? 'Please check the fields and try again.'
+                          : 'Sorry, something went wrong. Please try again.',
+                    );
+                    return;
+                  }
+                  setSubmitState('success');
+                  setSubmitMsg('Message sent. We’ll reply within 1–2 business days.');
+                  form.reset();
+                } catch {
+                  setSubmitState('error');
+                  setSubmitMsg('Network error — please try again.');
+                }
+              });
+            }}
+          >
 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}></label>
               <input
+                name="name"
                 type="text"
                 className={styles.input}
                 placeholder="Your name"
                 autoComplete="name"
                 required
+                disabled={isPending}
               />
             </div>
 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}></label>
               <input
+                name="email"
                 type="email"
                 className={styles.input}
                 placeholder="Your email address"
                 autoComplete="email"
                 required
+                disabled={isPending}
               />
             </div>
 
@@ -213,7 +262,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}></label>
               <div className={styles.selectWrapper}>
-                <select className={styles.select} defaultValue="" required>
+                <select name="lookingFor" className={styles.select} defaultValue="" required disabled={isPending}>
                   <option value="" disabled>Looking for:</option>
                   {CONTACT.needs.map(n => (
                     <option key={n} value={n}>{n}</option>
@@ -225,23 +274,35 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}></label>
               <textarea
+                name="message"
                 className={styles.textarea}
                 placeholder="Tell us about your project..."
                 rows={3}
                 required
+                disabled={isPending}
               />
             </div>
 
             <label className={styles.consentLabel}>
-              <input type="checkbox" className={styles.consentCheckbox} required />
+              <input type="checkbox" className={styles.consentCheckbox} required disabled={isPending} />
               <span className={styles.consentText}>
                 I consent to my data being stored to process this inquiry. It will not be used for commercial purposes.
               </span>
             </label>
 
-            <button type="submit" className={styles.submitBtn}>
-              Send Message
+            <button type="submit" className={styles.submitBtn} disabled={isPending}>
+              {isPending ? 'Sending…' : 'Send Message'}
             </button>
+
+            {submitState !== 'idle' && (
+              <p
+                role={submitState === 'error' ? 'alert' : 'status'}
+                className={styles.submitFeedback}
+                data-state={submitState}
+              >
+                {submitMsg}
+              </p>
+            )}
 
           </form>
 

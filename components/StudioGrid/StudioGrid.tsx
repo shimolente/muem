@@ -6,7 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { revealUp } from '@/lib/animation';
 import {
-  STUDIO_PROJECTS, STUDIO_INTRO, CATEGORIES,
+  STUDIO_INTRO, CATEGORIES,
   type StudioProject,
 } from '@/content/studio';
 import { FilterDropdown, type DropdownOption } from '@/components/FilterDropdown/FilterDropdown';
@@ -113,7 +113,7 @@ function ProjectCard({ project }: { project: StudioProject }) {
 }
 
 /* ── Main grid component ─────────────────────────────────────────────────── */
-export function StudioGrid() {
+export function StudioGrid({ projects }: { projects: StudioProject[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
@@ -156,7 +156,7 @@ export function StudioGrid() {
   const cFilter = toTopologies('commercial',  comSubs);
   const anyActive = rFilter !== null || hFilter !== null || cFilter !== null;
 
-  const allFiltered = STUDIO_PROJECTS.filter(p => {
+  const allFiltered = projects.filter(p => {
     if (!anyActive) return true;
     if (rFilter && rFilter.includes(p.topology)) return true;
     if (hFilter && hFilter.includes(p.topology)) return true;
