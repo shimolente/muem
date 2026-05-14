@@ -113,15 +113,31 @@ function ProjectCard({ project }: { project: StudioProject }) {
 }
 
 /* ── Main grid component ─────────────────────────────────────────────────── */
-export function StudioGrid({ projects }: { projects: StudioProject[] }) {
+type StudioGridProps = {
+  projects: StudioProject[];
+  /** Pre-select all subs of this category — used when arriving via deep-link
+   *  from the Featured section (`/studio?category=Residential`). */
+  initialCategoryId?: 'residential' | 'hospitality' | 'commercial';
+};
+
+export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
 
-  /* One sub-filter state per category */
-  const [resSubs,  setResSubs]  = useState<string[]>([]);
-  const [hosSubs,  setHosSubs]  = useState<string[]>([]);
-  const [comSubs,  setComSubs]  = useState<string[]>([]);
+  /* One sub-filter state per category. When deep-linked from Featured, the
+     matching category starts with all of its sub labels pre-selected. */
+  const allSubsOf = (id: 'residential' | 'hospitality' | 'commercial') =>
+    CATEGORIES.find(c => c.id === id)?.subs.map(s => s.label) ?? [];
+  const [resSubs,  setResSubs]  = useState<string[]>(
+    initialCategoryId === 'residential' ? allSubsOf('residential') : [],
+  );
+  const [hosSubs,  setHosSubs]  = useState<string[]>(
+    initialCategoryId === 'hospitality' ? allSubsOf('hospitality') : [],
+  );
+  const [comSubs,  setComSubs]  = useState<string[]>(
+    initialCategoryId === 'commercial' ? allSubsOf('commercial') : [],
+  );
   const [limit,    setLimit]    = useState(9);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);

@@ -156,7 +156,22 @@ export function Navbar() {
           data-nav-logo
           style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
-          <Image src={navLogoSrc ?? LOGO.src} alt={LOGO.alt} width={56} height={56} priority />
+          {(() => {
+            const src = navLogoSrc ?? LOGO.src;
+            // Pass intrinsic-aspect dims so next/image preserves ratio. CSS
+            // pins height to 56px and lets width be auto; the numbers below
+            // exist only so the rasterizer keeps proportion.
+            const isWord = src.includes('word-only');
+            return (
+              <Image
+                src={src}
+                alt={LOGO.alt}
+                width={isWord ? 175 : 56}
+                height={56}
+                priority
+              />
+            );
+          })()}
         </Link>
 
         <nav

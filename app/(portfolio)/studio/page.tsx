@@ -12,10 +12,18 @@ type StudioPageProps = {
   searchParams: Promise<{ category?: string }>;
 };
 
+// ProjectCategory enum → CategoryDef.id used by StudioGrid filter chips
+const CATEGORY_TO_GRID_ID: Record<string, 'residential' | 'hospitality' | 'commercial'> = {
+  Residential: 'residential',
+  Hospitality: 'hospitality',
+  Commercial:  'commercial',
+};
+
 export default async function StudioPage({ searchParams }: StudioPageProps) {
   const { category: rawCategory } = await searchParams;
   const category = parseCategoryParam(rawCategory);
   const projects = await getPublishedStudioProjects(category ? { category } : undefined);
+  const initialCategoryId = category ? CATEGORY_TO_GRID_ID[category] : undefined;
   return (
     <>
       <CategoryHero
@@ -24,7 +32,7 @@ export default async function StudioPage({ searchParams }: StudioPageProps) {
         tagline="our projects."
         imageSrc="/images/studio-cover.jpg"
       />
-      <StudioGrid projects={projects} />
+      <StudioGrid projects={projects} initialCategoryId={initialCategoryId} />
       <ServicesSection navStyle="minimal" />
       <ContactSection />
     </>

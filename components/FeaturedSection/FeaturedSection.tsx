@@ -101,13 +101,23 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     const el = sectionRef.current;
     if (!el) return;
 
+    const getOuters = () =>
+      cardRefs.current
+        .filter(Boolean)
+        .map(c => c!.parentElement as HTMLElement | null)
+        .filter(Boolean) as HTMLElement[];
+
     const resetCards = () => {
-      const cards = cardRefs.current.filter(Boolean);
+      const cards  = cardRefs.current.filter(Boolean);
+      const outers = getOuters();
       const dirs = getRandomDirs(cards.length);
       cards.forEach((card, i) => {
         const d = dirs[i] ?? { x: 0, y: 20 };
-        gsap.set(card, { x: d.x, y: d.y, opacity: 1, borderRadius: CARD_RADIUS });
+        gsap.set(card, { x: d.x, y: d.y, opacity: 1 });
       });
+      // Round the OUTER cell — that's the overflow:hidden frame whose
+      // corners are visible. cellInner is inset:0 inside it and clipped.
+      gsap.set(outers, { borderRadius: CARD_RADIUS });
       const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
       gsap.set(textEls, { opacity: 0, y: 14 });
     };
@@ -117,15 +127,21 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     const obs = new IntersectionObserver(
       ([entry]) => {
         const cards   = cardRefs.current.filter(Boolean);
+        const outers  = getOuters();
         const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
         if (entry.isIntersecting) {
           gsap.killTweensOf(cards);
+          gsap.killTweensOf(outers);
           gsap.killTweensOf(textEls);
           gsap.to(cards, {
-            x: 0, y: 0, opacity: 1, borderRadius: 0,
+            x: 0, y: 0, opacity: 1,
             stagger: 0.09, duration: 0.85, ease: 'power3.out', delay: 0.1,
             onComplete: () => startAutoplay(),
+          });
+          gsap.to(outers, {
+            borderRadius: 0,
+            stagger: 0.09, duration: 0.85, ease: 'power3.out', delay: 0.1,
           });
           gsap.to(textEls, {
             opacity: 1, y: 0,
@@ -133,6 +149,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
           });
         } else {
           gsap.killTweensOf(cards);
+          gsap.killTweensOf(outers);
           gsap.killTweensOf(textEls);
           if (autoTimerRef.current) {
             clearInterval(autoTimerRef.current);
@@ -150,18 +167,27 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   /* ── Stagger back in whenever displayed category changes ─────────── */
   useEffect(() => {
     const cards   = cardRefs.current.filter(Boolean);
+    const outers  = cards
+      .map(c => c!.parentElement as HTMLElement | null)
+      .filter(Boolean) as HTMLElement[];
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
     // Directional entrance — random cardinal directions per card, rounded → sharp
     const dirs = getRandomDirs(cards.length);
     cards.forEach((card, i) => {
       const d = dirs[i] ?? { x: 0, y: 20 };
-      gsap.set(card, { x: d.x, y: d.y, opacity: 1, borderRadius: CARD_RADIUS });
+      gsap.set(card, { x: d.x, y: d.y, opacity: 1 });
     });
+    gsap.set(outers, { borderRadius: CARD_RADIUS });
+
     gsap.to(cards, {
-      x: 0, y: 0, opacity: 1, borderRadius: 0,
+      x: 0, y: 0, opacity: 1,
       stagger: 0.09, duration: 0.85, ease: 'power3.out',
       onComplete: () => { isAnimating.current = false; },
+    });
+    gsap.to(outers, {
+      borderRadius: 0,
+      stagger: 0.09, duration: 0.85, ease: 'power3.out',
     });
 
     gsap.fromTo(

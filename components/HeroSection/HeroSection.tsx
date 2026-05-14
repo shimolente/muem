@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { HERO } from '@/content/hero';
+import { useTranslations } from 'next-intl';
 import { useUIStore } from '@/store/ui';
 import styles from './HeroSection.module.css';
 
@@ -15,11 +15,15 @@ export function HeroSection() {
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const labelRef    = useRef<HTMLParagraphElement>(null);
 
-  const setNavTheme = useUIStore(s => s.setNavTheme);
-  const setNavStyle = useUIStore(s => s.setNavStyle);
-  const setNavBg    = useUIStore(s => s.setNavBg);
+  const t = useTranslations('hero');
 
-  /* ── Nav: full links while hero is visible ─────────────────────── */
+  const setNavTheme          = useUIStore(s => s.setNavTheme);
+  const setNavStyle          = useUIStore(s => s.setNavStyle);
+  const setNavBg             = useUIStore(s => s.setNavBg);
+  const setFloatingArrowHide = useUIStore(s => s.setFloatingArrowHide);
+
+  /* ── Nav: full links while hero is visible. Also suppress the floating
+        ↓ — the hero already shows its own arrow at the bottom. ────── */
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -29,13 +33,14 @@ export function HeroSection() {
           setNavTheme('light'); // white bars over dark video
           setNavStyle('full');
           setNavBg('transparent'); // homepage hero: no fill over video
+          setFloatingArrowHide(true);
         }
       },
       { threshold: 0.85 }, // high threshold — only fires when truly settled here, not during scroll-through
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setNavBg]);
+  }, [setNavTheme, setNavStyle, setNavBg, setFloatingArrowHide]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -59,7 +64,9 @@ export function HeroSection() {
     return () => { ctx.revert(); };
   }, []);
 
-  const words = HERO.headline.split(' ');
+  const headline = t('headline');
+  const label    = t('label');
+  const words    = headline.split(' ');
 
   const handleArrow = () => {
     const about = document.querySelector<HTMLElement>('[data-snap-section="about"]');
@@ -73,7 +80,8 @@ export function HeroSection() {
         {/* Big headline */}
         <h1 ref={headlineRef} className={styles.headline}>
           {words.map((word, i) => {
-            const isItalic = word.replace(/[^a-zA-Z]/g, '').toLowerCase() === 'luxury';
+            const clean = word.replace(/[^a-zA-ZáéíóúñÑ]/g, '').toLowerCase();
+            const isItalic = clean === 'luxury' || clean === 'lujo';
             return (
               <span key={i} className={styles.wordClip}>
                 <span
@@ -92,8 +100,8 @@ export function HeroSection() {
         </h1>
 
         {/* Small caption below */}
-        {HERO.label && (
-          <p ref={labelRef} className={styles.label}>{HERO.label}</p>
+        {label && (
+          <p ref={labelRef} className={styles.label}>{label}</p>
         )}
       </div>
 
