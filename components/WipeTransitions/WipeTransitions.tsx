@@ -78,29 +78,21 @@ export function WipeTransitions() {
 
       capture.className = styles.capture;
 
-      // If the outgoing section is transparent, the fixed hero video bg shows
-      // through it in the live page. Replicate that inside the overlay by
-      // cloning hero bg behind the section clone, syncing video currentTime.
+      // If the outgoing section is transparent, the live hero video bg is
+      // what was visible behind it. Move the live element into the capture
+      // (no clone, no flash) so it keeps playing and gets clipped together.
+      // Restore to its original DOM position after the wipe completes.
       const fromBg = getComputedStyle(from).backgroundColor;
       const isTransparent =
         fromBg === 'rgba(0, 0, 0, 0)' || fromBg === 'transparent';
       const heroBgRoot = document.querySelector<HTMLElement>('[data-hero-bg]');
-      if (isTransparent && heroBgRoot) {
-        const heroClone = heroBgRoot.cloneNode(true) as HTMLElement;
-        const origVids = heroBgRoot.querySelectorAll('video');
-        const cloneVids = heroClone.querySelectorAll('video');
-        origVids.forEach((v, i) => {
-          const cv = cloneVids[i] as HTMLVideoElement | undefined;
-          if (!cv) return;
-          cv.removeAttribute('autoplay');
-          cv.muted = true;
-          try { cv.currentTime = (v as HTMLVideoElement).currentTime; } catch {}
-          cv.pause();
-        });
-        heroClone.style.position = 'absolute';
-        heroClone.style.inset = '0';
-        heroClone.style.zIndex = '0';
-        capture.appendChild(heroClone);
+      let heroRestore: { parent: ParentNode; next: Node | null } | null = null;
+      if (isTransparent && heroBgRoot && heroBgRoot.parentNode) {
+        heroRestore = {
+          parent: heroBgRoot.parentNode,
+          next: heroBgRoot.nextSibling,
+        };
+        capture.appendChild(heroBgRoot);
       }
 
       capture.appendChild(clone);
@@ -110,7 +102,12 @@ export function WipeTransitions() {
       layer.appendChild(capture);
 
       document.body.appendChild(layer);
-      setTimeout(() => layer.remove(), WIPE_MS + 80);
+      setTimeout(() => {
+        if (heroRestore && heroBgRoot) {
+          heroRestore.parent.insertBefore(heroBgRoot, heroRestore.next);
+        }
+        layer.remove();
+      }, WIPE_MS + 80);
     }
 
     function snapTo(targetIdx: number) {
@@ -156,9 +153,22 @@ export function WipeTransitions() {
       );
     }
 
+    // True when this transition (current → next) should be left to native CSS
+    // scroll-snap (e.g. anything involving hero). In that case we don't
+    // preventDefault or intercept — browser handles the smooth snap.
+    function isNativeTransition(dir: 1 | -1) {
+      const sections = getSections();
+      const idx = currentIndex();
+      const next = Math.max(0, Math.min(idx + dir, sections.length - 1));
+      const curKey = sections[idx]?.dataset.snapSection ?? '';
+      const nextKey = sections[next]?.dataset.snapSection ?? '';
+      return EXCLUDE.has(curKey) || EXCLUDE.has(nextKey);
+    }
+
     function onWheel(e: WheelEvent) {
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+      if (isNativeTransition(Math.sign(e.deltaY) as 1 | -1)) return;
       e.preventDefault();
       if (isSnapping) return;
       wheelDelta += e.deltaY;
@@ -175,14 +185,17 @@ export function WipeTransitions() {
     }
     function onTouchMove(e: TouchEvent) {
       const t = e.target as HTMLElement | null;
-      if (!t?.closest('input,select,textarea,[data-allow-scroll]')) {
-        e.preventDefault();
-      }
+      if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+      const dy = touchStartY - e.touches[0].clientY;
+      if (isNativeTransition((Math.sign(dy) || 1) as 1 | -1)) return;
+      e.preventDefault();
     }
     function onTouchEnd(e: TouchEvent) {
       const dy = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(dy) < TOUCH_THRESHOLD || isSnapping) return;
-      snapTo(currentIndex() + Math.sign(dy));
+      const dir = Math.sign(dy) as 1 | -1;
+      if (isNativeTransition(dir)) return;
+      snapTo(currentIndex() + dir);
     }
     function onKey(e: KeyboardEvent) {
       const down = ['ArrowDown', 'PageDown', ' '];
@@ -190,8 +203,10 @@ export function WipeTransitions() {
       if (![...down, ...up].includes(e.key)) return;
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea')) return;
+      const dir: 1 | -1 = down.includes(e.key) ? 1 : -1;
+      if (isNativeTransition(dir)) return;
       e.preventDefault();
-      snapTo(currentIndex() + (down.includes(e.key) ? 1 : -1));
+      snapTo(currentIndex() + dir);
     }
 
     window.addEventListener('wheel', onWheel, { passive: false });
