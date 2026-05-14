@@ -156,22 +156,27 @@ export function Navbar() {
           data-nav-logo
           style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
-          {(() => {
-            const src = navLogoSrc ?? LOGO.src;
-            // Pass intrinsic-aspect dims so next/image preserves ratio. CSS
-            // pins height to 56px and lets width be auto; the numbers below
-            // exist only so the rasterizer keeps proportion.
-            const isWord = src.includes('word-only');
-            return (
-              <Image
-                src={src}
-                alt={LOGO.alt}
-                width={isWord ? 175 : 56}
-                height={56}
-                priority
-              />
-            );
-          })()}
+          {/* Two logos stacked; opacity crossfades when navLogoSrc changes.
+              Both share the same fixed height so the navbar frame stays
+              stable. Width prop differs to preserve each SVG's aspect. */}
+          <span className={styles.logoStack}>
+            <Image
+              className={`${styles.logoImg} ${!navLogoSrc ? styles.logoImgVisible : ''}`}
+              src={LOGO.src}
+              alt={LOGO.alt}
+              width={56}
+              height={56}
+              priority
+            />
+            <Image
+              className={`${styles.logoImg} ${navLogoSrc ? styles.logoImgVisible : ''}`}
+              src="/logo-and-brandbook/word-only.svg"
+              alt=""
+              aria-hidden="true"
+              width={175}
+              height={56}
+            />
+          </span>
         </Link>
 
         <nav

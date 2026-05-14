@@ -66,11 +66,15 @@
   border: 0;
   padding: 0;
   color: rgba(255, 255, 255, 0.78);
-  font-size: clamp(18px, 1.6vw, 22px);
-  line-height: 1;
   cursor: pointer;
   z-index: 3;
   animation: arrowBounce 1.6s ease-in-out infinite;
+}
+
+.arrowIcon {
+  width: clamp(20px, 1.8vw, 26px);
+  height: clamp(20px, 1.8vw, 26px);
+  display: block;
 }
 
 .arrow:hover { color: var(--color-white); }

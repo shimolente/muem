@@ -35,18 +35,39 @@
   height: clamp(40px, 4.2vw, 56px);
 }
 
-.logo img {
+/* Crossfade stack — both logos overlap; opacity toggles via .logoImgVisible. */
+.logoStack {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  /* Track the widest variant so layout is stable for both. word-only at
+     height 56 needs ~175px; mark stays at 56. */
+  width: 175px;
+  max-width: 175px;
+}
+
+.logoImg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   height: 100% !important;
   width: auto !important;
-  max-width: 220px;
+  max-width: 100%;
   object-fit: contain;
+  opacity: 0;
   filter: brightness(0) invert(1);
   transition:
-    opacity 0.3s var(--ease-smooth),
+    opacity 0.55s var(--ease-smooth),
     filter 0.5s ease;
 }
 
-.logo:hover img {
+.logoImgVisible {
+  opacity: 1;
+}
+
+.logo:hover .logoImgVisible {
   opacity: 0.7;
 }
 
