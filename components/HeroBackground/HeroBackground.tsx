@@ -38,7 +38,7 @@ export function HeroBackground() {
   const gradientBg = `linear-gradient(to top, ${HERO.overlayColor}CC 0%, ${HERO.overlayColor}00 55%)`;
 
   return (
-    <div className={styles.backdrop} aria-hidden="true">
+    <div className={styles.backdrop} aria-hidden="true" data-hero-bg>
       <video
         className={styles.video}
         src={HERO.videoSrc}

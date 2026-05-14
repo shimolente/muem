@@ -77,6 +77,32 @@ export function WipeTransitions() {
       });
 
       capture.className = styles.capture;
+
+      // If the outgoing section is transparent, the fixed hero video bg shows
+      // through it in the live page. Replicate that inside the overlay by
+      // cloning hero bg behind the section clone, syncing video currentTime.
+      const fromBg = getComputedStyle(from).backgroundColor;
+      const isTransparent =
+        fromBg === 'rgba(0, 0, 0, 0)' || fromBg === 'transparent';
+      const heroBgRoot = document.querySelector<HTMLElement>('[data-hero-bg]');
+      if (isTransparent && heroBgRoot) {
+        const heroClone = heroBgRoot.cloneNode(true) as HTMLElement;
+        const origVids = heroBgRoot.querySelectorAll('video');
+        const cloneVids = heroClone.querySelectorAll('video');
+        origVids.forEach((v, i) => {
+          const cv = cloneVids[i] as HTMLVideoElement | undefined;
+          if (!cv) return;
+          cv.removeAttribute('autoplay');
+          cv.muted = true;
+          try { cv.currentTime = (v as HTMLVideoElement).currentTime; } catch {}
+          cv.pause();
+        });
+        heroClone.style.position = 'absolute';
+        heroClone.style.inset = '0';
+        heroClone.style.zIndex = '0';
+        capture.appendChild(heroClone);
+      }
+
       capture.appendChild(clone);
 
       layer.className =
