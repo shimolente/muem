@@ -6,7 +6,25 @@ import styles from './WipeTransitions.module.css';
 const WIPE_MS = 820;
 const WHEEL_THRESHOLD = 34;
 const TOUCH_THRESHOLD = 42;
-const EXCLUDE = new Set(['footer']);
+const EXCLUDE = new Set(['hero', 'footer']);
+
+function freezeHoverInto(clone: HTMLElement, originals: Element[]) {
+  if (!originals.length) return;
+  const cloneNodes = clone.querySelectorAll<HTMLElement>('[data-wipe-hover-idx]');
+  cloneNodes.forEach(node => {
+    const idx = Number(node.dataset.wipeHoverIdx);
+    const orig = originals[idx] as HTMLElement | undefined;
+    if (!orig) return;
+    const cs = getComputedStyle(orig);
+    node.style.transform = cs.transform;
+    node.style.opacity = cs.opacity;
+    node.style.filter = cs.filter;
+    node.style.borderRadius = cs.borderRadius;
+    node.style.background = cs.background;
+    node.style.boxShadow = cs.boxShadow;
+    node.style.transition = 'none';
+  });
+}
 
 export function WipeTransitions() {
   useEffect(() => {
@@ -32,13 +50,26 @@ export function WipeTransitions() {
     function createOverlay(from: HTMLElement, direction: 1 | -1) {
       document.querySelectorAll('.' + styles.layer).forEach(el => el.remove());
 
+      // Tag hovered descendants so we can restore their look in the clone
+      const hovered = Array.from(from.querySelectorAll(':hover')) as HTMLElement[];
+      hovered.forEach((el, i) => { el.dataset.wipeHoverIdx = String(i); });
+
       const layer = document.createElement('div');
       const capture = document.createElement('div');
       const clone = from.cloneNode(true) as HTMLElement;
 
+      // Cleanup markers on originals
+      hovered.forEach(el => { delete el.dataset.wipeHoverIdx; });
+
+      // Apply frozen hover styles inside clone
+      freezeHoverInto(clone, hovered);
+
       clone.removeAttribute('id');
       clone.removeAttribute('data-snap-section');
       clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+      clone.querySelectorAll('[data-wipe-hover-idx]').forEach(n =>
+        n.removeAttribute('data-wipe-hover-idx')
+      );
       // freeze any videos in the clone to avoid double playback cost
       clone.querySelectorAll('video').forEach(v => {
         (v as HTMLVideoElement).pause();
