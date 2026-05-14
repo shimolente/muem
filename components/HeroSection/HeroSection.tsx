@@ -61,6 +61,11 @@ export function HeroSection() {
 
   const words = HERO.headline.split(' ');
 
+  const handleArrow = () => {
+    const about = document.querySelector<HTMLElement>('[data-snap-section="about"]');
+    about?.scrollIntoView({ block: 'start' });
+  };
+
   return (
     <section ref={sectionRef} className={styles.section} data-snap-section="hero">
 
@@ -91,6 +96,15 @@ export function HeroSection() {
           <p ref={labelRef} className={styles.label}>{HERO.label}</p>
         )}
       </div>
+
+      <button
+        type="button"
+        className={styles.arrow}
+        onClick={handleArrow}
+        aria-label="Scroll to next section"
+      >
+        <span aria-hidden="true">\u2193</span>
+      </button>
 
     </section>
   );

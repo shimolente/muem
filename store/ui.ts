@@ -23,6 +23,8 @@ interface UIState {
   navShadow: boolean;
   /** When true the floating ↓ arrow is suppressed (e.g. on the About section). */
   floatingArrowHide: boolean;
+  /** Override the navbar logo `src`. When null, Navbar uses the default LOGO.src. */
+  navLogoSrc: string | null;
 
   setMenuOpen:          (open: boolean)                    => void;
   setPreloaderDone:     (done: boolean)                    => void;
@@ -34,6 +36,7 @@ interface UIState {
   setNavBg:             (bg: 'transparent' | 'cream')      => void;
   setNavShadow:         (v: boolean)                       => void;
   setFloatingArrowHide: (v: boolean)                       => void;
+  setNavLogoSrc:        (src: string | null)               => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -47,6 +50,7 @@ export const useUIStore = create<UIState>((set) => ({
   navBg:             'transparent',
   navShadow:         false,
   floatingArrowHide: false,
+  navLogoSrc:        null,
 
   setMenuOpen:          (open)  => set({ menuOpen: open }),
   setPreloaderDone:     (done)  => set({ preloaderDone: done }),
@@ -58,4 +62,5 @@ export const useUIStore = create<UIState>((set) => ({
   setNavBg:             (bg)    => set({ navBg: bg }),
   setNavShadow:         (v)     => set({ navShadow: v }),
   setFloatingArrowHide: (v)     => set({ floatingArrowHide: v }),
+  setNavLogoSrc:        (src)   => set({ navLogoSrc: src }),
 }));

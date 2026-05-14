@@ -6,6 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { NAV_ITEMS, LOGO } from '@/content/nav';
 import { useUIStore } from '@/store/ui';
+import { LocaleToggle } from '@/components/LocaleToggle/LocaleToggle';
 import styles from './Navbar.module.css';
 
 export function Navbar() {
@@ -23,6 +24,7 @@ export function Navbar() {
   const navHamburgerLight = useUIStore(s => s.navHamburgerLight);
   const navBg             = useUIStore(s => s.navBg);
   const navShadow         = useUIStore(s => s.navShadow);
+  const navLogoSrc        = useUIStore(s => s.navLogoSrc);
   const preloaderDone     = useUIStore(s => s.preloaderDone);
 
   // ── Navbar entrance — fires once when preloader finishes ──────────────────
@@ -154,7 +156,7 @@ export function Navbar() {
           data-nav-logo
           style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
-          <Image src={LOGO.src} alt={LOGO.alt} width={56} height={56} priority />
+          <Image src={navLogoSrc ?? LOGO.src} alt={LOGO.alt} width={56} height={56} priority />
         </Link>
 
         <nav
@@ -206,7 +208,7 @@ export function Navbar() {
 
       {/* Side panel — 1/3 width, right edge */}
       <div ref={overlayRef} className={styles.mobileOverlay} style={{ display: 'none' }}>
-        <nav aria-label="Mobile navigation">
+        <nav aria-label="Mobile navigation" className={styles.mobileNav}>
           {NAV_ITEMS.map(item => (
             <Link
               key={item.href}
@@ -219,6 +221,9 @@ export function Navbar() {
             </Link>
           ))}
         </nav>
+        <div className={styles.mobileLocale} data-menu-item>
+          <LocaleToggle />
+        </div>
       </div>
     </>
   );

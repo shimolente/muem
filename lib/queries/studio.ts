@@ -5,7 +5,7 @@
 
 import { prisma } from '@/lib/prisma';
 import type { StudioProject } from '@/content/studio';
-import type { StudioProject as DbStudioProject, ProjectStatus } from '@prisma/client';
+import type { StudioProject as DbStudioProject, ProjectStatus, ProjectCategory } from '@prisma/client';
 
 /** DB enum → legacy free-text status used by the existing UI. */
 function mapStatus(s: ProjectStatus): string {
@@ -30,12 +30,31 @@ function toUi(row: DbStudioProject): StudioProject {
   };
 }
 
-export async function getPublishedStudioProjects(): Promise<StudioProject[]> {
+export async function getPublishedStudioProjects(
+  filter?: { category?: ProjectCategory },
+): Promise<StudioProject[]> {
   const rows = await prisma.studioProject.findMany({
-    where:   { deletedAt: null, publishedAt: { not: null } },
+    where: {
+      deletedAt: null,
+      publishedAt: { not: null },
+      ...(filter?.category ? { category: filter.category } : {}),
+    },
     orderBy: [{ sortOrder: 'asc' }, { updatedAt: 'desc' }],
   });
   return rows.map(toUi);
+}
+
+const PROJECT_CATEGORIES: ProjectCategory[] = [
+  'Residential',
+  'Hospitality',
+  'Commercial',
+  'FoodAndBeverage',
+  'Retail',
+];
+
+export function parseCategoryParam(raw: unknown): ProjectCategory | undefined {
+  if (typeof raw !== 'string') return undefined;
+  return PROJECT_CATEGORIES.find(c => c === raw);
 }
 
 export async function getStudioProjectBySlug(slug: string): Promise<StudioProject | null> {

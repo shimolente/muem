@@ -23,6 +23,7 @@ export function AboutSection() {
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
   const setFloatingArrowHide = useUIStore(s => s.setFloatingArrowHide);
+  const setNavLogoSrc        = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Nav ────────────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -34,15 +35,17 @@ export function AboutSection() {
           setNavTheme('light');
           setNavStyle('full');
           setFloatingArrowHide(true);   // hide ↓ arrow on this section
+          setNavLogoSrc('/logo-and-brandbook/word-only.svg');
         } else {
           setFloatingArrowHide(false);  // restore on other sections
+          setNavLogoSrc(null);
         }
       },
       { threshold: 0.5 },
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setFloatingArrowHide]);
+  }, [setNavTheme, setNavStyle, setFloatingArrowHide, setNavLogoSrc]);
 
   /* ── Entrance animation ─────────────────────────────────────────────── */
   useEffect(() => {

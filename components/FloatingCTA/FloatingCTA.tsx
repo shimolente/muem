@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { useUIStore } from '@/store/ui';
 import styles from './FloatingCTA.module.css';
@@ -10,6 +11,8 @@ type State = 'arrow' | 'pill' | 'snapped' | 'hidden';
 
 export function FloatingCTA() {
   const ctaRef            = useRef<HTMLAnchorElement>(null);
+  const pathname          = usePathname();
+  const isLanding         = pathname === '/';
   const iconRef           = useRef<HTMLElement>(null);
   const [state, setState] = useState<State>('arrow');
   const [visible, setVisible] = useState(false);
@@ -134,24 +137,53 @@ export function FloatingCTA() {
   const isHidden = state === 'hidden' || (state === 'arrow' && floatingArrowHide);
   const isPill   = state === 'pill' || state === 'snapped';
 
-  return (
-    <Link
-      ref={ctaRef}
-      href="/contact"
-      aria-label="Let's talk"
-      className={[
-        styles.cta,
-        isPill   ? styles.pill    : '',
-        visible  ? styles.visible : '',
-        isHidden ? styles.hidden  : '',
-      ].filter(Boolean).join(' ')}
-    >
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isLanding) return; // let the <Link> navigate to /#contact
+    e.preventDefault();
+    const contact = document.querySelector<HTMLElement>('[data-snap-section="contact"]');
+    if (contact) contact.scrollIntoView({ block: 'start' });
+  };
+
+  const className = [
+    styles.cta,
+    isPill   ? styles.pill    : '',
+    visible  ? styles.visible : '',
+    isHidden ? styles.hidden  : '',
+  ].filter(Boolean).join(' ');
+
+  const inner = (
+    <>
       {isPill && <span className={styles.ctaLabel}>Let's talk</span>}
       <i ref={iconRef} className={styles.ctaIcon}>
         {isPill
           ? <img src="/arrow.svg" alt="" className={styles.ctaArrow} />
           : '↓'}
       </i>
+    </>
+  );
+
+  if (isLanding) {
+    return (
+      <a
+        ref={ctaRef}
+        href="#contact"
+        aria-label="Let's talk"
+        className={className}
+        onClick={handleClick}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      ref={ctaRef}
+      href="/#contact"
+      aria-label="Let's talk"
+      className={className}
+    >
+      {inner}
     </Link>
   );
 }

@@ -52,6 +52,34 @@
   opacity: 0; /* GSAP animates to 1 */
 }
 
+/* ── Bottom arrow — scroll cue, click → About ───────────────────────────── */
+.arrow {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(20px, 3vh, 36px);
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  animation: arrowBounce 1.6s ease-in-out infinite;
+}
+
+.arrow:hover { color: var(--color-white); }
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 6px); }
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .headline    { font-size: clamp(38px, 10vw, 72px); }

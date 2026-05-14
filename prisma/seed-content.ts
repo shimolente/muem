@@ -144,37 +144,41 @@ async function seedFurniture() {
   }
 }
 
-/* ── Featured slots — derive from each project's `featured` flag ────────
-   For now: any Studio Project with `featured: true` lands in its derived
-   FeaturedCategory column. Order = order in source array. ────────────── */
+/* ── Featured slots — first 8 published projects per FeaturedCategory ──── */
 
 async function seedFeaturedSlots() {
   console.log('\n→ Seeding FeaturedSlot picks from Studio Projects…');
   // Wipe first — this section is fully derived
   await prisma.featuredSlot.deleteMany();
 
-  const orderByCategory: Record<string, number> = {
-    Residential: 0,
-    Hospitality: 0,
-    Commercial:  0,
-  };
+  const TARGET_PER_CATEGORY = 8;
+  const categories: ('Residential' | 'Hospitality' | 'Commercial')[] = [
+    'Residential', 'Hospitality', 'Commercial',
+  ];
 
-  for (const p of STUDIO_PROJECTS) {
-    if (!p.featured) continue;
-    const cat = mapProjectCategory(p.topology);
-    if (!cat || !(cat in orderByCategory)) continue;
-
-    const project = await prisma.studioProject.findUnique({ where: { slug: p.id } });
-    if (!project) continue;
-
-    await prisma.featuredSlot.create({
-      data: {
-        category:  cat as 'Residential' | 'Hospitality' | 'Commercial',
-        projectId: project.id,
-        sortOrder: orderByCategory[cat]++,
-      },
+  for (const cat of categories) {
+    const projects = await prisma.studioProject.findMany({
+      where:   { category: cat, deletedAt: null, publishedAt: { not: null } },
+      orderBy: [{ sortOrder: 'asc' }, { updatedAt: 'desc' }],
+      take:    TARGET_PER_CATEGORY,
     });
-    console.log(`  ✓ ${p.title} → ${cat}`);
+
+    if (projects.length < TARGET_PER_CATEGORY) {
+      console.log(
+        `  ! ${cat}: only ${projects.length}/${TARGET_PER_CATEGORY} published projects — seeding what exists`,
+      );
+    }
+
+    for (let i = 0; i < projects.length; i++) {
+      await prisma.featuredSlot.create({
+        data: {
+          category:  cat,
+          projectId: projects[i].id,
+          sortOrder: i,
+        },
+      });
+      console.log(`  ✓ ${projects[i].title} → ${cat} (#${i + 1})`);
+    }
   }
 }
 

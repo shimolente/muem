@@ -1,0 +1,50 @@
+{
+  "hero": {
+    "headline": "Roots of luxury",
+    "label": "Create        Live        Explore",
+    "scrollLabel": "Scroll"
+  },
+  "nav": {
+    "studio": "Studio",
+    "studioSub": "Projects",
+    "lifestyle": "Lifestyle",
+    "lifestyleSub": "Furnitures",
+    "properties": "Properties",
+    "propertiesSub": "Real Estate",
+    "letsTalk": "Let's Talk",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "about": {
+    "headline": "Less talk.\nMore design."
+  },
+  "categories": {
+    "create": "Create",
+    "live": "Live",
+    "explore": "Explore"
+  },
+  "philosophy": {
+    "label": "Our Philosophy"
+  },
+  "contact": {
+    "label": "Get in touch",
+    "headline": "Let's create together"
+  },
+  "footer": {
+    "studio": "Studio",
+    "habitus": "Habitus",
+    "residences": "Residences",
+    "company": "Muem Studio",
+    "opportunities": "Opportunities",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "cta": {
+    "letsTalk": "Let's talk"
+  },
+  "locale": {
+    "label": "Language",
+    "english": "English",
+    "spanish": "Español"
+  }
+}

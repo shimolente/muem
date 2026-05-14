@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import gsap from 'gsap';
 import type { FeaturedCategory } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
 import styles from './FeaturedSection.module.css';
+
+const CARD_RADIUS = 80;
 
 const AUTOPLAY_MS = 9000;
 
@@ -30,10 +33,6 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const autoTimerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
   const cardRefs              = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef            = useRef<HTMLElement>(null);
-  const hasEntered            = useRef(false);
-  // Track which category indices have had their first-visit directional entrance.
-  // Studio (0) is pre-marked — it's handled by the section entrance animation.
-  const seenCategoriesRef     = useRef<Set<number>>(new Set([0]));
 
   // Text cell element refs — animated independently of cards
   const textLabelRef = useRef<HTMLSpanElement>(null);
@@ -95,38 +94,51 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     return () => obs.disconnect();
   }, [setNavTheme, setNavStyle]);
 
-  /* ── Entrance animation (fires once on first intersection) ───────── */
+  /* ── Entrance animation — fires every time the section enters viewport.
+        On leave, cards + text are reset to their off-screen start state so
+        the next entry replays cleanly. ─────────────────────────────────── */
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
 
-    const cards   = cardRefs.current.filter(Boolean);
-    const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
+    const resetCards = () => {
+      const cards = cardRefs.current.filter(Boolean);
+      const dirs = getRandomDirs(cards.length);
+      cards.forEach((card, i) => {
+        const d = dirs[i] ?? { x: 0, y: 20 };
+        gsap.set(card, { x: d.x, y: d.y, opacity: 1, borderRadius: CARD_RADIUS });
+      });
+      const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
+      gsap.set(textEls, { opacity: 0, y: 14 });
+    };
 
-    // Set each card to a random directional start position
-    const initDirs = getRandomDirs(cards.length);
-    cards.forEach((card, i) => {
-      const d = initDirs[i] ?? { x: 0, y: 20 };
-      gsap.set(card, { x: d.x, y: d.y });
-    });
-    gsap.set(textEls, { opacity: 0, y: 14 });
+    resetCards();
 
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasEntered.current) {
-          hasEntered.current = true;
-          // Cards slide completely in from outside their cell frame
+        const cards   = cardRefs.current.filter(Boolean);
+        const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
+
+        if (entry.isIntersecting) {
+          gsap.killTweensOf(cards);
+          gsap.killTweensOf(textEls);
           gsap.to(cards, {
-            x: 0, y: 0, opacity: 1,
+            x: 0, y: 0, opacity: 1, borderRadius: 0,
             stagger: 0.09, duration: 0.85, ease: 'power3.out', delay: 0.1,
             onComplete: () => startAutoplay(),
           });
-          // Text: label → title, slight delay so cards lead
           gsap.to(textEls, {
             opacity: 1, y: 0,
             stagger: 0.12, duration: 0.7, ease: 'power3.out', delay: 0.35,
           });
-          obs.disconnect();
+        } else {
+          gsap.killTweensOf(cards);
+          gsap.killTweensOf(textEls);
+          if (autoTimerRef.current) {
+            clearInterval(autoTimerRef.current);
+            autoTimerRef.current = null;
+          }
+          resetCards();
         }
       },
       { threshold: 0.25 },
@@ -137,41 +149,21 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
 
   /* ── Stagger back in whenever displayed category changes ─────────── */
   useEffect(() => {
-    if (!hasEntered.current) return; // skip until entrance animation has run
-
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
-    const isFirstVisit = !seenCategoriesRef.current.has(display);
+    // Directional entrance — random cardinal directions per card, rounded → sharp
+    const dirs = getRandomDirs(cards.length);
+    cards.forEach((card, i) => {
+      const d = dirs[i] ?? { x: 0, y: 20 };
+      gsap.set(card, { x: d.x, y: d.y, opacity: 1, borderRadius: CARD_RADIUS });
+    });
+    gsap.to(cards, {
+      x: 0, y: 0, opacity: 1, borderRadius: 0,
+      stagger: 0.09, duration: 0.85, ease: 'power3.out',
+      onComplete: () => { isAnimating.current = false; },
+    });
 
-    if (isFirstVisit) {
-      // Mark seen before animating so rapid tab clicks don't re-trigger
-      seenCategoriesRef.current.add(display);
-      // Directional entrance — random cardinal directions per card
-      const dirs = getRandomDirs(cards.length);
-      cards.forEach((card, i) => {
-        const d = dirs[i] ?? { x: 0, y: 20 };
-        gsap.set(card, { x: d.x, y: d.y });
-      });
-      gsap.to(cards, {
-        x: 0, y: 0, opacity: 1,
-        stagger: 0.09, duration: 0.85, ease: 'power3.out',
-        onComplete: () => { isAnimating.current = false; },
-      });
-    } else {
-      // Subsequent visits — partial slide in with fade
-      gsap.fromTo(
-        cards,
-        { y: '40%', opacity: 0 },
-        {
-          y: 0, opacity: 1,
-          stagger: 0.06, duration: 0.65, ease: 'power3.out',
-          onComplete: () => { isAnimating.current = false; },
-        },
-      );
-    }
-
-    // Text always does the same gentle stagger in
     gsap.fromTo(
       textEls,
       { opacity: 0, y: 10 },
@@ -268,7 +260,13 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
         {/* ── Centre text cell ─────────────────────────────────────── */}
         <div className={styles.textCell}>
           <span ref={textLabelRef} className={styles.textLabel}>{cat.label}</span>
-          <h2   ref={textTitleRef}   className={styles.textTitle}>{cat.name}</h2>
+          <Link
+            href={`/studio?category=${encodeURIComponent(cat.name)}`}
+            className={styles.textTitleLink}
+            aria-label={`See all ${cat.name} projects`}
+          >
+            <h2 ref={textTitleRef} className={styles.textTitle}>{cat.name}</h2>
+          </Link>
 
           <div className={styles.dots} role="tablist" aria-label="Browse categories">
             {FEATURED.map((c, i) => (

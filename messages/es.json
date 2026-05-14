@@ -1,0 +1,50 @@
+{
+  "hero": {
+    "headline": "Raíces de lujo",
+    "label": "Crear        Vivir        Explorar",
+    "scrollLabel": "Desplazar"
+  },
+  "nav": {
+    "studio": "Estudio",
+    "studioSub": "Proyectos",
+    "lifestyle": "Estilo de vida",
+    "lifestyleSub": "Mobiliario",
+    "properties": "Propiedades",
+    "propertiesSub": "Bienes raíces",
+    "letsTalk": "Hablemos",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
+  },
+  "about": {
+    "headline": "Menos palabras.\nMás diseño."
+  },
+  "categories": {
+    "create": "Crear",
+    "live": "Vivir",
+    "explore": "Explorar"
+  },
+  "philosophy": {
+    "label": "Nuestra filosofía"
+  },
+  "contact": {
+    "label": "Contáctanos",
+    "headline": "Creemos juntos"
+  },
+  "footer": {
+    "studio": "Estudio",
+    "habitus": "Habitus",
+    "residences": "Residencias",
+    "company": "Muem Studio",
+    "opportunities": "Oportunidades",
+    "privacy": "Privacidad",
+    "terms": "Términos"
+  },
+  "cta": {
+    "letsTalk": "Hablemos"
+  },
+  "locale": {
+    "label": "Idioma",
+    "english": "English",
+    "spanish": "Español"
+  }
+}

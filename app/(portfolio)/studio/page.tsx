@@ -3,13 +3,19 @@ import { CategoryHero }    from '@/components/CategoryHero/CategoryHero';
 import { ServicesSection } from '@/components/ServicesSection/ServicesSection';
 import { StudioGrid }      from '@/components/StudioGrid/StudioGrid';
 import { ContactSection }  from '@/components/ContactSection/ContactSection';
-import { getPublishedStudioProjects } from '@/lib/queries/studio';
+import { getPublishedStudioProjects, parseCategoryParam } from '@/lib/queries/studio';
 
 export const metadata: Metadata = { title: 'Studio' };
 export const dynamic  = 'force-dynamic';
 
-export default async function StudioPage() {
-  const projects = await getPublishedStudioProjects();
+type StudioPageProps = {
+  searchParams: Promise<{ category?: string }>;
+};
+
+export default async function StudioPage({ searchParams }: StudioPageProps) {
+  const { category: rawCategory } = await searchParams;
+  const category = parseCategoryParam(rawCategory);
+  const projects = await getPublishedStudioProjects(category ? { category } : undefined);
   return (
     <>
       <CategoryHero
