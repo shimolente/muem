@@ -9,6 +9,7 @@ import { ContactSection }      from '@/components/ContactSection/ContactSection'
 import { FloatingCTA }         from '@/components/FloatingCTA/FloatingCTA';
 import { SnapEnabler }         from '@/components/SnapEnabler/SnapEnabler';
 import { DesignTheme }         from '@/components/DesignTheme/DesignTheme';
+import { WipeTransitions }     from '@/components/WipeTransitions/WipeTransitions';
 import { getFeaturedCategories } from '@/lib/queries/featured';
 
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,7 @@ export default async function HomePage() {
       <FeaturedSection categories={featured} />
       <PhilosophySection />
       <ContactSection />
+      <WipeTransitions />
       <FloatingCTA />
     </>
   );
