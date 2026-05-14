@@ -79,20 +79,34 @@ export function WipeTransitions() {
       capture.className = styles.capture;
 
       // If the outgoing section is transparent, the live hero video bg is
-      // what was visible behind it. Move the live element into the capture
-      // (no clone, no flash) so it keeps playing and gets clipped together.
-      // Restore to its original DOM position after the wipe completes.
+      // what was visible behind it. Don't move or clone it — raise its
+      // z-index so it paints above incoming sections (which would otherwise
+      // occlude it after the scroll jump), and apply the same clip-path
+      // animation so it wipes in sync with the overlay.
       const fromBg = getComputedStyle(from).backgroundColor;
       const isTransparent =
         fromBg === 'rgba(0, 0, 0, 0)' || fromBg === 'transparent';
       const heroBgRoot = document.querySelector<HTMLElement>('[data-hero-bg]');
-      let heroRestore: { parent: ParentNode; next: Node | null } | null = null;
-      if (isTransparent && heroBgRoot && heroBgRoot.parentNode) {
+      let heroAnim: Animation | null = null;
+      let heroRestore: { z: string; willChange: string; clipPath: string } | null = null;
+      if (isTransparent && heroBgRoot) {
         heroRestore = {
-          parent: heroBgRoot.parentNode,
-          next: heroBgRoot.nextSibling,
+          z: heroBgRoot.style.zIndex,
+          willChange: heroBgRoot.style.willChange,
+          clipPath: heroBgRoot.style.clipPath,
         };
-        capture.appendChild(heroBgRoot);
+        heroBgRoot.style.zIndex = '60';
+        heroBgRoot.style.willChange = 'clip-path';
+        heroBgRoot.style.clipPath = 'inset(0 0 0 0)';
+        const keyframes: Keyframe[] =
+          direction > 0
+            ? [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }]
+            : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(100% 0 0 0)' }];
+        heroAnim = heroBgRoot.animate(keyframes, {
+          duration: WIPE_MS,
+          easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+          fill: 'forwards',
+        });
       }
 
       capture.appendChild(clone);
@@ -104,7 +118,10 @@ export function WipeTransitions() {
       document.body.appendChild(layer);
       setTimeout(() => {
         if (heroRestore && heroBgRoot) {
-          heroRestore.parent.insertBefore(heroBgRoot, heroRestore.next);
+          heroAnim?.cancel();
+          heroBgRoot.style.zIndex = heroRestore.z;
+          heroBgRoot.style.willChange = heroRestore.willChange;
+          heroBgRoot.style.clipPath = heroRestore.clipPath;
         }
         layer.remove();
       }, WIPE_MS + 80);
@@ -168,9 +185,14 @@ export function WipeTransitions() {
     function onWheel(e: WheelEvent) {
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+      // While a snap is in flight, block all further wheel input so a fast
+      // gesture can't bleed past the destination section (e.g. About → Hero).
+      if (isSnapping) {
+        e.preventDefault();
+        return;
+      }
       if (isNativeTransition(Math.sign(e.deltaY) as 1 | -1)) return;
       e.preventDefault();
-      if (isSnapping) return;
       wheelDelta += e.deltaY;
       clearTimeout(wheelTimer);
       wheelTimer = setTimeout(() => {
@@ -186,13 +208,18 @@ export function WipeTransitions() {
     function onTouchMove(e: TouchEvent) {
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+      if (isSnapping) {
+        e.preventDefault();
+        return;
+      }
       const dy = touchStartY - e.touches[0].clientY;
       if (isNativeTransition((Math.sign(dy) || 1) as 1 | -1)) return;
       e.preventDefault();
     }
     function onTouchEnd(e: TouchEvent) {
+      if (isSnapping) return;
       const dy = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) < TOUCH_THRESHOLD || isSnapping) return;
+      if (Math.abs(dy) < TOUCH_THRESHOLD) return;
       const dir = Math.sign(dy) as 1 | -1;
       if (isNativeTransition(dir)) return;
       snapTo(currentIndex() + dir);
@@ -203,6 +230,10 @@ export function WipeTransitions() {
       if (![...down, ...up].includes(e.key)) return;
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea')) return;
+      if (isSnapping) {
+        e.preventDefault();
+        return;
+      }
       const dir: 1 | -1 = down.includes(e.key) ? 1 : -1;
       if (isNativeTransition(dir)) return;
       e.preventDefault();
