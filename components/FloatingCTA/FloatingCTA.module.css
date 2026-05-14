@@ -8,15 +8,16 @@
   width: 44px;
   height: 44px;
   border-radius: 100px;        /* stays pill-shaped; circle at width=height */
-  background: linear-gradient(135deg, rgba(20, 16, 13, 0.18) 0%, rgba(31, 26, 22, 0.12) 100%);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  isolation: isolate;          /* clean stacking context for the filter */
+  background: linear-gradient(135deg, rgba(20, 16, 13, 0.28) 0%, rgba(31, 26, 22, 0.22) 100%);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  will-change: backdrop-filter;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0;
-  overflow: hidden;
+  /* overflow stays clipped by border-radius alone — `overflow: hidden`
+     combined with backdrop-filter has a Safari bug that drops the filter. */
   text-decoration: none;
   cursor: pointer;
   z-index: 90;                 /* below nav (z-index: 100), above content */
@@ -52,9 +53,9 @@
   width: clamp(115px, 12vw, 140px);
   /* Gradient stays visible — opacity up so button reads as a button.
      Behind it: heavy blur on whatever sits underneath (page content). */
-  background: linear-gradient(135deg, rgba(20, 16, 13, 0.22) 0%, rgba(31, 26, 22, 0.14) 100%);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  background: linear-gradient(135deg, rgba(20, 16, 13, 0.32) 0%, rgba(31, 26, 22, 0.24) 100%);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
   gap: clamp(6px, 0.6vw, 10px);
   justify-content: flex-end;   /* text + arrow sit together at right; left border shifts right */
   padding: 4px 0 4px 10px;
