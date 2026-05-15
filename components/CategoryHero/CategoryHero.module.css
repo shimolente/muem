@@ -1,9 +1,19 @@
-/* ── Section — half-height so next section peeks in the same screen ──────── */
-.section {
+/* ── Sticky wrapper — bounds the sticky scroll range to one hero height ──── */
+.stickyWrap {
   position: relative;
   height: 50svh;
   min-height: 260px;
+  z-index: 0;
+}
+
+/* ── Section — sticky inside wrapper; section below scrolls UP over it ──── */
+.section {
+  position: sticky;
+  top: 0;
+  height: 50svh;
+  min-height: 260px;
   overflow: hidden;
+  z-index: 0;
 }
 
 /* ── Background image ─────────────────────────────────────────────────────── */
@@ -102,7 +112,8 @@
 
 /* ── Mobile ───────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .section  { height: 45svh; min-height: 220px; }
-  .content  { bottom: 24px; gap: 10px; padding: 0 20px; }
-  .tagline  { max-width: 100%; font-size: 14px; }
+  .stickyWrap { height: 45svh; min-height: 220px; }
+  .section    { height: 45svh; min-height: 220px; }
+  .content    { bottom: 24px; gap: 10px; padding: 0 20px; }
+  .tagline    { max-width: 100%; font-size: 14px; }
 }

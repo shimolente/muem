@@ -87,6 +87,7 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
   const lines = headline.split('\n');
 
   return (
+    <div className={styles.stickyWrap}>
     <section ref={sectionRef} className={styles.section}>
 
       {/* Background image */}
@@ -146,5 +147,6 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
       <div ref={arrowRef} className={styles.arrow} aria-hidden="true">↓</div>
 
     </section>
+    </div>
   );
 }

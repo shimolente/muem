@@ -121,7 +121,9 @@ function PropertyCard({ project }: { project: ResidenceProject }) {
 export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
+  const processRef = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
+  const processEntered = useRef(false);
 
   const [availFilter, setAvailFilter] = useState<string[]>([]);
   const [topoFilter,  setTopoFilter]  = useState<string[]>([]);
@@ -201,6 +203,32 @@ export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
   /* Reset limit when filters change */
   useEffect(() => { setLimit(9); }, [availFilter, topoFilter]);
 
+  /* ── Process section reveal — fires when scrolled into view ───────────── */
+  useEffect(() => {
+    const el = processRef.current;
+    if (!el) return;
+    const targets = Array.from(el.querySelectorAll<HTMLElement>(
+      `.${styles.processLabel}, .${styles.processHeading}, .${styles.step}, .${styles.processCta}`,
+    ));
+    if (targets.length === 0) return;
+    gsap.set(targets, { opacity: 0, y: 32 });
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !processEntered.current) {
+          processEntered.current = true;
+          gsap.to(targets, {
+            opacity: 1, y: 0,
+            stagger: 0.08, duration: 0.8, ease: 'power3.out',
+          });
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const lines = RESIDENCES_INTRO.headline.split('\n');
 
   return (
@@ -270,7 +298,7 @@ export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
       </div>
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
-      <div className={styles.process}>
+      <div ref={processRef} className={styles.process}>
         <div className={styles.processInner}>
           <span className={styles.processLabel}>How it works</span>
           <h2 className={styles.processHeading}>Simple by design.</h2>

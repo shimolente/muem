@@ -1,8 +1,10 @@
 /* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
+  position: relative;
+  z-index: 1;
   background: var(--page-bg, var(--color-off-white));
   color: var(--page-fg, var(--color-warm-dark));
-  padding-top: clamp(112px, 14vh, 160px);
+  padding-top: clamp(48px, 6vh, 80px);
   padding-bottom: 0; /* process section provides bottom breathing room */
 }
 
@@ -154,13 +156,13 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: rgba(20, 16, 13, 0.42);
+  background: rgba(20, 16, 13, 0.7);
   backdrop-filter: blur(50px) saturate(160%);
   -webkit-backdrop-filter: blur(50px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   display: flex;
   align-items: center;
@@ -171,7 +173,7 @@
   padding: 0;
 }
 .card:hover .carouselBtn { opacity: 1; }
-.carouselBtn:hover       { background: rgba(255, 255, 255, 0.28); }
+.carouselBtn:hover       { background: rgba(20, 16, 13, 0.85); }
 
 .carouselPrev { left: 14px; }
 .carouselNext { right: 14px; }
