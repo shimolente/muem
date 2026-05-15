@@ -10,7 +10,7 @@ export const dynamic  = 'force-dynamic';
 export default async function ResidencesPage() {
   const projects = await getPublishedProperties();
   return (
-    <>
+    <div data-palette="properties">
       <CategoryHero
         category="Properties"
         headline={"Design &\nInvestment."}
@@ -19,6 +19,6 @@ export default async function ResidencesPage() {
       />
       <ResidencesGrid projects={projects} />
       <ContactSection />
-    </>
+    </div>
   );
 }

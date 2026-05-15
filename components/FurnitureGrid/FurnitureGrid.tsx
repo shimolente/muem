@@ -169,10 +169,10 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('dark');
+          setNavTheme('light');
           setNavStyle('minimal');
           setNavBg('transparent');
-          setNavShadow(true);
+          setNavShadow(false);
         } else {
           setNavShadow(false);
         }

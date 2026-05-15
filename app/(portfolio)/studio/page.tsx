@@ -25,7 +25,7 @@ export default async function StudioPage({ searchParams }: StudioPageProps) {
   const projects = await getPublishedStudioProjects(category ? { category } : undefined);
   const initialCategoryId = category ? CATEGORY_TO_GRID_ID[category] : undefined;
   return (
-    <>
+    <div data-palette="studio">
       <CategoryHero
         category="Studio"
         headline={"From Concept\nto Reality"}
@@ -35,6 +35,6 @@ export default async function StudioPage({ searchParams }: StudioPageProps) {
       <StudioGrid projects={projects} initialCategoryId={initialCategoryId} />
       <ServicesSection navStyle="minimal" />
       <ContactSection />
-    </>
+    </div>
   );
 }

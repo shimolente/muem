@@ -18,8 +18,8 @@
 
 /* ── Section — SPACING B: no horizontal padding on section itself ─────────── */
 .section {
-  background: var(--color-off-white);
-  color: var(--color-warm-dark);
+  background: var(--page-bg, var(--color-off-white));
+  color: var(--page-fg, var(--color-warm-dark));
   padding-top: clamp(112px, 14vh, 160px);
   padding-bottom: clamp(64px, 8vw, 120px);
 }
@@ -51,7 +51,7 @@
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(58, 52, 47, 0.45);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.55);
   display: block;
   margin-bottom: 12px;
 }
@@ -61,7 +61,7 @@
   font-size: clamp(26px, 3.2vw, 52px);
   font-weight: 400;
   line-height: var(--leading-snug);
-  color: var(--color-warm-dark);
+  color: var(--page-fg, var(--color-warm-dark));
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -73,7 +73,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(58, 52, 47, 0.68);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.75);
   margin: 0;
 }
 
@@ -81,7 +81,7 @@
   font-family: var(--font-body);
   font-size: clamp(12px, 0.9vw, 14px);
   letter-spacing: 0.06em;
-  color: var(--color-warm-dark);
+  color: var(--page-fg, var(--color-warm-dark));
   border-bottom: 1px solid currentColor;
   border-top: none; border-left: none; border-right: none;
   padding-bottom: 2px;
@@ -121,7 +121,7 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   text-decoration: none;
-  background: rgba(58, 52, 47, 0.15);
+  background: rgba(var(--page-fg-rgb, 58, 52, 47), 0.15);
   transition: border-radius 0.55s var(--ease-out-expo);
   opacity: 0;
   will-change: opacity, transform;
@@ -282,8 +282,8 @@
 .loadMoreCard {
   position: relative;
   aspect-ratio: 1 / 1;
-  background: rgba(var(--c-warm), 0.05);
-  border: 1px dashed rgba(var(--c-warm), 0.25);
+  background: rgba(var(--page-fg-rgb, var(--c-warm)), 0.06);
+  border: 1px dashed rgba(var(--page-fg-rgb, var(--c-warm)), 0.28);
   border-radius: 0;
   display: flex;
   flex-direction: column;
@@ -292,7 +292,7 @@
   gap: 14px;
   cursor: pointer;
   font-family: var(--font-body);
-  color: var(--color-warm-dark);
+  color: var(--page-fg, var(--color-warm-dark));
   padding: 0;
   will-change: transform, border-radius;
   transition:
@@ -302,10 +302,10 @@
     color 0.35s ease;
 }
 .loadMoreCard:hover {
-  background: rgba(var(--c-warm), 0.85);
-  border-color: rgba(var(--c-warm), 0.85);
+  background: var(--page-button-bg, var(--color-warm-dark));
+  border-color: var(--page-button-bg, var(--color-warm-dark));
   border-radius: 48px;
-  color: var(--color-off-white);
+  color: var(--page-button-fg, var(--color-off-white));
 }
 
 .loadMoreLabel {
@@ -332,7 +332,7 @@
   text-align: center;
   font-family: var(--font-body);
   font-size: var(--text-body);
-  color: rgba(58, 52, 47, 0.38);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.45);
 }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */

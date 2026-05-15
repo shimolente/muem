@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export default async function HabitusPage() {
   const items = await getPublishedFurniture();
   return (
-    <>
+    <div data-palette="furniture">
       <CategoryHero
         category="Lifestyle"
         headline={"Your Own Space,\nThe Way You Want"}
@@ -22,6 +22,6 @@ export default async function HabitusPage() {
       />
       <FurnitureGrid items={items} />
       <ContactSection />
-    </>
+    </div>
   );
 }
