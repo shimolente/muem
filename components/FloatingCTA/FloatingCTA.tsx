@@ -141,7 +141,15 @@ export function FloatingCTA() {
     if (!isLanding) return; // let the <Link> navigate to /#contact
     e.preventDefault();
     const contact = document.querySelector<HTMLElement>('[data-snap-section="contact"]');
-    if (contact) contact.scrollIntoView({ block: 'start' });
+    if (!contact) return;
+    // Native scroll-snap (y mandatory) would instant-jump on programmatic
+    // scrolls. Temporarily disable snap so the smooth scroll plays out,
+    // then restore so the user's wheel/touch input stays snap-driven.
+    const html = document.documentElement;
+    const prevSnap = html.style.scrollSnapType;
+    html.style.scrollSnapType = 'none';
+    contact.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => { html.style.scrollSnapType = prevSnap; }, 1200);
   };
 
   const className = [

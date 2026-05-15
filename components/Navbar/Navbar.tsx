@@ -161,7 +161,7 @@ export function Navbar() {
               stable. Width prop differs to preserve each SVG's aspect. */}
           <span className={styles.logoStack}>
             <Image
-              className={`${styles.logoImg} ${!navLogoSrc ? styles.logoImgVisible : ''}`}
+              className={`${styles.logoImg} ${styles.logoImgMark} ${!navLogoSrc ? styles.logoImgVisible : ''}`}
               src={LOGO.src}
               alt={LOGO.alt}
               width={56}
@@ -169,7 +169,7 @@ export function Navbar() {
               priority
             />
             <Image
-              className={`${styles.logoImg} ${navLogoSrc ? styles.logoImgVisible : ''}`}
+              className={`${styles.logoImg} ${styles.logoImgWord} ${navLogoSrc ? styles.logoImgVisible : ''}`}
               src="/logo-and-brandbook/word-only.svg"
               alt=""
               aria-hidden="true"

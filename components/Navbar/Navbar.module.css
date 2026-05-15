@@ -67,6 +67,15 @@
   opacity: 1;
 }
 
+/* word-only.svg ships with ~10% of internal padding inside its viewBox.
+   Scale it up modestly so the visible glyphs fill the same vertical space
+   as the mark logo and the swap reads as a clean crossfade in place
+   rather than a smaller wordmark appearing inside a larger frame. */
+.logoImgWord {
+  transform: translateY(-50%) scale(1.18);
+  transform-origin: left center;
+}
+
 .logo:hover .logoImgVisible {
   opacity: 0.7;
 }

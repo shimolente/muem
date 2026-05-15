@@ -21,6 +21,7 @@ export function HeroSection() {
   const setNavStyle          = useUIStore(s => s.setNavStyle);
   const setNavBg             = useUIStore(s => s.setNavBg);
   const setFloatingArrowHide = useUIStore(s => s.setFloatingArrowHide);
+  const setNavLogoSrc        = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Nav: full links while hero is visible. Also suppress the floating
         ↓ — the hero already shows its own arrow at the bottom. ────── */
@@ -34,13 +35,14 @@ export function HeroSection() {
           setNavStyle('full');
           setNavBg('transparent'); // homepage hero: no fill over video
           setFloatingArrowHide(true);
+          setNavLogoSrc(null); // hero shows the mark, not the wordmark
         }
       },
       { threshold: 0.85 }, // high threshold — only fires when truly settled here, not during scroll-through
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setNavBg, setFloatingArrowHide]);
+  }, [setNavTheme, setNavStyle, setNavBg, setFloatingArrowHide, setNavLogoSrc]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {

@@ -37,6 +37,7 @@ export function CategoriesSection() {
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
+  const setNavLogoSrc        = useUIStore(s => s.setNavLogoSrc);
   const setNavLogoLight      = useUIStore(s => s.setNavLogoLight);
   const setNavHamburgerLight = useUIStore(s => s.setNavHamburgerLight);
   const sectionVisibleRef    = useRef(false);
@@ -176,6 +177,7 @@ export function CategoriesSection() {
           setNavTheme('dark');
           setNavStyle('minimal');
           setNavHamburgerLight(false);
+          setNavLogoSrc(null); // restore mark logo after About's wordmark
         }
       },
       { threshold: 0.1 },
@@ -195,7 +197,7 @@ export function CategoriesSection() {
     navObserver.observe(section);
     cursorObserver.observe(section);
     return () => { navObserver.disconnect(); cursorObserver.disconnect(); };
-  }, [setNavTheme, setNavStyle]);
+  }, [setNavTheme, setNavStyle, setNavLogoSrc, setNavHamburgerLight]);
 
   /* ── Click handler — mobile navigates, desktop expands ─────────────── */
   const handleClick = (cat: Category) => {
