@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useTranslations } from 'next-intl';
 import { ABOUT } from '@/content/about';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
@@ -118,7 +119,8 @@ export function AboutSection() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const lines = ABOUT.headline.split('\n');
+  const t = useTranslations('about');
+  const lines = t('headline').split('\n');
 
   return (
     <section ref={sectionRef} className={styles.section} data-snap-section="about">

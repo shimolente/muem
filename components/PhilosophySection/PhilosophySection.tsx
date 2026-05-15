@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
+import { useTranslations } from 'next-intl';
 import { PHILOSOPHY } from '@/content/philosophy';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
@@ -143,7 +144,24 @@ export function PhilosophySection() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pillarIdx]);
 
-  const pillar = PHILOSOPHY[pillarIdx];
+  const t = useTranslations('philosophy');
+  // Each PHILOSOPHY id maps to a prefix in the `philosophy` namespace;
+  // translated copy supersedes content/philosophy.ts for display.
+  const KEY_PREFIX: Record<string, string> = {
+    essence:       'essence',
+    team:          'team',
+    international: 'intl',
+  };
+  const raw = PHILOSOPHY[pillarIdx];
+  const prefix = KEY_PREFIX[raw.id] ?? '';
+  const pillar = prefix
+    ? {
+        ...raw,
+        heading:    t(`${prefix}Heading`),
+        subheading: t(`${prefix}Subheading`),
+        body:       t(`${prefix}Body`),
+      }
+    : raw;
 
   return (
     <section ref={sectionRef} data-snap-section="philosophy" className={styles.section}>
@@ -152,7 +170,7 @@ export function PhilosophySection() {
       <div className={styles.textPanel}>
 
         <span ref={sectionLabelRef} className={styles.sectionLabel}>
-          Our Philosophy
+          {t('label')}
         </span>
 
         <div className={styles.pillarsContent}>

@@ -3,10 +3,18 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { useTranslations } from 'next-intl';
 import type { FeaturedCategory } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './FeaturedSection.module.css';
+
+// Category id (from query) → tab-name translation key.
+const FEATURED_NAME_KEY: Record<string, string> = {
+  studio:     'studioName',
+  habitus:    'habitusName',
+  residences: 'residencesName',
+};
 
 const CARD_RADIUS = 80;
 
@@ -25,6 +33,12 @@ function getRandomDirs(count: number) {
 }
 
 export function FeaturedSection({ categories: FEATURED }: { categories: FeaturedCategory[] }) {
+  const t = useTranslations('featured');
+  const tName = (id: string, fallback: string) => {
+    const k = FEATURED_NAME_KEY[id];
+    return k ? t(k) : fallback;
+  };
+  const tLabel = () => t('label');
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
   const [, setMobileIdx] = useState(0);
@@ -209,8 +223,8 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
             </div>
 
             <div className={styles.mobileMiddle}>
-              <span className={styles.mobileLabel}>{c.label}</span>
-              <h2 className={styles.mobileTitle}>{c.name}</h2>
+              <span className={styles.mobileLabel}>{tLabel()}</span>
+              <h2 className={styles.mobileTitle}>{tName(c.id, c.name)}</h2>
               <div className={styles.mobileDots} aria-hidden="true">
                 {FEATURED.map((_, i) => (
                   <span
@@ -268,13 +282,13 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
 
         {/* ── Centre text cell ─────────────────────────────────────── */}
         <div className={styles.textCell}>
-          <span ref={textLabelRef} className={styles.textLabel}>{cat.label}</span>
+          <span ref={textLabelRef} className={styles.textLabel}>{tLabel()}</span>
           <Link
             href={`/studio?category=${encodeURIComponent(cat.name)}`}
             className={styles.textTitleLink}
-            aria-label={`See all ${cat.name} projects`}
+            aria-label={`See all ${tName(cat.id, cat.name)} projects`}
           >
-            <h2 ref={textTitleRef} className={styles.textTitle}>{cat.name}</h2>
+            <h2 ref={textTitleRef} className={styles.textTitle}>{tName(cat.id, cat.name)}</h2>
           </Link>
 
           <div className={styles.dots} role="tablist" aria-label="Browse categories">
@@ -283,7 +297,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
                 key={c.id}
                 role="tab"
                 aria-selected={i === catIdx}
-                aria-label={`Show ${c.name}`}
+                aria-label={`Show ${tName(c.id, c.name)}`}
                 className={`${styles.dot} ${i === catIdx ? styles.dotActive : ''}`}
                 onClick={() => { switchCategory(i); startAutoplay(); }}
               />

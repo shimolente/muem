@@ -4,12 +4,14 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
+import { useTranslations } from 'next-intl';
 import { useUIStore } from '@/store/ui';
 import styles from './FloatingCTA.module.css';
 
 type State = 'arrow' | 'pill' | 'snapped' | 'hidden';
 
 export function FloatingCTA() {
+  const t = useTranslations('cta');
   const ctaRef            = useRef<HTMLAnchorElement>(null);
   const pathname          = usePathname();
   const isLanding         = pathname === '/';
@@ -161,7 +163,7 @@ export function FloatingCTA() {
 
   const inner = (
     <>
-      {isPill && <span className={styles.ctaLabel}>Let's talk</span>}
+      {isPill && <span className={styles.ctaLabel}>{t('letsTalk')}</span>}
       <i ref={iconRef} className={styles.ctaIcon}>
         {isPill
           ? <img src="/arrow.svg" alt="" className={styles.ctaArrow} />
@@ -175,7 +177,7 @@ export function FloatingCTA() {
       <a
         ref={ctaRef}
         href="#contact"
-        aria-label="Let's talk"
+        aria-label={t('letsTalk')}
         className={className}
         onClick={handleClick}
       >
@@ -188,7 +190,7 @@ export function FloatingCTA() {
     <Link
       ref={ctaRef}
       href="/#contact"
-      aria-label="Let's talk"
+      aria-label={t('letsTalk')}
       className={className}
     >
       {inner}

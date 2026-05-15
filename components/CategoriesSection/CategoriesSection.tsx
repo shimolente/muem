@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
+import { useTranslations } from 'next-intl';
 import { CATEGORIES, type Category } from '@/content/categories';
 import { FEATURED } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
@@ -11,7 +12,15 @@ import styles from './CategoriesSection.module.css';
 
 type ColState = 'idle' | 'entering' | 'visible' | 'exiting';
 
+// Map category id → i18n key pair in the `categories` namespace.
+const CAT_KEYS: Record<string, { label: string; sub: string }> = {
+  studio:     { label: 'create',  sub: 'createSub'  },
+  habitus:    { label: 'live',    sub: 'liveSub'    },
+  residences: { label: 'explore', sub: 'exploreSub' },
+};
+
 export function CategoriesSection() {
+  const t = useTranslations('categories');
   const router = useRouter();
 
   // overlayIds tracks which columns currently have the image overlay visible
@@ -426,8 +435,12 @@ export function CategoriesSection() {
               <div ref={el => { darkOverlayRefs.current[cat.id] = el; }} className={styles.darkOverlay} />
               <div ref={el => { curtainRefs.current[cat.id] = el; }} className={styles.curtain} />
             </div>
-            <span ref={el => { colLabelRefs.current[cat.id] = el; }} className={styles.label}>{cat.label}</span>
-            <span ref={el => { colNameRefs.current[cat.id] = el; }} className={styles.name}>{cat.name}</span>
+            <span ref={el => { colLabelRefs.current[cat.id] = el; }} className={styles.label}>
+              {CAT_KEYS[cat.id] ? t(CAT_KEYS[cat.id].label) : cat.label}
+            </span>
+            <span ref={el => { colNameRefs.current[cat.id] = el; }} className={styles.name}>
+              {CAT_KEYS[cat.id] ? t(CAT_KEYS[cat.id].sub) : cat.name}
+            </span>
           </div>
         ))}
       </section>

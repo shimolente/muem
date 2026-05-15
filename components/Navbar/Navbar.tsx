@@ -4,12 +4,23 @@ import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { useTranslations } from 'next-intl';
 import { NAV_ITEMS, LOGO } from '@/content/nav';
 import { useUIStore } from '@/store/ui';
 import { LocaleToggle } from '@/components/LocaleToggle/LocaleToggle';
 import styles from './Navbar.module.css';
 
+// Map static nav item href → i18n key in the `nav` namespace. Keeps the
+// href/sub structure from content/nav.ts as source of truth for layout
+// while letting label + sub text flip per locale.
+const NAV_KEY_BY_HREF: Record<string, { label: string; sub?: string }> = {
+  '/studio':     { label: 'studio',     sub: 'studioSub'     },
+  '/habitus':    { label: 'lifestyle',  sub: 'lifestyleSub'  },
+  '/residences': { label: 'properties', sub: 'propertiesSub' },
+};
+
 export function Navbar() {
+  const t = useTranslations('nav');
   const itemRefs     = useRef<(HTMLAnchorElement | null)[]>([]);
   const overlayRef   = useRef<HTMLDivElement>(null);
   const backdropRef  = useRef<HTMLDivElement>(null);
@@ -184,20 +195,23 @@ export function Navbar() {
           onMouseLeave={handleGroupLeave}
           aria-label="Main navigation"
         >
-          {NAV_ITEMS.map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              ref={el => { itemRefs.current[i] = el; }}
-              className={styles.navItem}
-              onMouseEnter={() => handleItemEnter(i)}
-            >
-              <span className={styles.navLabel}>{item.label}</span>
-              {item.sub && (
-                <span className={styles.navSub}>{item.sub}</span>
-              )}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item, i) => {
+            const keys = NAV_KEY_BY_HREF[item.href];
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                ref={el => { itemRefs.current[i] = el; }}
+                className={styles.navItem}
+                onMouseEnter={() => handleItemEnter(i)}
+              >
+                <span className={styles.navLabel}>{keys ? t(keys.label) : item.label}</span>
+                {keys?.sub && (
+                  <span className={styles.navSub}>{t(keys.sub)}</span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         <button
@@ -208,7 +222,7 @@ export function Navbar() {
             open          ? styles.hamburgerOpen : '',
           ].filter(Boolean).join(' ')}
           onClick={() => setOpen(v => !v)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? t('closeMenu') : t('openMenu')}
           aria-expanded={open}
           style={{ opacity: 0 }} /* GSAP sets to 1 after preloader */
         >
@@ -229,17 +243,20 @@ export function Navbar() {
       {/* Side panel — 1/3 width, right edge */}
       <div ref={overlayRef} className={styles.mobileOverlay} style={{ display: 'none' }}>
         <nav aria-label="Mobile navigation" className={styles.mobileNav}>
-          {NAV_ITEMS.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              data-menu-item
-              className={styles.mobileNavItem}
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map(item => {
+            const keys = NAV_KEY_BY_HREF[item.href];
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                data-menu-item
+                className={styles.mobileNavItem}
+                onClick={() => setOpen(false)}
+              >
+                {keys ? t(keys.label) : item.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className={styles.mobileLocale} data-menu-item>
           <LocaleToggle />

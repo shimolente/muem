@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { CONTACT } from '@/content/contact';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
+import { useTranslations } from 'next-intl';
 import styles from './ContactSection.module.css';
 
 const COFFEE_COUNT = 84;
@@ -32,6 +33,7 @@ interface ContactSectionProps {
 }
 
 export function ContactSection({ isPage = false }: ContactSectionProps) {
+  const t = useTranslations('contact');
   const sectionRef  = useRef<HTMLElement>(null);
   const hasEntered  = useRef(false);
 
@@ -154,7 +156,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
   }, []);
 
   const year = new Date().getFullYear();
-  const taglineParagraphs = CONTACT.tagline.split('\n\n');
+  const taglineParagraphs = t('tagline').split('\n\n');
 
   return (
     <section
@@ -177,10 +179,10 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
           <div className={styles.leftContent}>
 
             {/* Row 1 — label, aligned to bottom of row */}
-            <span ref={labelRef} className={styles.sectionLabel}>Get in touch</span>
+            <span ref={labelRef} className={styles.sectionLabel}>{t('label')}</span>
 
             {/* Row 2 — headline, dead centre */}
-            <h2 ref={headlineRef} className={styles.headline}>{CONTACT.headline}</h2>
+            <h2 ref={headlineRef} className={styles.headline}>{t('headline')}</h2>
 
             {/* Row 3 — tagline, aligned to top of row */}
             <div ref={taglineRef} className={styles.tagline}>
@@ -195,7 +197,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
                 <span ref={numRef} className={styles.statNumber}>0</span>
                 <img ref={iconRef} src="/coconut.svg" alt="" className={styles.statIcon} />
               </div>
-              <span className={styles.statLabel}>Coconuts shared with clients</span>
+              <span className={styles.statLabel}>{t('coconutsLabel')}</span>
             </div>
 
           </div>
@@ -278,7 +280,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
               <label className={styles.fieldLabel}></label>
               <div className={styles.selectWrapper}>
                 <select name="lookingFor" className={styles.select} defaultValue="" required disabled={isPending}>
-                  <option value="" disabled>Looking for:</option>
+                  <option value="" disabled>{t('lookingFor')}</option>
                   {CONTACT.needs.map(n => (
                     <option key={n} value={n}>{n}</option>
                   ))}
@@ -306,7 +308,7 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
             </label>
 
             <button type="submit" className={styles.submitBtn} disabled={isPending}>
-              {isPending ? 'Sending…' : 'Send Message'}
+              {isPending ? t('sending') : t('send')}
             </button>
 
             {submitState !== 'idle' && (

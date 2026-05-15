@@ -19,28 +19,52 @@
     "headline": "Less talk.\nMore design."
   },
   "categories": {
-    "create": "Create",
-    "live": "Live",
-    "explore": "Explore"
+    "create":     "Create",
+    "createSub":  "Design with us",
+    "live":       "Live",
+    "liveSub":    "Furniture collections",
+    "explore":    "Explore",
+    "exploreSub": "Properties by Muem"
   },
   "philosophy": {
-    "label": "Our Philosophy"
+    "label":              "Our Philosophy",
+    "essenceHeading":     "Essence",
+    "essenceSubheading":  "Rootedness. Sustainability. Refinement.",
+    "essenceBody":        "We design spaces that work with their environment rather than compete with it. A quieter approach to architecture — where nothing is excessive, and everything is considered.",
+    "teamHeading":        "Team",
+    "teamSubheading":     "Vision. Collaboration. Expertise.",
+    "teamBody":           "Our studio brings together architects, interior designers, and craftspeople who share a common conviction: that the best spaces are built through dialogue, not decree.",
+    "intlHeading":        "International",
+    "intlSubheading":     "Bali. Lombok. Italy.",
+    "intlBody":           "Rooted in Bali, our practice spans continents. We bring the same considered approach to every site — letting each place teach us something new about how people want to live."
   },
   "contact": {
-    "label": "Get in touch",
-    "headline": "Let's create together"
+    "label":          "Get in touch",
+    "headline":       "Let's create together",
+    "tagline":        "Looking for a partner for your next project?\n\nLet's discuss your ideas and how to turn them into something real — without overcomplicating it. Coconut helps too.",
+    "lookingFor":     "Looking for:",
+    "send":           "Send Message",
+    "sending":        "Sending…",
+    "coconutsLabel":  "Coconuts shared with clients"
   },
   "footer": {
-    "studio": "Studio",
-    "habitus": "Habitus",
-    "residences": "Residences",
-    "company": "Muem Studio",
+    "studio":        "Studio",
+    "habitus":       "Habitus",
+    "residences":    "Residences",
+    "company":       "Muem Studio",
     "opportunities": "Opportunities",
-    "privacy": "Privacy",
-    "terms": "Terms"
+    "privacy":       "Privacy",
+    "terms":         "Terms",
+    "rights":        "All rights reserved."
   },
   "cta": {
     "letsTalk": "Let's talk"
+  },
+  "featured": {
+    "label":           "Featured projects",
+    "studioName":      "Residential",
+    "habitusName":     "Hospitality",
+    "residencesName":  "Commercial"
   },
   "locale": {
     "label": "Language",

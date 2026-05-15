@@ -3,17 +3,18 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { LOGO } from '@/content/nav';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './FooterSection.module.css';
 
 const FOOTER_LINKS = [
-  { label: 'Studio',        href: '/studio'        },
-  { label: 'Habitus',       href: '/habitus'        },
-  { label: 'Residences',    href: '/residences'     },
-  { label: 'Muem Studio',   href: '/studio'         },
-  { label: 'Opportunities', href: '/opportunities'  },
+  { key: 'studio',        href: '/studio'        },
+  { key: 'habitus',       href: '/habitus'        },
+  { key: 'residences',    href: '/residences'     },
+  { key: 'company',       href: '/studio'         },
+  { key: 'opportunities', href: '/opportunities'  },
 ] as const;
 
 export function FooterSection() {
@@ -43,6 +44,7 @@ export function FooterSection() {
     return () => obs.disconnect();
   }, [setNavTheme, setNavStyle, setNavLogoSrc]);
 
+  const t = useTranslations('footer');
   const year = new Date().getFullYear();
 
   return (
@@ -63,13 +65,13 @@ export function FooterSection() {
               height={28}
               className={styles.logoImg}
             />
-            <span className={styles.logoWordmark}>Muem Studio</span>
+            <span className={styles.logoWordmark}>{t('company')}</span>
           </Link>
 
           <nav className={styles.navLinks}>
             {FOOTER_LINKS.map(link => (
-              <Link key={link.label} href={link.href} className={styles.navLink}>
-                {link.label}
+              <Link key={link.key} href={link.href} className={styles.navLink}>
+                {t(link.key)}
               </Link>
             ))}
           </nav>
@@ -78,11 +80,11 @@ export function FooterSection() {
         {/* ── Bottom bar — copyright + legal ─────────────────────────── */}
         <div className={styles.bottomBar}>
           <span className={styles.copyright}>
-            © {year} Muem Studio. All rights reserved.
+            © {year} {t('company')}. {t('rights')}
           </span>
           <div className={styles.legalLinks}>
-            <Link href="/privacy" className={styles.legalLink}>Privacy</Link>
-            <Link href="/terms"   className={styles.legalLink}>Terms</Link>
+            <Link href="/privacy" className={styles.legalLink}>{t('privacy')}</Link>
+            <Link href="/terms"   className={styles.legalLink}>{t('terms')}</Link>
           </div>
         </div>
 
