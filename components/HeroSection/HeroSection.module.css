@@ -46,6 +46,9 @@
   font-size: 12px;
   font-weight: 400;
   letter-spacing: var(--tracking-wider);
+  /* 2.5× the default space between "Create / Live / Explore" — adds 1.5em
+     on top of normal word width so total reads ~2.5× wider. */
+  word-spacing: 1.5em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
   will-change: transform, opacity;
