@@ -1,13 +1,11 @@
-/* Isolated stacking context — contains .ring's mix-blend-mode so it can't
-   flatten the page's compositing pipeline and break backdrop-filter on
-   FloatingCTA / Navbar overlay. Must sit at the cursor z-index so the
-   children (which stack inside this context now) paint above everything. */
+/* Stacking-context root for the cursor. mix-blend-mode is intentionally
+   avoided (it breaks backdrop-filter elsewhere in the page); the cursor
+   adapts via .dark instead, driven by navTheme. */
 .root {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: var(--z-cursor);
-  isolation: isolate;
 }
 
 .dot,
@@ -26,6 +24,7 @@
   width: 6px;
   height: 6px;
   background: var(--color-white);
+  transition: background 0.25s ease;
 }
 
 .ring {
@@ -33,7 +32,17 @@
   height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.6);
   background: transparent;
-  mix-blend-mode: difference;
+  transition: border-color 0.25s ease;
+}
+
+/* Dark variant — applied when the active section's navTheme is 'dark'
+   (light page bg). The cursor flips to a dark colour so it stays visible
+   without relying on mix-blend-mode (which would break backdrop-filter). */
+.dark .dot {
+  background: var(--color-warm-dark);
+}
+.dark .ring {
+  border-color: rgba(20, 16, 13, 0.6);
 }
 
 .cursorLabel {

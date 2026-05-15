@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useUIStore } from '@/store/ui';
 import styles from './Cursor.module.css';
 
 export function Cursor() {
+  const navTheme = useUIStore(s => s.navTheme);
   const dotRef       = useRef<HTMLDivElement>(null);
   const ringRef      = useRef<HTMLDivElement>(null);
   const labelRef     = useRef<HTMLDivElement>(null);
@@ -97,12 +99,15 @@ export function Cursor() {
     };
   }, []);
 
-  // Wrap cursor in an isolated stacking context so .ring's
-  // `mix-blend-mode: difference` doesn't reach siblings (e.g. FloatingCTA's
-  // `backdrop-filter`, which gets dropped when any sibling in the same
-  // stacking context uses non-normal blend modes).
+  // Wrap cursor in its own stacking context (fixed inset:0 with cursor
+  // z-index). mix-blend-mode is gone because any non-normal blend mode in
+  // the body's stacking context kills backdrop-filter rendering in Chrome.
+  // The cursor adapts to the active section via navTheme instead.
   return (
-    <div className={styles.root} aria-hidden="true">
+    <div
+      className={`${styles.root} ${navTheme === 'dark' ? styles.dark : ''}`}
+      aria-hidden="true"
+    >
       <div ref={dotRef}   className={styles.dot}         aria-hidden="true" />
       <div ref={ringRef}  className={styles.ring}        aria-hidden="true" />
       <div ref={labelRef} className={styles.cursorLabel} aria-hidden="true">
