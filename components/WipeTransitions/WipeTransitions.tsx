@@ -6,7 +6,7 @@ import styles from './WipeTransitions.module.css';
 const WIPE_MS = 820;
 const WHEEL_THRESHOLD = 34;
 const TOUCH_THRESHOLD = 42;
-const EXCLUDE = new Set(['hero', 'footer']);
+const EXCLUDE = new Set(['hero', 'about', 'footer']);
 
 function freezeHoverInto(clone: HTMLElement, originals: Element[]) {
   if (!originals.length) return;
@@ -149,50 +149,30 @@ export function WipeTransitions() {
       isSnapping = true;
       const html = document.documentElement;
       const prevSnap = html.style.scrollSnapType;
-      const prevBehavior = html.style.scrollBehavior;
       html.style.scrollSnapType = 'none';
-      html.style.scrollBehavior = 'auto';
 
       if (!skipWipe) createOverlay(fromSection, direction);
-      toSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-
-      requestAnimationFrame(() => {
-        html.style.scrollBehavior = prevBehavior;
-        html.style.scrollSnapType = prevSnap;
+      toSection.scrollIntoView({
+        behavior: skipWipe ? 'smooth' : 'auto',
+        block: 'start',
       });
 
-      setTimeout(
-        () => {
-          isSnapping = false;
-          wheelDelta = 0;
-        },
-        skipWipe ? 280 : WIPE_MS + 80
-      );
-    }
-
-    // True when this transition (current → next) should be left to native CSS
-    // scroll-snap (e.g. anything involving hero). In that case we don't
-    // preventDefault or intercept — browser handles the smooth snap.
-    function isNativeTransition(dir: 1 | -1) {
-      const sections = getSections();
-      const idx = currentIndex();
-      const next = Math.max(0, Math.min(idx + dir, sections.length - 1));
-      const curKey = sections[idx]?.dataset.snapSection ?? '';
-      const nextKey = sections[next]?.dataset.snapSection ?? '';
-      return EXCLUDE.has(curKey) || EXCLUDE.has(nextKey);
+      const duration = skipWipe ? 700 : WIPE_MS + 80;
+      setTimeout(() => {
+        html.style.scrollSnapType = prevSnap;
+        isSnapping = false;
+        wheelDelta = 0;
+      }, duration);
     }
 
     function onWheel(e: WheelEvent) {
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
-      // While a snap is in flight, block all further wheel input so a fast
-      // gesture can't bleed past the destination section (e.g. About → Hero).
-      if (isSnapping) {
-        e.preventDefault();
-        return;
-      }
-      if (isNativeTransition(Math.sign(e.deltaY) as 1 | -1)) return;
+      // Always intercept — even for EXCLUDE'd transitions — so a single
+      // gesture can't bleed across boundaries (e.g. about→categories
+      // momentum triggering categories→featured wipe mid-flight).
       e.preventDefault();
+      if (isSnapping) return;
       wheelDelta += e.deltaY;
       clearTimeout(wheelTimer);
       wheelTimer = setTimeout(() => {
@@ -208,21 +188,13 @@ export function WipeTransitions() {
     function onTouchMove(e: TouchEvent) {
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
-      if (isSnapping) {
-        e.preventDefault();
-        return;
-      }
-      const dy = touchStartY - e.touches[0].clientY;
-      if (isNativeTransition((Math.sign(dy) || 1) as 1 | -1)) return;
       e.preventDefault();
     }
     function onTouchEnd(e: TouchEvent) {
       if (isSnapping) return;
       const dy = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(dy) < TOUCH_THRESHOLD) return;
-      const dir = Math.sign(dy) as 1 | -1;
-      if (isNativeTransition(dir)) return;
-      snapTo(currentIndex() + dir);
+      snapTo(currentIndex() + (Math.sign(dy) as 1 | -1));
     }
     function onKey(e: KeyboardEvent) {
       const down = ['ArrowDown', 'PageDown', ' '];
@@ -230,14 +202,9 @@ export function WipeTransitions() {
       if (![...down, ...up].includes(e.key)) return;
       const t = e.target as HTMLElement | null;
       if (t?.closest('input,select,textarea')) return;
-      if (isSnapping) {
-        e.preventDefault();
-        return;
-      }
-      const dir: 1 | -1 = down.includes(e.key) ? 1 : -1;
-      if (isNativeTransition(dir)) return;
       e.preventDefault();
-      snapTo(currentIndex() + dir);
+      if (isSnapping) return;
+      snapTo(currentIndex() + (down.includes(e.key) ? 1 : -1));
     }
 
     window.addEventListener('wheel', onWheel, { passive: false });
