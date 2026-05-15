@@ -11,7 +11,11 @@
   background: linear-gradient(135deg, rgba(20, 16, 13, 0.28) 0%, rgba(31, 26, 22, 0.22) 100%);
   backdrop-filter: blur(24px) saturate(170%);
   -webkit-backdrop-filter: blur(24px) saturate(170%);
-  will-change: backdrop-filter;
+  /* Chrome refuses to composite backdrop-filter unless the element is
+     promoted to its own layer; Safari doesn't need this. translateZ(0)
+     forces the layer cheaply. */
+  transform: translateZ(0);
+  will-change: backdrop-filter, transform;
   display: flex;
   align-items: center;
   justify-content: center;

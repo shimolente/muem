@@ -1,7 +1,12 @@
 /* Isolated stacking context — contains .ring's mix-blend-mode so it can't
    flatten the page's compositing pipeline and break backdrop-filter on
-   FloatingCTA / Navbar overlay. */
+   FloatingCTA / Navbar overlay. Must sit at the cursor z-index so the
+   children (which stack inside this context now) paint above everything. */
 .root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-cursor);
   isolation: isolate;
 }
 
