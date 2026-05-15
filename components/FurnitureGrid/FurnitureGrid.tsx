@@ -152,7 +152,9 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
   const sectionRef  = useRef<HTMLElement>(null);
   const gridRef     = useRef<HTMLDivElement>(null);
+  const processRef  = useRef<HTMLDivElement>(null);
   const hasEntered  = useRef(false);
+  const processEntered = useRef(false);
 
   const [activeCategory, setActiveCategory] = useState<FurnitureCategory | 'All'>('All');
   const [limit, setLimit] = useState(8);
@@ -223,6 +225,32 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
   /* Reset limit when category changes */
   useEffect(() => { setLimit(8); }, [activeCategory]);
 
+  /* ── Process section reveal — fires when scrolled into view ───────────── */
+  useEffect(() => {
+    const el = processRef.current;
+    if (!el) return;
+    const targets = Array.from(el.querySelectorAll<HTMLElement>(
+      `.${styles.processLabel}, .${styles.processHeading}, .${styles.step}, .${styles.processCta}`,
+    ));
+    if (targets.length === 0) return;
+    gsap.set(targets, { opacity: 0, y: 32 });
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !processEntered.current) {
+          processEntered.current = true;
+          gsap.to(targets, {
+            opacity: 1, y: 0,
+            stagger: 0.08, duration: 0.8, ease: 'power3.out',
+          });
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const lines = FURNITURE_INTRO.headline.split('\n');
 
   return (
@@ -289,6 +317,52 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
         ) : (
           <p className={styles.empty}>No items in this category yet.</p>
         )}
+      </div>
+
+      {/* ── How it works ─────────────────────────────────────────────────── */}
+      <div ref={processRef} className={styles.process}>
+        <div className={styles.processInner}>
+          <span className={styles.processLabel}>How it works</span>
+          <h2 className={styles.processHeading}>Made for you, made to last.</h2>
+
+          <div className={styles.processSteps}>
+            <div className={styles.step}>
+              <span className={styles.stepNum}>01</span>
+              <h3 className={styles.stepTitle}>Find your piece</h3>
+              <p className={styles.stepBody}>
+                Browse our collections and choose the pieces that resonate with your space —
+                from a single chair to an entire room.
+              </p>
+            </div>
+
+            <div className={styles.step}>
+              <span className={styles.stepNum}>02</span>
+              <h3 className={styles.stepTitle}>Inquire on WhatsApp</h3>
+              <p className={styles.stepBody}>
+                Send us a message and we’ll talk through specs, finishes, and lead time —
+                no agencies, no middlemen, just our workshop and you.
+              </p>
+            </div>
+
+            <div className={styles.step}>
+              <span className={styles.stepNum}>03</span>
+              <h3 className={styles.stepTitle}>Crafted & delivered</h3>
+              <p className={styles.stepBody}>
+                We handle production end-to-end and ship the finished piece to your door,
+                wherever you are.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="https://wa.me/34686783520"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.processCta}
+          >
+            Message us on WhatsApp ↗
+          </a>
+        </div>
       </div>
 
     </section>
