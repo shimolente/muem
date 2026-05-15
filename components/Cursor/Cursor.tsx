@@ -97,13 +97,17 @@ export function Cursor() {
     };
   }, []);
 
+  // Wrap cursor in an isolated stacking context so .ring's
+  // `mix-blend-mode: difference` doesn't reach siblings (e.g. FloatingCTA's
+  // `backdrop-filter`, which gets dropped when any sibling in the same
+  // stacking context uses non-normal blend modes).
   return (
-    <>
+    <div className={styles.root} aria-hidden="true">
       <div ref={dotRef}   className={styles.dot}         aria-hidden="true" />
       <div ref={ringRef}  className={styles.ring}        aria-hidden="true" />
       <div ref={labelRef} className={styles.cursorLabel} aria-hidden="true">
         <span ref={labelTextRef} />
       </div>
-    </>
+    </div>
   );
 }

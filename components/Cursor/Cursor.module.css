@@ -1,3 +1,10 @@
+/* Isolated stacking context — contains .ring's mix-blend-mode so it can't
+   flatten the page's compositing pipeline and break backdrop-filter on
+   FloatingCTA / Navbar overlay. */
+.root {
+  isolation: isolate;
+}
+
 .dot,
 .ring {
   position: fixed;
