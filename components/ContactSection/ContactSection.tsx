@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useTransition } from 'react';
 import gsap from 'gsap';
 import { CONTACT } from '@/content/contact';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './ContactSection.module.css';
 
 const COFFEE_COUNT = 84;
@@ -45,8 +46,9 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
   const [submitMsg, setSubmitMsg] = useState<string>('');
   const formRef     = useRef<HTMLFormElement>(null);
 
-  const setNavTheme = useUIStore(s => s.setNavTheme);
-  const setNavStyle = useUIStore(s => s.setNavStyle);
+  const setNavTheme   = useUIStore(s => s.setNavTheme);
+  const setNavStyle   = useUIStore(s => s.setNavStyle);
+  const setNavLogoSrc = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Nav theming ─────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -61,15 +63,18 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('light');
-          setNavStyle('minimal');
+          scheduleNavUpdate(() => {
+            setNavTheme('light');
+            setNavStyle('minimal');
+            setNavLogoSrc('/logo-and-brandbook/word-only.svg');
+          });
         }
       },
       { threshold: 0.1 },
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [isPage, setNavTheme, setNavStyle]);
+  }, [isPage, setNavTheme, setNavStyle, setNavLogoSrc]);
 
   /* ── Entrance animation ───────────────────────────────────────────────── */
   useEffect(() => {
@@ -103,21 +108,31 @@ export function ContactSection({ isPage = false }: ContactSectionProps) {
         onComplete() {
           if (numRef.current) numRef.current.textContent = COFFEE_COUNT.toString();
           // Drop the coconut icon once the number finishes counting
+          if (!iconRef.current) return;
           const isDesktop = window.matchMedia('(min-width: 769px)').matches;
-          if (isDesktop && iconRef.current) {
+          if (isDesktop) {
             gsap.to(iconRef.current, {
               y: 0,
+              opacity: 1,
               duration: 0.95,
               ease: 'elastic.out(1, 0.35)',
+            });
+          } else {
+            // Mobile: no drop, just fade in alongside the rest of the layout
+            gsap.to(iconRef.current, {
+              opacity: 1,
+              duration: 0.45,
+              ease: 'power3.out',
             });
           }
         },
       });
 
-      // Coconut drop — desktop only, fires once counter completes
-      const isDesktop = window.matchMedia('(min-width: 769px)').matches;
-      if (isDesktop && iconRef.current) {
-        gsap.set(iconRef.current, { y: -44 });
+      // Coconut starts hidden + above its slot — appears only when the
+      // counter finishes and the drop animation in onComplete kicks in.
+      if (iconRef.current) {
+        const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+        gsap.set(iconRef.current, { opacity: 0, y: isDesktop ? -44 : 0 });
       }
     }
 

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { LOGO } from '@/content/nav';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './FooterSection.module.css';
 
 const FOOTER_LINKS = [
@@ -18,8 +19,9 @@ const FOOTER_LINKS = [
 export function FooterSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  const setNavTheme = useUIStore(s => s.setNavTheme);
-  const setNavStyle = useUIStore(s => s.setNavStyle);
+  const setNavTheme   = useUIStore(s => s.setNavTheme);
+  const setNavStyle   = useUIStore(s => s.setNavStyle);
+  const setNavLogoSrc = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Nav theming ─────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -28,15 +30,18 @@ export function FooterSection() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('light');
-          setNavStyle('minimal');
+          scheduleNavUpdate(() => {
+            setNavTheme('light');
+            setNavStyle('minimal');
+            setNavLogoSrc(null); // footer shows the mark, not the wordmark
+          });
         }
       },
       { threshold: 0.1 },
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle]);
+  }, [setNavTheme, setNavStyle, setNavLogoSrc]);
 
   const year = new Date().getFullYear();
 

@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { CATEGORIES, type Category } from '@/content/categories';
 import { FEATURED } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './CategoriesSection.module.css';
 
 type ColState = 'idle' | 'entering' | 'visible' | 'exiting';
@@ -174,10 +175,12 @@ export function CategoriesSection() {
       ([entry]) => {
         sectionVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting) {
-          setNavTheme('dark');
-          setNavStyle('minimal');
-          setNavHamburgerLight(false);
-          setNavLogoSrc(null); // restore mark logo after About's wordmark
+          scheduleNavUpdate(() => {
+            setNavTheme('dark');
+            setNavStyle('minimal');
+            setNavHamburgerLight(false);
+            setNavLogoSrc('/logo-and-brandbook/word-only.svg');
+          });
         }
       },
       { threshold: 0.1 },

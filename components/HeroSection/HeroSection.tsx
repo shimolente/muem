@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useTranslations } from 'next-intl';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './HeroSection.module.css';
 
 /**
@@ -31,11 +32,13 @@ export function HeroSection() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('light'); // white bars over dark video
-          setNavStyle('full');
-          setNavBg('transparent'); // homepage hero: no fill over video
-          setFloatingArrowHide(true);
-          setNavLogoSrc(null); // hero shows the mark, not the wordmark
+          scheduleNavUpdate(() => {
+            setNavTheme('light'); // white bars over dark video
+            setNavStyle('full');
+            setNavBg('transparent'); // homepage hero: no fill over video
+            setFloatingArrowHide(true);
+            setNavLogoSrc(null); // hero shows the mark, not the wordmark
+          });
         }
       },
       { threshold: 0.85 }, // high threshold — only fires when truly settled here, not during scroll-through

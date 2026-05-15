@@ -5,6 +5,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import type { FeaturedCategory } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './FeaturedSection.module.css';
 
 const CARD_RADIUS = 80;
@@ -38,8 +39,9 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const textLabelRef = useRef<HTMLSpanElement>(null);
   const textTitleRef = useRef<HTMLHeadingElement>(null);
 
-  const setNavTheme  = useUIStore(s => s.setNavTheme);
-  const setNavStyle  = useUIStore(s => s.setNavStyle);
+  const setNavTheme   = useUIStore(s => s.setNavTheme);
+  const setNavStyle   = useUIStore(s => s.setNavStyle);
+  const setNavLogoSrc = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Category switch — reads catIdxRef, no stale closure ─────────── */
   const switchCategory = useCallback((idx: number) => {
@@ -82,9 +84,12 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Light nav = white hamburger — readable over the dark card images
-          setNavTheme('light');
-          setNavStyle('minimal');
+          scheduleNavUpdate(() => {
+            // Light nav = white hamburger — readable over the dark card images
+            setNavTheme('light');
+            setNavStyle('minimal');
+            setNavLogoSrc('/logo-and-brandbook/word-only.svg');
+          });
         }
         // No else — sections 1 & 2 own the 'full' reset when they re-enter
       },
@@ -92,7 +97,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle]);
+  }, [setNavTheme, setNavStyle, setNavLogoSrc]);
 
   /* ── Entrance animation — fires every time the section enters viewport.
         On leave, cards + text are reset to their off-screen start state so

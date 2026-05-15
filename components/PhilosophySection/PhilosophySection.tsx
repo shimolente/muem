@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { PHILOSOPHY } from '@/content/philosophy';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './PhilosophySection.module.css';
 
 export function PhilosophySection() {
@@ -23,6 +24,7 @@ export function PhilosophySection() {
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
   const setNavHamburgerLight = useUIStore(s => s.setNavHamburgerLight);
+  const setNavLogoSrc        = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Pillar navigation ────────────────────────────────────────────────── */
   const navigate = useCallback((next: number) => {
@@ -65,16 +67,19 @@ export function PhilosophySection() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('dark');
-          setNavStyle('minimal');
-          setNavHamburgerLight(true);
+          scheduleNavUpdate(() => {
+            setNavTheme('dark');
+            setNavStyle('minimal');
+            setNavHamburgerLight(true);
+            setNavLogoSrc('/logo-and-brandbook/word-only.svg');
+          });
         }
       },
       { threshold: 0.1 },
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setNavHamburgerLight]);
+  }, [setNavTheme, setNavStyle, setNavHamburgerLight, setNavLogoSrc]);
 
   /* ── Entrance animation (fires once) ─────────────────────────────────── */
   useEffect(() => {

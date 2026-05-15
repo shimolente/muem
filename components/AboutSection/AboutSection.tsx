@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ABOUT } from '@/content/about';
 import { useUIStore } from '@/store/ui';
+import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './AboutSection.module.css';
 
 /** Parse "3+", "15+", "98%", "200+" → numeric target + suffix */
@@ -32,13 +33,14 @@ export function AboutSection() {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setNavTheme('light');
-          setNavStyle('full');
-          setFloatingArrowHide(true);   // hide ↓ arrow on this section
-          setNavLogoSrc('/logo-and-brandbook/word-only.svg');
+          scheduleNavUpdate(() => {
+            setNavTheme('light');
+            setNavStyle('full');
+            setFloatingArrowHide(true);   // hide ↓ arrow on this section
+            setNavLogoSrc('/logo-and-brandbook/word-only.svg');
+          });
         } else {
-          setFloatingArrowHide(false);  // restore on other sections
-          setNavLogoSrc(null);
+          setFloatingArrowHide(false);  // restore on other sections — instant, doesn't need to wait for wipe
         }
       },
       { threshold: 0.5 },

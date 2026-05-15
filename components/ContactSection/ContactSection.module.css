@@ -151,6 +151,9 @@
   width:  clamp(36px, 3.6vw, 56px);
   height: clamp(36px, 3.6vw, 56px);
   display: block;
+  /* Hidden until the counter completes and the drop animation runs —
+     keeps the icon from popping in at its final spot during entrance. */
+  opacity: 0;
   filter: brightness(0) invert(1) opacity(0.85);
 }
 
