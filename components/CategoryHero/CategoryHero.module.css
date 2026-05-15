@@ -1,4 +1,5 @@
-/* ── Sticky wrapper — bounds the sticky scroll range to one hero height ──── */
+/* ── Spacer wrapper — reserves 50svh of flow space so the section below
+   sits at page Y = 50svh while the hero itself is fixed at viewport top.   */
 .stickyWrap {
   position: relative;
   height: 50svh;
@@ -6,10 +7,13 @@
   z-index: 0;
 }
 
-/* ── Section — sticky inside wrapper; section below scrolls UP over it ──── */
+/* ── Section — pinned to viewport top; grid section scrolls UP and covers it
+   via its own z-index: 1 + opaque background.                              */
 .section {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   height: 50svh;
   min-height: 260px;
   overflow: hidden;

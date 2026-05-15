@@ -288,7 +288,7 @@ export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
                 aria-label="Load more properties"
               >
                 <span className={styles.loadMoreLabel}>Load more</span>
-                <span className={styles.loadMoreArrow} aria-hidden="true">↓</span>
+                <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
               </button>
             )}
           </>

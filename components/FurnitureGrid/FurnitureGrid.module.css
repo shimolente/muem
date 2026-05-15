@@ -365,7 +365,7 @@
   transition: transform 0.45s var(--ease-out-expo);
 }
 .loadMoreCard:hover .loadMoreArrow {
-  transform: translateY(4px);
+  transform: rotate(90deg);
 }
 
 /* ── Empty state ──────────────────────────────────────────────────────────── */

@@ -288,7 +288,7 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
                 aria-label="Load more projects"
               >
                 <span className={styles.loadMoreLabel}>Load more</span>
-                <span className={styles.loadMoreArrow} aria-hidden="true">↓</span>
+                <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
               </button>
             )}
           </>
