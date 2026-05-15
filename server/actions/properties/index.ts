@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/permissions';
+import { deleteEntityFolder } from '@/lib/storage';
 import { propertySchema, type PropertyInput } from './schema';
 
 type ActionResult<T = void> =
@@ -54,7 +55,11 @@ export async function createProperty(raw: PropertyInput): Promise<ActionResult<{
       select:  { sortOrder: true },
     });
     const property = await prisma.property.create({
-      data: { ...mapInputToData(parsed.data), sortOrder: (last?.sortOrder ?? -1) + 1 },
+      data: {
+        ...mapInputToData(parsed.data),
+        ...(parsed.data.id ? { id: parsed.data.id } : {}),
+        sortOrder: (last?.sortOrder ?? -1) + 1,
+      },
     });
     revalidatePath('/admin/properties');
     revalidatePath('/residences');
@@ -118,6 +123,29 @@ export async function deleteProperty(id: string): Promise<ActionResult> {
     return { ok: true, data: undefined };
   } catch (e) {
     console.error('[deleteProperty]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+/** Hard-delete + Storage cleanup. Requires prior soft-delete. */
+export async function purgeProperty(id: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+
+  try {
+    const row = await prisma.property.findUnique({ where: { id } });
+    if (!row) return { ok: false, error: 'NOT_FOUND' };
+    if (!row.deletedAt) return { ok: false, error: 'MUST_SOFT_DELETE_FIRST' };
+
+    await prisma.property.delete({ where: { id } });
+    await deleteEntityFolder(`properties/${id}`);
+
+    revalidatePath('/admin/properties');
+    revalidatePath('/residences');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[purgeProperty]', e);
     return { ok: false, error: 'INTERNAL_ERROR' };
   }
 }

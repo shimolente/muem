@@ -4,6 +4,8 @@ const STATUS    = ['Completed', 'InProgress', 'Concept'] as const;
 const TOPOLOGY  = ['Villa', 'Apartment', 'Townhouse', 'Land', 'Commercial'] as const;
 
 export const propertySchema = z.object({
+  /** Optional client-supplied id — see projects/schema.ts for rationale. */
+  id:          z.string().regex(/^[a-z0-9]{8,32}$/i).optional(),
   slug:        z.string().min(1).regex(/^[a-z0-9-]+$/, 'Lowercase letters, numbers, hyphens only'),
   title:       z.string().min(1, 'Title is required'),
   subtitle:    z.string().nullable(),

@@ -5,15 +5,20 @@ import { ArrowDown, ArrowUp, ImagePlus, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { imageUrl } from '@/lib/imageUrl';
 
 interface Props {
   value:    string[];
   onChange: (next: string[]) => void;
+  /** Owning entity for Storage path scoping. Required. */
+  entityType: 'projects' | 'properties' | 'furniture';
+  /** Record id (real cuid for edits, draft cuid for new). Required. */
+  entityId:   string;
   /** Max images allowed (default 20) */
   max?:     number;
 }
 
-export function ImageUploader({ value, onChange, max = 20 }: Props) {
+export function ImageUploader({ value, onChange, entityType, entityId, max = 20 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -34,6 +39,8 @@ export function ImageUploader({ value, onChange, max = 20 }: Props) {
     for (const file of list) {
       const fd = new FormData();
       fd.append('file', file);
+      fd.append('entityType', entityType);
+      fd.append('entityId', entityId);
       try {
         const res = await fetch('/api/upload/image', { method: 'POST', body: fd });
         const json = await res.json();
@@ -42,7 +49,9 @@ export function ImageUploader({ value, onChange, max = 20 }: Props) {
           console.error('[upload]', json);
           continue;
         }
-        uploaded.push(json.url);
+        // Store the BASE path (no size, no extension) — renderers compose
+        // size variants via lib/imageUrl#imageUrl.
+        uploaded.push(json.basePath);
       } catch (e) {
         failed++;
         console.error('[upload]', e);
@@ -118,7 +127,7 @@ export function ImageUploader({ value, onChange, max = 20 }: Props) {
               className="group relative aspect-square overflow-hidden rounded-md border bg-muted"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="size-full object-cover" />
+              <img src={imageUrl(src, 'sm')} alt="" className="size-full object-cover" />
               {i === 0 && (
                 <span className="absolute left-1 top-1 rounded bg-foreground/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-background">
                   Cover

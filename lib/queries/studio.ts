@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { imageUrl } from '@/lib/imageUrl';
 import type { StudioProject } from '@/content/studio';
 import type { StudioProject as DbStudioProject, ProjectStatus, ProjectCategory } from '@prisma/client';
 
@@ -23,7 +24,10 @@ function toUi(row: DbStudioProject): StudioProject {
     status:      mapStatus(row.status),
     subtitle:    row.subtitle ?? undefined,
     description: row.description ?? undefined,
-    imageSrc:    row.images[0] ?? '/images/studio-cover.jpg',
+    // Cover URL pre-composed at md for grid use; full images[] stays as
+    // raw base paths so detail-page consumers can pick their own size via
+    // lib/imageUrl#imageUrl.
+    imageSrc:    row.images[0] ? imageUrl(row.images[0], 'md') : '/images/studio-cover.jpg',
     images:      row.images.length ? row.images : ['/images/studio-cover.jpg'],
     featured:    row.featured,
     href:        `/studio/${row.slug}`,

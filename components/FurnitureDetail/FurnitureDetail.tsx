@@ -9,6 +9,7 @@ import {
   FURNITURE_COLLECTIONS,
 } from '@/content/furniture';
 import { useUIStore } from '@/store/ui';
+import { imageUrl } from '@/lib/imageUrl';
 import styles from './FurnitureDetail.module.css';
 
 interface Props {
@@ -78,7 +79,7 @@ export function FurnitureDetail({ item, related }: Props) {
           <div className={styles.imageMain}>
             <Image
               key={imgIdx}
-              src={item.images[imgIdx]}
+              src={imageUrl(item.images[imgIdx], 'lg')}
               alt={item.name}
               fill
               priority
@@ -98,7 +99,7 @@ export function FurnitureDetail({ item, related }: Props) {
                   aria-label={`View image ${i + 1}`}
                 >
                   <Image
-                    src={src} alt=""
+                    src={imageUrl(src, 'sm')} alt=""
                     fill
                     sizes="80px"
                     style={{ objectFit: 'cover' }}
@@ -181,7 +182,7 @@ export function FurnitureDetail({ item, related }: Props) {
             </div>
             <div className={styles.collectionImage}>
               <Image
-                src={item.images[item.images.length > 1 ? 1 : 0]}
+                src={imageUrl(item.images[item.images.length > 1 ? 1 : 0], 'md')}
                 alt={item.collection}
                 fill
                 sizes="(max-width:768px) 100vw, 44vw"
@@ -208,7 +209,7 @@ export function FurnitureDetail({ item, related }: Props) {
             {related.map(r => (
               <Link key={r.id} href={r.href} className={styles.relatedCard}>
                 <Image
-                  src={r.images[0]} alt={r.name}
+                  src={imageUrl(r.images[0], 'md')} alt={r.name}
                   fill
                   sizes="(max-width:768px) 72vw, 25vw"
                   style={{ objectFit: 'cover' }}

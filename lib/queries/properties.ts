@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { imageUrl } from '@/lib/imageUrl';
 import type { ResidenceProject } from '@/content/residences';
 import type { Property as DbProperty, ProjectStatus } from '@prisma/client';
 
@@ -27,7 +28,7 @@ function toUi(row: DbProperty): ResidenceProject {
     status:      mapStatus(row.status),
     subtitle:    row.subtitle ?? undefined,
     description: row.description ?? undefined,
-    imageSrc:    row.images[0] ?? '/images/residences-cover.jpg',
+    imageSrc:    row.images[0] ? imageUrl(row.images[0], 'md') : '/images/residences-cover.jpg',
     images:      row.images.length ? row.images : ['/images/residences-cover.jpg'],
     featured:    row.featured,
     href:        `/residences/${row.slug}`,

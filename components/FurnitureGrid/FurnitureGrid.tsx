@@ -10,6 +10,7 @@ import {
   type FurnitureItem, type FurnitureCategory,
 } from '@/content/furniture';
 import { useUIStore } from '@/store/ui';
+import { imageUrl } from '@/lib/imageUrl';
 import styles from './FurnitureGrid.module.css';
 
 /* ── Furniture card ───────────────────────────────────────────────────────── */
@@ -33,7 +34,7 @@ function FurnitureCard({ item }: { item: FurnitureItem }) {
       className={`${styles.card} ${item.featured ? styles.cardFeatured : ''}`}
     >
       <Image
-        src={images[idx]}
+        src={imageUrl(images[idx], 'md')}
         alt={item.name}
         fill
         sizes={item.featured ? '(max-width:768px) 100vw, 50vw' : '(max-width:768px) 50vw, 25vw'}

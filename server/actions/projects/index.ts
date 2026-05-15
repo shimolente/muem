@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/permissions';
+import { deleteEntityFolder } from '@/lib/storage';
 import { projectSchema, type ProjectInput } from './schema';
 
 type ActionResult<T = void> =
@@ -50,7 +51,13 @@ export async function createProject(raw: ProjectInput): Promise<ActionResult<{ i
       select:  { sortOrder: true },
     });
     const project = await prisma.studioProject.create({
-      data: { ...mapInputToData(parsed.data), sortOrder: (last?.sortOrder ?? -1) + 1 },
+      data: {
+        ...mapInputToData(parsed.data),
+        // Honour client-supplied draft id so uploaded images at
+        // projects/{draftId}/... line up with the persisted record.
+        ...(parsed.data.id ? { id: parsed.data.id } : {}),
+        sortOrder: (last?.sortOrder ?? -1) + 1,
+      },
     });
     revalidatePath('/admin/projects');
     revalidatePath('/studio');
@@ -114,6 +121,35 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     return { ok: true, data: undefined };
   } catch (e) {
     console.error('[deleteProject]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+/**
+ * Hard-delete a project AND its Storage uploads. Use only on records
+ * that have already been soft-deleted (deletedAt set) — this is the
+ * irreversible "empty trash" step.
+ */
+export async function purgeProject(id: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+
+  try {
+    const row = await prisma.studioProject.findUnique({ where: { id } });
+    if (!row) return { ok: false, error: 'NOT_FOUND' };
+    if (!row.deletedAt) return { ok: false, error: 'MUST_SOFT_DELETE_FIRST' };
+
+    await prisma.studioProject.delete({ where: { id } });
+    // Drop the entire `projects/{id}/...` folder from Storage. Best-effort;
+    // logs on failure but doesn't block the DB delete.
+    await deleteEntityFolder(`projects/${id}`);
+
+    revalidatePath('/admin/projects');
+    revalidatePath('/studio');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[purgeProject]', e);
     return { ok: false, error: 'INTERNAL_ERROR' };
   }
 }

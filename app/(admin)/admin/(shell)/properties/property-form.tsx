@@ -21,6 +21,7 @@ import {
 } from '@/server/actions/properties/schema';
 import { createProperty, updateProperty } from '@/server/actions/properties';
 import { ImageUploader } from '@/components/admin/image-uploader';
+import { makeDraftId } from '@/lib/imageUrl';
 
 interface Props {
   propertyId?: string;
@@ -46,6 +47,7 @@ export function PropertyForm({ propertyId, initial }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
+  const [draftId] = useState(() => propertyId ?? makeDraftId());
 
   const form = useForm<PropertyInput>({
     resolver: zodResolver(propertySchema),
@@ -80,9 +82,10 @@ export function PropertyForm({ propertyId, initial }: Props) {
 
   const onSubmit = (values: PropertyInput) => {
     startTransition(async () => {
+      const payload = propertyId ? values : { ...values, id: draftId };
       const res = propertyId
-        ? await updateProperty(propertyId, values)
-        : await createProperty(values);
+        ? await updateProperty(propertyId, payload)
+        : await createProperty(payload);
 
       if (!res.ok) {
         toast.error(res.error || 'Save failed');
@@ -272,7 +275,12 @@ export function PropertyForm({ propertyId, initial }: Props) {
           <FormItem>
             <FormLabel>Images</FormLabel>
             <FormControl>
-              <ImageUploader value={field.value ?? []} onChange={field.onChange} />
+              <ImageUploader
+                value={field.value ?? []}
+                onChange={field.onChange}
+                entityType="properties"
+                entityId={draftId}
+              />
             </FormControl>
             <FormDescription>First image is used as the cover.</FormDescription>
             <FormMessage />

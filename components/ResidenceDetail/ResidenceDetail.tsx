@@ -6,6 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { type ResidenceProject, unitsAvailable, isSoldOut } from '@/content/residences';
 import { useUIStore } from '@/store/ui';
+import { imageUrl } from '@/lib/imageUrl';
 import styles from './ResidenceDetail.module.css';
 
 interface Props {
@@ -79,7 +80,7 @@ export function ResidenceDetail({ project, related }: Props) {
       <section ref={heroRef} className={styles.hero}>
         <div className={styles.heroBg}>
           <Image
-            src={coverImg} alt={project.title}
+            src={imageUrl(coverImg, 'lg')} alt={project.title}
             fill priority sizes="100vw"
             style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
@@ -188,7 +189,7 @@ export function ResidenceDetail({ project, related }: Props) {
           return (
             <div key={i} className={`${styles.galleryItem} ${styles[`gallery_${slot}`]}`}>
               <Image
-                src={src}
+                src={imageUrl(src, 'md')}
                 alt={`${project.title} — ${i + 2}`}
                 fill
                 sizes="(max-width:768px) 100vw, (max-width:1200px) 66vw, 50vw"
@@ -255,7 +256,7 @@ export function ResidenceDetail({ project, related }: Props) {
               return (
                 <Link key={p.id} href={p.href} className={styles.relatedCard}>
                   <Image
-                    src={p.images[0]} alt={p.title}
+                    src={imageUrl(p.images[0], 'md')} alt={p.title}
                     fill
                     sizes="(max-width:768px) 100vw, 25vw"
                     style={{ objectFit: 'cover' }}

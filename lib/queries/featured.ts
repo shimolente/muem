@@ -8,6 +8,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { imageUrl } from '@/lib/imageUrl';
 import { FEATURED, type FeaturedCategory } from '@/content/featured';
 
 const META: Record<
@@ -44,7 +45,9 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
           id:       s.project.slug,
           title:    s.project.title,
           location: s.project.location ?? '',
-          imageSrc: s.project.images[0] ?? COVER_BY_CAT[meta.id],
+          imageSrc: s.project.images[0]
+            ? imageUrl(s.project.images[0], 'lg')
+            : COVER_BY_CAT[meta.id],
           href:     `/studio/${s.project.slug}`,
           category: meta.id,
         })),

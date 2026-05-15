@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/permissions';
+import { deleteEntityFolder } from '@/lib/storage';
 import { furnitureSchema, type FurnitureInput } from './schema';
 
 type ActionResult<T = void> =
@@ -51,7 +52,11 @@ export async function createFurniture(raw: FurnitureInput): Promise<ActionResult
       select:  { sortOrder: true },
     });
     const f = await prisma.furniture.create({
-      data: { ...mapInputToData(parsed.data), sortOrder: (last?.sortOrder ?? -1) + 1 },
+      data: {
+        ...mapInputToData(parsed.data),
+        ...(parsed.data.id ? { id: parsed.data.id } : {}),
+        sortOrder: (last?.sortOrder ?? -1) + 1,
+      },
     });
     revalidatePath('/admin/furniture');
     revalidatePath('/habitus');
@@ -112,6 +117,29 @@ export async function deleteFurniture(id: string): Promise<ActionResult> {
     return { ok: true, data: undefined };
   } catch (e) {
     console.error('[deleteFurniture]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+/** Hard-delete + Storage cleanup. Requires prior soft-delete. */
+export async function purgeFurniture(id: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+
+  try {
+    const row = await prisma.furniture.findUnique({ where: { id } });
+    if (!row) return { ok: false, error: 'NOT_FOUND' };
+    if (!row.deletedAt) return { ok: false, error: 'MUST_SOFT_DELETE_FIRST' };
+
+    await prisma.furniture.delete({ where: { id } });
+    await deleteEntityFolder(`furniture/${id}`);
+
+    revalidatePath('/admin/furniture');
+    revalidatePath('/habitus');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[purgeFurniture]', e);
     return { ok: false, error: 'INTERNAL_ERROR' };
   }
 }

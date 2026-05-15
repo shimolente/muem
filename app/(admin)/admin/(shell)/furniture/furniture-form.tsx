@@ -21,6 +21,7 @@ import {
 } from '@/server/actions/furniture/schema';
 import { createFurniture, updateFurniture } from '@/server/actions/furniture';
 import { ImageUploader } from '@/components/admin/image-uploader';
+import { makeDraftId } from '@/lib/imageUrl';
 
 interface Props {
   furnitureId?: string;
@@ -38,6 +39,7 @@ export function FurnitureForm({ furnitureId, initial }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
+  const [draftId] = useState(() => furnitureId ?? makeDraftId());
 
   const form = useForm<FurnitureInput>({
     resolver: zodResolver(furnitureSchema),
@@ -69,9 +71,10 @@ export function FurnitureForm({ furnitureId, initial }: Props) {
 
   const onSubmit = (values: FurnitureInput) => {
     startTransition(async () => {
+      const payload = furnitureId ? values : { ...values, id: draftId };
       const res = furnitureId
-        ? await updateFurniture(furnitureId, values)
-        : await createFurniture(values);
+        ? await updateFurniture(furnitureId, payload)
+        : await createFurniture(payload);
 
       if (!res.ok) {
         toast.error(res.error || 'Save failed');
@@ -215,7 +218,12 @@ export function FurnitureForm({ furnitureId, initial }: Props) {
           <FormItem>
             <FormLabel>Images</FormLabel>
             <FormControl>
-              <ImageUploader value={field.value ?? []} onChange={field.onChange} />
+              <ImageUploader
+                value={field.value ?? []}
+                onChange={field.onChange}
+                entityType="furniture"
+                entityId={draftId}
+              />
             </FormControl>
             <FormDescription>First image is used as the cover.</FormDescription>
             <FormMessage />

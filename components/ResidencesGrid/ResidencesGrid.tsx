@@ -12,6 +12,7 @@ import {
 } from '@/content/residences';
 import { FilterDropdown, type DropdownOption } from '@/components/FilterDropdown/FilterDropdown';
 import { useUIStore } from '@/store/ui';
+import { imageUrl } from '@/lib/imageUrl';
 import styles from './ResidencesGrid.module.css';
 
 /* ── Arrow icons ──────────────────────────────────────────────────────────── */
@@ -69,7 +70,7 @@ function PropertyCard({ project }: { project: ResidenceProject }) {
       className={`${styles.card} ${project.featured ? styles.cardFeatured : ''}`}
     >
       <Image
-        src={images[idx]}
+        src={imageUrl(images[idx], 'md')}
         alt={project.title}
         fill
         sizes={project.featured ? '(max-width:768px) 100vw, 66vw' : '(max-width:768px) 50vw, 33vw'}

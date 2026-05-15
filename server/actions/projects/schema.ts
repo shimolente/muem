@@ -9,6 +9,11 @@ const CATEGORY  = ['Residential', 'Hospitality', 'Commercial', 'FoodAndBeverage'
  * This keeps RHF + zodResolver type inference clean.
  */
 export const projectSchema = z.object({
+  /** Optional client-supplied id — used so images uploaded against a
+   *  draft id can be persisted as the real record id on create. Edit
+   *  flow passes the existing id (no-op). Format must match the upload
+   *  route's SAFE_ID guard (alphanumeric, 8–32 chars). */
+  id:          z.string().regex(/^[a-z0-9]{8,32}$/i).optional(),
   slug:        z.string().min(1).regex(/^[a-z0-9-]+$/, 'Lowercase letters, numbers, hyphens only'),
   title:       z.string().min(1, 'Title is required'),
   subtitle:    z.string().nullable(),

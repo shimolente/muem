@@ -21,6 +21,7 @@ import {
 } from '@/server/actions/projects/schema';
 import { createProject, updateProject } from '@/server/actions/projects';
 import { ImageUploader } from '@/components/admin/image-uploader';
+import { makeDraftId } from '@/lib/imageUrl';
 
 interface Props {
   projectId?: string;             // present = edit mode
@@ -52,6 +53,10 @@ export function ProjectForm({ projectId, initial }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
+  // Stable id for the lifetime of this form — real cuid when editing,
+  // generated draft id when creating. Used so images upload into the
+  // record's final Storage folder before the record exists.
+  const [draftId] = useState(() => projectId ?? makeDraftId());
 
   const form = useForm<ProjectInput>({
     resolver: zodResolver(projectSchema),
@@ -82,9 +87,12 @@ export function ProjectForm({ projectId, initial }: Props) {
 
   const onSubmit = (values: ProjectInput) => {
     startTransition(async () => {
+      // For new records, pass the draft id so the persisted row matches
+      // the Storage folder the images were uploaded into.
+      const payload = projectId ? values : { ...values, id: draftId };
       const res = projectId
-        ? await updateProject(projectId, values)
-        : await createProject(values);
+        ? await updateProject(projectId, payload)
+        : await createProject(payload);
 
       if (!res.ok) {
         toast.error(res.error || 'Save failed');
@@ -278,7 +286,12 @@ export function ProjectForm({ projectId, initial }: Props) {
             <FormItem>
               <FormLabel>Images</FormLabel>
               <FormControl>
-                <ImageUploader value={field.value ?? []} onChange={field.onChange} />
+                <ImageUploader
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  entityType="projects"
+                  entityId={draftId}
+                />
               </FormControl>
               <FormDescription>First image is used as the cover.</FormDescription>
               <FormMessage />
