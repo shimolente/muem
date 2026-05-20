@@ -150,6 +150,69 @@ export async function purgeProperty(id: string): Promise<ActionResult> {
   }
 }
 
+export async function reorderProperties(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+
+  try {
+    await prisma.$transaction(
+      ids.map((id, i) =>
+        prisma.property.update({ where: { id }, data: { sortOrder: i } }),
+      ),
+    );
+    revalidatePath('/admin/properties');
+    revalidatePath('/residences');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[reorderProperties]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+export async function bulkDeleteProperties(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+  if (ids.length === 0) return { ok: true, data: undefined };
+
+  try {
+    await prisma.property.updateMany({
+      where: { id: { in: ids } },
+      data:  { deletedAt: new Date() },
+    });
+    revalidatePath('/admin/properties');
+    revalidatePath('/residences');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[bulkDeleteProperties]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+export async function bulkSetPropertiesPublished(
+  ids: string[],
+  published: boolean,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+  if (ids.length === 0) return { ok: true, data: undefined };
+
+  try {
+    await prisma.property.updateMany({
+      where: { id: { in: ids } },
+      data:  { publishedAt: published ? new Date() : null },
+    });
+    revalidatePath('/admin/properties');
+    revalidatePath('/residences');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[bulkSetPropertiesPublished]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
 export async function moveProperty(id: string, direction: 'up' | 'down'): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };

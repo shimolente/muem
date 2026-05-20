@@ -154,6 +154,72 @@ export async function purgeProject(id: string): Promise<ActionResult> {
   }
 }
 
+/** Reorder a list of projects by rewriting sortOrder to match the array index. */
+export async function reorderProjects(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+
+  try {
+    await prisma.$transaction(
+      ids.map((id, i) =>
+        prisma.studioProject.update({ where: { id }, data: { sortOrder: i } }),
+      ),
+    );
+    revalidatePath('/admin/projects');
+    revalidatePath('/studio');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[reorderProjects]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+/** Soft-delete multiple projects. */
+export async function bulkDeleteProjects(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+  if (ids.length === 0) return { ok: true, data: undefined };
+
+  try {
+    await prisma.studioProject.updateMany({
+      where: { id: { in: ids } },
+      data:  { deletedAt: new Date() },
+    });
+    revalidatePath('/admin/projects');
+    revalidatePath('/studio');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[bulkDeleteProjects]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+/** Bulk publish / unpublish projects. */
+export async function bulkSetProjectsPublished(
+  ids: string[],
+  published: boolean,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+  if (ids.length === 0) return { ok: true, data: undefined };
+
+  try {
+    await prisma.studioProject.updateMany({
+      where: { id: { in: ids } },
+      data:  { publishedAt: published ? new Date() : null },
+    });
+    revalidatePath('/admin/projects');
+    revalidatePath('/studio');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[bulkSetProjectsPublished]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
 /** Swap sortOrder with adjacent project (in the active, non-deleted set). */
 export async function moveProject(id: string, direction: 'up' | 'down'): Promise<ActionResult> {
   const session = await auth();

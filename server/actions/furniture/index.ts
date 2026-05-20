@@ -144,6 +144,69 @@ export async function purgeFurniture(id: string): Promise<ActionResult> {
   }
 }
 
+export async function reorderFurniture(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+
+  try {
+    await prisma.$transaction(
+      ids.map((id, i) =>
+        prisma.furniture.update({ where: { id }, data: { sortOrder: i } }),
+      ),
+    );
+    revalidatePath('/admin/furniture');
+    revalidatePath('/habitus');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[reorderFurniture]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+export async function bulkDeleteFurniture(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+  if (ids.length === 0) return { ok: true, data: undefined };
+
+  try {
+    await prisma.furniture.updateMany({
+      where: { id: { in: ids } },
+      data:  { deletedAt: new Date() },
+    });
+    revalidatePath('/admin/furniture');
+    revalidatePath('/habitus');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[bulkDeleteFurniture]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
+export async function bulkSetFurniturePublished(
+  ids: string[],
+  published: boolean,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
+  requireAdmin(session.user.role);
+  if (ids.length === 0) return { ok: true, data: undefined };
+
+  try {
+    await prisma.furniture.updateMany({
+      where: { id: { in: ids } },
+      data:  { publishedAt: published ? new Date() : null },
+    });
+    revalidatePath('/admin/furniture');
+    revalidatePath('/habitus');
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error('[bulkSetFurniturePublished]', e);
+    return { ok: false, error: 'INTERNAL_ERROR' };
+  }
+}
+
 export async function moveFurniture(id: string, direction: 'up' | 'down'): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: 'UNAUTHORIZED' };
