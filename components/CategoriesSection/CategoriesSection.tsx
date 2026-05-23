@@ -185,9 +185,12 @@ export function CategoriesSection() {
         sectionVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting) {
           scheduleNavUpdate(() => {
-            setNavTheme('dark');
+            // Mobile: white nav over dark image. Desktop: dark nav over off-white columns.
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            setNavTheme(isMobile ? 'light' : 'dark');
             setNavStyle('minimal');
-            setNavHamburgerLight(false);
+            setNavHamburgerLight(isMobile);
+            setNavLogoLight(isMobile);
             setNavLogoSrc('/logo-and-brandbook/word-only.svg');
           });
         }
@@ -209,7 +212,7 @@ export function CategoriesSection() {
     navObserver.observe(section);
     cursorObserver.observe(section);
     return () => { navObserver.disconnect(); cursorObserver.disconnect(); };
-  }, [setNavTheme, setNavStyle, setNavLogoSrc, setNavHamburgerLight]);
+  }, [setNavTheme, setNavStyle, setNavLogoSrc, setNavHamburgerLight, setNavLogoLight]);
 
   /* ── Click handler — mobile navigates, desktop expands ─────────────── */
   const handleClick = (cat: Category) => {

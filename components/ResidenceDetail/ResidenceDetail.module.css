@@ -427,7 +427,7 @@
 
   .infoBar { flex-wrap: wrap; }
   .infoItem {
-    flex: 1 1 50%; align-items: flex-start; text-align: left;
+    flex: 1 1 50%; align-items: center; text-align: center;
     padding: clamp(16px, 2.5vh, 24px) 20px;
     border-right: 1px solid rgba(58,52,47,0.1);
     border-bottom: 1px solid rgba(58,52,47,0.1);
@@ -435,6 +435,10 @@
   .infoItem:nth-child(even) { border-right: none; }
   .infoItem:nth-child(3),
   .infoItem:nth-child(4)    { border-bottom: none; }
+
+  .specsIcon { display: none; }
+  .specsRow  { flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .specsChip { justify-content: center; }
 
   .gallery { grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 4px; }
   .gallery_full   { grid-column: span 2; aspect-ratio: 16 / 7; }

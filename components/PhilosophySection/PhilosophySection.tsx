@@ -26,6 +26,7 @@ export function PhilosophySection() {
   const setNavStyle          = useUIStore(s => s.setNavStyle);
   const setNavHamburgerLight = useUIStore(s => s.setNavHamburgerLight);
   const setNavLogoSrc        = useUIStore(s => s.setNavLogoSrc);
+  const setNavLogoLight      = useUIStore(s => s.setNavLogoLight);
 
   /* ── Pillar navigation ────────────────────────────────────────────────── */
   const navigate = useCallback((next: number) => {
@@ -69,9 +70,13 @@ export function PhilosophySection() {
       ([entry]) => {
         if (entry.isIntersecting) {
           scheduleNavUpdate(() => {
-            setNavTheme('dark');
+            // Mobile: white logo + white hamburger over image-top layout.
+            // Desktop: dark theme over off-white panel.
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            setNavTheme(isMobile ? 'light' : 'dark');
             setNavStyle('minimal');
             setNavHamburgerLight(true);
+            setNavLogoLight(isMobile);
             setNavLogoSrc('/logo-and-brandbook/word-only.svg');
           });
         }
@@ -80,7 +85,7 @@ export function PhilosophySection() {
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setNavHamburgerLight, setNavLogoSrc]);
+  }, [setNavTheme, setNavStyle, setNavHamburgerLight, setNavLogoSrc, setNavLogoLight]);
 
   /* ── Entrance animation (fires once) ─────────────────────────────────── */
   useEffect(() => {
@@ -152,19 +157,61 @@ export function PhilosophySection() {
     team:          'team',
     international: 'intl',
   };
-  const raw = PHILOSOPHY[pillarIdx];
-  const prefix = KEY_PREFIX[raw.id] ?? '';
-  const pillar = prefix
-    ? {
-        ...raw,
-        heading:    t(`${prefix}Heading`),
-        subheading: t(`${prefix}Subheading`),
-        body:       t(`${prefix}Body`),
-      }
-    : raw;
+  const translate = (raw: typeof PHILOSOPHY[number]) => {
+    const prefix = KEY_PREFIX[raw.id] ?? '';
+    return prefix
+      ? {
+          ...raw,
+          heading:    t(`${prefix}Heading`),
+          subheading: t(`${prefix}Subheading`),
+          body:       t(`${prefix}Body`),
+        }
+      : raw;
+  };
+  const pillar = translate(PHILOSOPHY[pillarIdx]);
+
+  // Mobile scroll-snap pagination
+  const mobileScrollerRef = useRef<HTMLDivElement>(null);
 
   return (
     <section ref={sectionRef} data-snap-section="philosophy" className={styles.section}>
+
+      {/* ── Mobile: horizontal scroll-snap between pillars ─────────────── */}
+      <div
+        ref={mobileScrollerRef}
+        className={styles.mobileScroller}
+        aria-hidden="true"
+      >
+        {PHILOSOPHY.map((p, pi) => {
+          const tp = translate(p);
+          return (
+            <div key={p.id} className={styles.mobilePage}>
+              <div
+                className={styles.mobileImage}
+                style={{ backgroundImage: tp.imageSrc ? `url(${tp.imageSrc})` : undefined }}
+              />
+              <div className={styles.mobileText}>
+                <div className={styles.mobileTop}>
+                  <span className={styles.mobileLabel}>{t('label')}</span>
+                  <h2 className={styles.mobileHeading}>{tp.heading}</h2>
+                  <div className={styles.mobileDots} aria-hidden="true">
+                    {PHILOSOPHY.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`${styles.mobileDot} ${i === pi ? styles.mobileDotActive : ''}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.mobileBottom}>
+                  <p className={styles.mobileSubheading}>{tp.subheading}</p>
+                  <p className={styles.mobileBody}>{tp.body}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* ── Left: text panel ──────────────────────────────────────────── */}
       <div className={styles.textPanel}>

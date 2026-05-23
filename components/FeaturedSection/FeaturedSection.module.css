@@ -331,7 +331,7 @@
 
   .mobileLabel {
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 11px;
     letter-spacing: 0.18em;
     color: rgba(var(--c-warm), 0.5);
     line-height: 1;
@@ -340,7 +340,7 @@
   .mobileTitle {
     font-family: var(--font-display);
     font-weight: 400;
-    font-size: clamp(36px, 10vw, 56px);
+    font-size: clamp(28px, 7vw, 40px);
     line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-warm-dark);
@@ -349,14 +349,14 @@
 
   .mobileDots {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     justify-content: center;
-    margin-top: clamp(8px, 1vh, 12px);
+    margin-top: clamp(10px, 1.4vh, 14px);
   }
 
   .mobileDot {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background: rgba(var(--c-warm), 0.25);
     transition: background 0.25s ease, transform 0.25s ease;

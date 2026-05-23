@@ -94,6 +94,8 @@ export function HeroSection() {
                   style={{
                     display: 'inline-block',
                     fontFamily: isItalic ? 'var(--font-display-italic)' : undefined,
+                    fontStyle:  isItalic ? 'italic' : undefined,
+                    fontWeight: isItalic ? 300 : undefined,
                     color:      isItalic ? '#F4F3EF' : undefined,
                   }}
                 >

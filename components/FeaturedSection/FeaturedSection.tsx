@@ -91,6 +91,20 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     if (autoTimerRef.current) clearInterval(autoTimerRef.current);
   }, []);
 
+  /* ── Mobile autoplay — advance scroller every 7s ─────────────────── */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const sc = mobileScrollerRef.current;
+    if (!sc) return;
+    const id = setInterval(() => {
+      const cur = Math.round(sc.scrollLeft / sc.clientWidth);
+      const next = (cur + 1) % FEATURED.length;
+      sc.scrollTo({ left: next * sc.clientWidth, behavior: 'smooth' });
+    }, 7000);
+    return () => clearInterval(id);
+  }, [FEATURED.length]);
+
   /* ── Nav theming ─────────────────────────────────────────────────── */
   useEffect(() => {
     const el = sectionRef.current;
