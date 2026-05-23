@@ -142,7 +142,8 @@
 }
 
 /* ── Mobile scroll-snap layout (hidden on desktop) ───────────────────────── */
-.mobileScroller { display: none; }
+.mobileScroller  { display: none; }
+.mobileDotsFixed { display: none; }
 
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
@@ -254,11 +255,20 @@
     max-width: 100%;
   }
 
-  .mobileDots {
+  .mobileDots { display: none; } /* dots are overlay now */
+
+  /* Pinned dots — sit just below heading. Anchored to image bottom (52svh)
+     plus mobileText top padding + label height + gap + heading height. */
+  .mobileDotsFixed {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(52svh + clamp(36px, 6vh, 56px) + 11px + 8px + 40px + 6px);
     display: flex;
     gap: 8px;
     justify-content: center;
-    margin-top: 2px;
+    z-index: 3;
+    pointer-events: none;
   }
 
   .mobileDot {

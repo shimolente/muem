@@ -171,6 +171,18 @@ html.snap-scroll [data-snap-section] {
   scroll-snap-stop: always;
 }
 
+/* Mobile: disable y-snap. Sections embed horizontal scrollers (Featured,
+   Philosophy) and y-snap-stop:always blocks native touch swipe. */
+@media (max-width: 768px) {
+  html.snap-scroll {
+    scroll-snap-type: none;
+  }
+  html.snap-scroll [data-snap-section] {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+}
+
 /*
  * ── Aire display font stroke ──────────────────────────────────────────────
  * h1–h4 all use an Aire variant. paint-order: stroke fill renders the stroke

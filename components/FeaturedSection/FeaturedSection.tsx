@@ -41,7 +41,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const tLabel = () => t('label');
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
-  const [, setMobileIdx] = useState(0);
+  const [mobileIdx, setMobileIdx] = useState(0);
   const mobileScrollerRef         = useRef<HTMLDivElement>(null);
   const isAnimating               = useRef(false);
   const catIdxRef             = useRef(0);   // mirrors catIdx — avoids stale closure in autoplay
@@ -239,14 +239,6 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
             <div className={styles.mobileMiddle}>
               <span className={styles.mobileLabel}>{tLabel()}</span>
               <h2 className={styles.mobileTitle}>{tName(c.id, c.name)}</h2>
-              <div className={styles.mobileDots} aria-hidden="true">
-                {FEATURED.map((_, i) => (
-                  <span
-                    key={i}
-                    className={`${styles.mobileDot} ${i === ci ? styles.mobileDotActive : ''}`}
-                  />
-                ))}
-              </div>
             </div>
 
             <div className={styles.mobileCards}>
@@ -260,6 +252,16 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
               ))}
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Mobile-only fixed dots — overlay outside scroller, anchored under title */}
+      <div className={styles.mobileDotsFixed} aria-hidden="true">
+        {FEATURED.map((_, i) => (
+          <span
+            key={i}
+            className={`${styles.mobileDot} ${i === mobileIdx ? styles.mobileDotActive : ''}`}
+          />
         ))}
       </div>
 

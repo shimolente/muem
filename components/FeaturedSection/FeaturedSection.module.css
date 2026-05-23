@@ -242,9 +242,8 @@
    Each "page" is full viewport: top row (3 thumbs), title, bottom row (3 thumbs).
 ───────────────────────────────────────────────────────────────────────────── */
 
-.mobileScroller {
-  display: none;
-}
+.mobileScroller   { display: none; }
+.mobileDotsFixed  { display: none; }
 
 @media (max-width: 768px) {
   .section {
@@ -347,11 +346,21 @@
     margin: 0;
   }
 
-  .mobileDots {
+  .mobileDots { display: none; } /* dots now overlay, see .mobileDotsFixed */
+
+  /* Pinned dots — sit just below title text. Title sits in middle of grid
+     (1fr auto 1fr). Offset from section center by ~half mobileMiddle block +
+     gap so dots land under title. */
+  .mobileDotsFixed {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(50% + 34px);
     display: flex;
     gap: 8px;
     justify-content: center;
-    margin-top: clamp(10px, 1.4vh, 14px);
+    z-index: 3;
+    pointer-events: none;
   }
 
   .mobileDot {

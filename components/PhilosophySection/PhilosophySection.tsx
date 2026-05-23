@@ -172,6 +172,11 @@ export function PhilosophySection() {
 
   // Mobile scroll-snap pagination
   const mobileScrollerRef = useRef<HTMLDivElement>(null);
+  const [mobileIdx, setMobileIdx] = useState(0);
+  const onMobileScroll = useCallback(() => {
+    const el = mobileScrollerRef.current;
+    if (el) setMobileIdx(Math.round(el.scrollLeft / el.clientWidth));
+  }, []);
 
   return (
     <section ref={sectionRef} data-snap-section="philosophy" className={styles.section}>
@@ -180,9 +185,10 @@ export function PhilosophySection() {
       <div
         ref={mobileScrollerRef}
         className={styles.mobileScroller}
+        onScroll={onMobileScroll}
         aria-hidden="true"
       >
-        {PHILOSOPHY.map((p, pi) => {
+        {PHILOSOPHY.map(p => {
           const tp = translate(p);
           return (
             <div key={p.id} className={styles.mobilePage}>
@@ -194,14 +200,6 @@ export function PhilosophySection() {
                 <div className={styles.mobileTop}>
                   <span className={styles.mobileLabel}>{t('label')}</span>
                   <h2 className={styles.mobileHeading}>{tp.heading}</h2>
-                  <div className={styles.mobileDots} aria-hidden="true">
-                    {PHILOSOPHY.map((_, i) => (
-                      <span
-                        key={i}
-                        className={`${styles.mobileDot} ${i === pi ? styles.mobileDotActive : ''}`}
-                      />
-                    ))}
-                  </div>
                 </div>
                 <div className={styles.mobileBottom}>
                   <p className={styles.mobileSubheading}>{tp.subheading}</p>
@@ -211,6 +209,16 @@ export function PhilosophySection() {
             </div>
           );
         })}
+      </div>
+
+      {/* Mobile-only fixed dots — overlay outside scroller, anchored under title */}
+      <div className={styles.mobileDotsFixed} aria-hidden="true">
+        {PHILOSOPHY.map((_, i) => (
+          <span
+            key={i}
+            className={`${styles.mobileDot} ${i === mobileIdx ? styles.mobileDotActive : ''}`}
+          />
+        ))}
       </div>
 
       {/* ── Left: text panel ──────────────────────────────────────────── */}
