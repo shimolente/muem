@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { type ResidenceProject, unitsAvailable, isSoldOut } from '@/content/residences';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
+import { DeveloperContactModal } from '@/components/DeveloperContactModal/DeveloperContactModal';
 import styles from './ResidenceDetail.module.css';
 
 interface Props {
@@ -30,6 +31,7 @@ export function ResidenceDetail({ project, related }: Props) {
   const titleRef    = useRef<HTMLHeadingElement>(null);
   const locationRef = useRef<HTMLSpanElement>(null);
   const arrowRef    = useRef<HTMLDivElement>(null);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -226,15 +228,21 @@ export function ResidenceDetail({ project, related }: Props) {
             </div>
           </div>
 
-          <a
-            href="https://wa.me/34686783520"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
             className={styles.processCta}
+            onClick={() => setContactOpen(true)}
           >
             Contact the developer ↗
-          </a>
+          </button>
         </div>
+
+        <DeveloperContactModal
+          open={contactOpen}
+          onClose={() => setContactOpen(false)}
+          developerPhone={project.developerPhone}
+          propertyTitle={project.title}
+        />
       </section>
 
       {/* ── Related properties ────────────────────────────────────────── */}

@@ -48,6 +48,7 @@ export default async function EditPropertyPage({
           carPort:     property.carPort,
           unitsTotal:  property.unitsTotal,
           unitsSold:   property.unitsSold,
+          developerPhone: property.developerPhone,
           featured:    property.featured,
           published:   property.publishedAt !== null,
           images:      property.images,

@@ -239,3 +239,17 @@ button {
 @media (hover: none) {
   button { cursor: auto; }
 }
+
+/*
+ * ── Nav-open page blur ────────────────────────────────────────────────────
+ * Navbar.tsx flips body[data-nav-open] when the side panel opens. We blur
+ * <main> directly because Chrome's backdrop-filter is unreliable when the
+ * panel is fixed + transformed (see Navbar.module.css note).
+ */
+main {
+  transition: filter 0.4s ease;
+}
+body[data-nav-open="true"] main {
+  filter: blur(10px) brightness(0.92);
+  pointer-events: none;
+}

@@ -38,6 +38,7 @@ function toUi(row: DbProperty): ResidenceProject {
     bedrooms:    row.bedrooms ?? undefined,
     bathrooms:   row.bathrooms ?? undefined,
     carPort:     row.carPort ?? undefined,
+    developerPhone: row.developerPhone ?? undefined,
   };
 }
 

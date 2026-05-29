@@ -324,14 +324,15 @@ export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
             </div>
           </div>
 
-          <a
-            href="https://wa.me/34686783520"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
             className={styles.processCta}
+            onClick={() => {
+              gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
           >
-            Contact the developer ↗
-          </a>
+            Choose your property ↑
+          </button>
         </div>
       </div>
 

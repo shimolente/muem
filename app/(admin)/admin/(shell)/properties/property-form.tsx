@@ -67,6 +67,7 @@ export function PropertyForm({ propertyId, initial }: Props) {
       carPort:     initial?.carPort     ?? null,
       unitsTotal:  initial?.unitsTotal  ?? null,
       unitsSold:   initial?.unitsSold   ?? 0,
+      developerPhone: initial?.developerPhone ?? '',
       featured:    initial?.featured    ?? false,
       published:   initial?.published   ?? false,
       images:      initial?.images      ?? [],
@@ -269,6 +270,18 @@ export function PropertyForm({ propertyId, initial }: Props) {
             </FormItem>
           )} />
         </div>
+
+        {/* Developer contact */}
+        <FormField control={form.control} name="developerPhone" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Developer phone number</FormLabel>
+            <FormControl>
+              <Input type="tel" placeholder="+62 812 3456 7890"
+                     {...field} value={field.value ?? ''} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
 
         {/* Images */}
         <FormField control={form.control} name="images" render={({ field }) => (

@@ -34,9 +34,9 @@ export default async function ResidenceProjectPage(
   ].slice(0, 4);
 
   return (
-    <>
+    <div data-palette="properties">
       <ResidenceDetail project={project} related={related} />
       <ContactSection />
-    </>
+    </div>
   );
 }

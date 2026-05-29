@@ -43,7 +43,8 @@ export function CategoriesSection() {
   // overlay appearing (which steals mouseleave from the column) doesn't exit the image
   const isExpandedRef      = useRef(false);
   const pointerRef         = useRef<{ x: number; y: number } | null>(null);
-  const preventScrollRef   = useRef<((e: Event) => void) | null>(null);
+  const scrollCloseRef     = useRef<((e: Event) => void) | null>(null);
+  const closeHandlerRef    = useRef<(() => void) | null>(null);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -72,13 +73,25 @@ export function CategoriesSection() {
     const origin = getOrigin(id);
     if (origin === 'left')  setNavLogoLight(true);
     if (origin === 'right') setNavHamburgerLight(true);
-    // Lift curtain immediately — image visible from start so rounded clip has contrast
-    gsap.set(curtain, { y: '-101%' });
-    // y: full duration — clip slides up and settles
-    gsap.fromTo(clip,
-      { y: '101%' },
+    // Image stays put. Curtain lifts off the top to reveal it.
+    // Pixel-based translate so motion distance matches column height regardless
+    // of curtain's extended height (column + 800px from the -400px insets).
+    const colHeight = clip.offsetHeight;
+    const liftDist  = colHeight + 500; // overshoot so curtain clears the extension
+    gsap.set(clip, { y: '0%' });
+    // Bottom radius starts rounded (400px) and straightens to sharp by end —
+    // the visible image's top edge transitions rounded → sharp during reveal.
+    // Rounded corners at y:0 idle are hidden inside the -400px bottom extension.
+    gsap.fromTo(curtain,
       {
-        y: '0%', duration: 1.1, ease: 'power4.out',
+        y: 0,
+        borderTopLeftRadius: 0,    borderTopRightRadius: 0,
+        borderBottomLeftRadius: 400, borderBottomRightRadius: 400,
+      },
+      {
+        y: -liftDist,
+        duration: 1.1,
+        ease: 'power4.out',
         onComplete: () => {
           stateRef.current[id] = 'visible';
           if (pendingRef.current[id] === 'leave') {
@@ -88,53 +101,56 @@ export function CategoriesSection() {
         },
       },
     );
-    // Top corners only (bottom never visible coming from below)
-    // Shorter duration so clip is already sharp before it fully lands
-    gsap.fromTo(clip,
-      { borderTopLeftRadius: '400px', borderTopRightRadius: '400px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' },
-      { borderTopLeftRadius: '0px',    borderTopRightRadius: '0px',    duration: 0.72, ease: 'power2.out' },
-    );
+    gsap.to(curtain, {
+      borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+      duration: 0.72, ease: 'power2.out',
+    });
   }
 
   function runLeave(id: string) {
     const clip    = clipRefs.current[id];
     const curtain = curtainRefs.current[id];
     if (!clip || !curtain) return;
-    const wasEntering = stateRef.current[id] === 'entering';
     stateRef.current[id] = 'exiting';
-    // Kill any in-progress enter animations
+    // Kill in-progress tweens; curtain teleports below column for slide-up cover
     gsap.killTweensOf([clip, curtain]);
-    // Fully lift the curtain so the image (not a white box) is visible during exit
-    gsap.set(curtain, { y: '-101%' });
-    // If interrupted mid-entry, snap clip to fully-arrived position first
-    if (wasEntering) gsap.set(clip, { y: '0%', borderTopLeftRadius: '0px', borderTopRightRadius: '0px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' });
-    // Remove overlay class so text fades in parallel with the exit
     setOverlayIds(prev => { const s = new Set(prev); s.delete(id); return s; });
-    // Bottom corners only (top never visible as it exits upward), short delay so rounding trails the motion
-    gsap.to(clip, {
-      borderBottomLeftRadius: '9999px', borderBottomRightRadius: '9999px',
-      borderTopLeftRadius: '0px',       borderTopRightRadius: '0px',
-      duration: 0.5, ease: 'power2.in', delay: 0.1,
-    });
-    // y: clip exits upward
-    gsap.to(clip, {
-      y: '-101%',
-      duration: 0.75,
-      ease: 'power3.inOut',
-      onComplete: () => {
-        // Reset to enter-ready state: top corners rounded, bottom sharp
-        gsap.set(clip,    { y: '101%', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px' });
-        gsap.set(curtain, { y: '0%' }); // reset curtain for next enter
-        stateRef.current[id] = 'idle';
-        // Restore logo/hamburger color once the clip is fully gone
-        const origin = getOrigin(id);
-        if (origin === 'left')  setNavLogoLight(false);
-        if (origin === 'right') setNavHamburgerLight(false);
-        if (pendingRef.current[id] === 'enter') {
-          pendingRef.current[id] = null;
-          runEnter(id);
-        }
+    const colHeight = clip.offsetHeight;
+    const dropDist  = colHeight + 500; // matches reveal's liftDist
+    // Curtain rises from below: top corners start sharp, round to 400 during
+    // the cover motion — visible image's bottom edge goes sharp → rounded.
+    // At y:0 end-state, the rounded top corners live in the -400px top extension.
+    gsap.fromTo(curtain,
+      {
+        y: dropDist,
+        borderTopLeftRadius: 0,    borderTopRightRadius: 0,
+        borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
       },
+      {
+        y: 0,
+        duration: 0.75,
+        ease: 'power3.inOut',
+        onComplete: () => {
+          // Reset to enter-ready state: curtain covering at y:0, all corners sharp
+          gsap.set(curtain, {
+            y: 0,
+            borderTopLeftRadius: 0,    borderTopRightRadius: 0,
+            borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+          });
+          stateRef.current[id] = 'idle';
+          const origin = getOrigin(id);
+          if (origin === 'left')  setNavLogoLight(false);
+          if (origin === 'right') setNavHamburgerLight(false);
+          if (pendingRef.current[id] === 'enter') {
+            pendingRef.current[id] = null;
+            runEnter(id);
+          }
+        },
+      },
+    );
+    gsap.to(curtain, {
+      borderTopLeftRadius: 400, borderTopRightRadius: 400,
+      duration: 0.5, ease: 'power2.in', delay: 0.1,
     });
   }
 
@@ -225,12 +241,25 @@ export function CategoriesSection() {
 
   /* ── Expand handler ──────────────────────────────────────────────────── */
   const handleExpand = (cat: Category) => {
-    // Prevent scrolling by blocking wheel/touch events — avoids touching overflow CSS
-    // which would remove the scrollbar and cause layout shifts on the navbar + columns.
-    const preventScroll = (e: Event) => e.preventDefault();
-    preventScrollRef.current = preventScroll;
-    window.addEventListener('wheel',     preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
+    // Scroll attempt closes the expanded view. Block the first wheel so the
+    // snap doesn't fight the close animation, kill bubble opacity instantly
+    // (no lingering fade), detach listeners so the user's next gesture
+    // scrolls normally.
+    const onScrollAttempt = (e: Event) => {
+      e.preventDefault();
+      window.removeEventListener('wheel',     onScrollAttempt);
+      window.removeEventListener('touchmove', onScrollAttempt);
+      const overlay = expandedRef.current;
+      if (overlay) {
+        const circles = overlay.querySelectorAll<HTMLElement>('[data-expand-circle]');
+        gsap.killTweensOf(circles);
+        gsap.set(circles, { opacity: 0 });
+      }
+      closeHandlerRef.current?.();
+    };
+    scrollCloseRef.current = onScrollAttempt;
+    window.addEventListener('wheel',     onScrollAttempt, { passive: false });
+    window.addEventListener('touchmove', onScrollAttempt, { passive: false });
     window.dispatchEvent(new CustomEvent('nav:hide'));
     // Snapshot rect now — before any layout changes
     const clipEl = clipRefs.current[cat.id];
@@ -390,16 +419,19 @@ export function CategoriesSection() {
         gsap.set(overlay, { display: 'none' });
         isExpandedRef.current = false;
         setActive(null);
-        if (preventScrollRef.current) {
-          window.removeEventListener('wheel',     preventScrollRef.current);
-          window.removeEventListener('touchmove', preventScrollRef.current);
-          preventScrollRef.current = null;
+        if (scrollCloseRef.current) {
+          window.removeEventListener('wheel',     scrollCloseRef.current);
+          window.removeEventListener('touchmove', scrollCloseRef.current);
+          scrollCloseRef.current = null;
         }
         if (hoveredColRef.current !== closingId) runLeave(closingId);
       },
     }, clipEl && rect ? '<' : '-=0.3');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
+
+  /* ── Keep ref to latest handleClose so scroll listeners can invoke it ── */
+  useEffect(() => { closeHandlerRef.current = handleClose; }, [handleClose]);
 
   /* ── Escape key ──────────────────────────────────────────────────────── */
   useEffect(() => {

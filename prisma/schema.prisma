@@ -110,6 +110,7 @@ model Property {
   carPort     Int?
   unitsTotal  Int?
   unitsSold   Int               @default(0)
+  developerPhone String?
   images      String[]
   featured    Boolean           @default(false)
   sortOrder   Int               @default(0)

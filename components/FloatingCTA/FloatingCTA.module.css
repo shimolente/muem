@@ -8,14 +8,14 @@
   width: 44px;
   height: 44px;
   border-radius: 100px;        /* stays pill-shaped; circle at width=height */
-  background: linear-gradient(135deg, rgba(20, 16, 13, 0.32) 0%, rgba(31, 26, 22, 0.24) 100%);
-  backdrop-filter: blur(56px) saturate(180%);
-  -webkit-backdrop-filter: blur(56px) saturate(180%);
-  /* Chrome refuses to composite backdrop-filter unless the element is
-     promoted to its own layer; Safari doesn't need this. translateZ(0)
-     forces the layer cheaply. */
+  /* Faux frosted glass — Chrome won't reliably composite backdrop-filter
+     on a position:fixed element under will-change:transform. Solid dark
+     gradient + soft inner highlight reads as frosted without real blur. */
+  background: linear-gradient(135deg, rgba(50, 46, 42, 0.88) 0%, rgba(32, 28, 24, 0.92) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.22);
   transform: translateZ(0);
-  will-change: backdrop-filter, transform;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,9 +57,7 @@
   width: clamp(115px, 12vw, 140px);
   /* Gradient stays visible — opacity up so button reads as a button.
      Behind it: heavy blur on whatever sits underneath (page content). */
-  background: linear-gradient(135deg, rgba(20, 16, 13, 0.36) 0%, rgba(31, 26, 22, 0.26) 100%);
-  backdrop-filter: blur(56px) saturate(180%);
-  -webkit-backdrop-filter: blur(56px) saturate(180%);
+  background: linear-gradient(135deg, rgba(52, 48, 44, 0.9) 0%, rgba(34, 30, 26, 0.94) 100%);
   gap: clamp(6px, 0.6vw, 10px);
   justify-content: flex-end;   /* text + arrow sit together at right; left border shifts right */
   padding: 4px 0 4px 10px;

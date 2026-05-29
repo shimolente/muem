@@ -1,13 +1,19 @@
 /* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
+  --cat-pad: clamp(6px, 0.55vw, 10px);
+  --cat-gap: clamp(6px, 0.55vw, 10px);
   position: relative;
   z-index: 2;
   height: 100svh;
   min-height: 500px;
-  display: flex;
+  /* Grid: middle col width matches FeaturedSection's `t` cell (2 of 6 cols
+     inside a container inset by --cat-pad). Side cols absorb remainder so
+     section runs edge-to-edge horizontally AND vertically. */
+  display: grid;
+  grid-template-columns: 1fr calc((100% - 2 * var(--cat-pad) - 2 * var(--cat-gap)) / 3) 1fr;
   background: var(--color-off-white); /* covers the fixed video behind */
   padding: 0;
-  gap: clamp(6px, 0.55vw, 10px);
+  gap: var(--cat-gap);
 }
 
 /* ── Column ──────────────────────────────────────────────────────────────── */
@@ -22,7 +28,7 @@
   justify-content: center;
 }
 
-/* ── Hover image clip (outer container — slides up from below) ───────────── */
+/* ── Hover image clip (static frame — image sits here permanently) ───────── */
 .imageClip {
   position: absolute;
   top: -1px; /* extends 1px above column — always clipped by overflow:hidden, eliminates sub-pixel edge artifact */
@@ -30,8 +36,6 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  transform: translateY(101%);
-  will-change: transform;
   z-index: 1;
   background: var(--color-off-white);
 }
@@ -54,10 +58,12 @@
   pointer-events: none;
 }
 
-/* ── Curtain (sits above image inside clip, lifts away with delay) ───────── */
+/* ── Curtain (sits above image inside clip, lifts/drops to reveal/cover) ──
+   Extends 400px above + below column so rounded corners (max 400px radius)
+   live entirely in the offscreen extension — image never leaks at corners. */
 .curtain {
   position: absolute;
-  inset: 0;
+  inset: -400px 0;
   background: var(--color-off-white);
   z-index: 1;
   will-change: transform;
@@ -331,9 +337,12 @@
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section {
+    display: flex;
     flex-direction: column;
+    grid-template-columns: none;
     height: auto;
     min-height: 100svh;
+    padding: 0;
   }
   .column {
     flex: none;

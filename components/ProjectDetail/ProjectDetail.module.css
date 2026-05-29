@@ -14,7 +14,9 @@
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 .hero {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 0;
   height: 100svh;
   min-height: 520px;
   overflow: hidden;
@@ -53,7 +55,7 @@
 }
 .heroTitle {
   font-family: var(--font-display-light); font-weight: 300;
-  font-size: var(--text-hero); line-height: var(--leading-tight);
+  font-size: clamp(48px, 6.9vw, 85px); line-height: var(--leading-tight);
   color: var(--color-white); margin: 0;
   opacity: 0; will-change: opacity, transform;
 }
@@ -67,6 +69,8 @@
 
 /* ── Project intro ────────────────────────────────────────────────────────── */
 .intro {
+  position: relative;
+  z-index: 1; /* lifts above sticky hero so it slides over on scroll */
   background: var(--color-off-white);
   padding: clamp(64px, 10vh, 112px) var(--space-nav-h) clamp(48px, 7vh, 80px);
   display: flex; flex-direction: column;
@@ -102,6 +106,8 @@
 /*  Only vertical dividers — no top/bottom border lines.
     Each column is centred. Horizontal padding = page-level var(--space-nav-h). */
 .infoBar {
+  position: relative;
+  z-index: 1;
   display: flex;
   background: var(--color-off-white);
   /* border-bottom removed per design review */
@@ -136,6 +142,8 @@
  *  narrow → span 1  no AR  stretches to fill wide's row height (no gaps)
  */
 .gallery {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(4px, 0.4vw, 8px);
@@ -154,6 +162,8 @@
 
 /* ── Related projects ─────────────────────────────────────────────────────── */
 .related {
+  position: relative;
+  z-index: 1;
   background: #1A1714;
   padding-bottom: clamp(64px, 10vh, 120px);
 }

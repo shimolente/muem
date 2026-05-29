@@ -28,6 +28,7 @@ function mapInputToData(input: PropertyInput) {
     carPort:     input.carPort,
     unitsTotal:  input.unitsTotal,
     unitsSold:   input.unitsSold,
+    developerPhone: input.developerPhone || null,
     featured:    input.featured,
     images:      input.images,
     publishedAt: input.published ? new Date() : null,

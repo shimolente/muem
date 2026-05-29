@@ -21,6 +21,7 @@ export const propertySchema = z.object({
   carPort:     z.number().int().min(0).nullable(),
   unitsTotal:  z.number().int().min(0).nullable(),
   unitsSold:   z.number().int().min(0),
+  developerPhone: z.string().nullable(),
   featured:    z.boolean(),
   published:   z.boolean(),
   images:      z.array(z.string()),

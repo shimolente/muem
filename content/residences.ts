@@ -25,6 +25,8 @@ export interface ResidenceProject {
   bedrooms?:    number;
   bathrooms?:   number;
   carPort?:     number;
+  /* ── Developer contact (E.164 format preferred, e.g. +62...) ──────────── */
+  developerPhone?: string;
 }
 
 export function unitsAvailable(p: ResidenceProject): number {
@@ -170,7 +172,7 @@ export const RESIDENCES_PROJECTS: ResidenceProject[] = [
 /* ── Portfolio grid intro ─────────────────────────────────────────────────── */
 export const RESIDENCES_INTRO = {
   label:    'Invest',
-  headline: 'Properties\ncurated by Muem.',
+  headline: 'Residences\ndesigned by Muem.',
   body:     "Each property is developed with the same design integrity as our architectural work — selected for location, craftsmanship, and long-term investment value.",
   cta:      { label: 'Browse all properties', href: '/residences' },
 };

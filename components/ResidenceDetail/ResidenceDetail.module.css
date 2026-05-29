@@ -1,6 +1,8 @@
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 .hero {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 0;
   height: 100svh;
   min-height: 520px;
   overflow: hidden;
@@ -39,7 +41,7 @@
 }
 .heroTitle {
   font-family: var(--font-display-light); font-weight: 300;
-  font-size: var(--text-hero); line-height: var(--leading-tight);
+  font-size: clamp(48px, 6.9vw, 85px); line-height: var(--leading-tight);
   color: var(--color-white); margin: 0;
   opacity: 0; will-change: opacity, transform;
 }
@@ -68,7 +70,9 @@
 
 /* ── Project intro ────────────────────────────────────────────────────────── */
 .intro {
-  background: var(--color-off-white);
+  position: relative;
+  z-index: 1; /* lifts above sticky hero so it slides over on scroll */
+  background: var(--page-bg, #EBECEA);
   padding: clamp(64px, 10vh, 112px) var(--space-nav-h) clamp(48px, 7vh, 80px);
   display: flex; flex-direction: column;
   align-items: center; text-align: center;
@@ -100,8 +104,10 @@
 
 /* ── Info bar ─────────────────────────────────────────────────────────────── */
 .infoBar {
+  position: relative;
+  z-index: 1;
   display: flex;
-  background: var(--color-off-white);
+  background: var(--page-bg, #EBECEA);
 }
 
 .infoItem {
@@ -126,17 +132,51 @@
   color: var(--color-warm-dark); line-height: 1;
 }
 
-/* Availability value variants */
-.infoValue_available { color: #4a7c50; }  /* muted green */
-.infoValue_soldout   { color: rgba(58,52,47,0.38); }
+/* Availability value variants — rendered as pills so the status pops
+   against the plain-text values in the rest of the info bar. */
+.infoValue_available,
+.infoValue_soldout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-size: clamp(12px, 0.9vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.infoValue_available {
+  color: #2f5a36;
+  background: rgba(74, 124, 80, 0.16);
+  border: 1px solid rgba(74, 124, 80, 0.32);
+}
+.infoValue_available::before {
+  content: '';
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4a7c50;
+  box-shadow: 0 0 0 3px rgba(74, 124, 80, 0.22);
+}
+.infoValue_soldout {
+  color: rgba(58, 52, 47, 0.72);
+  background: rgba(58, 52, 47, 0.08);
+  border: 1px solid rgba(58, 52, 47, 0.18);
+}
+.infoValue_soldout::before {
+  content: '';
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(58, 52, 47, 0.5);
+}
 
 /* ── Unit configuration specs row ────────────────────────────────────────── */
 .specsRow {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: clamp(16px, 2vw, 28px);
-  background: var(--color-off-white);
+  background: var(--page-bg, #EBECEA);
   padding: clamp(18px, 2.8vh, 28px) var(--space-nav-h);
 }
 
@@ -178,11 +218,13 @@
 
 /* ── Gallery ──────────────────────────────────────────────────────────────── */
 .gallery {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(4px, 0.4vw, 8px);
   padding: clamp(4px, 0.4vw, 8px);
-  background: var(--color-off-white);
+  background: var(--page-bg, #EBECEA);
 }
 
 .galleryItem {
@@ -196,7 +238,9 @@
 
 /* ── How it works ─────────────────────────────────────────────────────────── */
 .process {
-  background: var(--color-off-white);
+  position: relative;
+  z-index: 1;
+  background: var(--page-bg, #EBECEA);
   border-top: 1px solid rgba(58,52,47,0.08);
   padding: clamp(72px, 12vh, 120px) var(--space-nav-h) clamp(64px, 10vh, 112px);
 }
@@ -276,12 +320,16 @@
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-white);
-  background: var(--color-warm-dark);
+  /* Green accent — same palette tokens as list-view CTA so detail + list
+     read as one band. */
+  color: var(--page-button-fg, var(--color-white));
+  background: var(--page-button-bg, var(--color-warm-dark));
   text-decoration: none;
   padding: 16px 40px;
   border-radius: 100px;
   line-height: 1;
+  border: none;
+  cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease;
   display: inline-block;
 }
@@ -289,6 +337,8 @@
 
 /* ── Related properties ───────────────────────────────────────────────────── */
 .related {
+  position: relative;
+  z-index: 1;
   background: #1A1714;
   padding-bottom: clamp(64px, 10vh, 120px);
 }

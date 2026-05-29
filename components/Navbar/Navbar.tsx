@@ -111,6 +111,16 @@ export function Navbar() {
     });
   };
 
+  // ── Page-blur toggle ───────────────────────────────────────────────────────
+  // Chrome's backdrop-filter is unreliable on fixed + transformed panels, so
+  // instead of blurring behind the panel we filter:blur the <main> content.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (open) document.body.dataset.navOpen = 'true';
+    else      delete document.body.dataset.navOpen;
+    return () => { delete document.body.dataset.navOpen; };
+  }, [open]);
+
   // ── Mobile panel + backdrop ────────────────────────────────────────────────
   useEffect(() => {
     const panel    = overlayRef.current;
