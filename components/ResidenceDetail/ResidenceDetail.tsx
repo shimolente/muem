@@ -105,6 +105,13 @@ export function ResidenceDetail({ project, related }: Props) {
         {project.description && (
           <p className={styles.introBody}>{project.description}</p>
         )}
+        <button
+          type="button"
+          className={styles.introCta}
+          onClick={() => setContactOpen(true)}
+        >
+          Contact the developer ↗
+        </button>
       </div>
 
       {/* ── Info bar ──────────────────────────────────────────────────── */}

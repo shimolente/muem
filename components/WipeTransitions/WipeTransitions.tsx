@@ -151,13 +151,18 @@ export function WipeTransitions() {
       const prevSnap = html.style.scrollSnapType;
       html.style.scrollSnapType = 'none';
 
+      // On mobile, skip-wipe transitions use instant scroll so CSS mandatory snap
+      // re-enables while the scroll is already settled at the target — prevents
+      // snap from finding the previous section as the nearest point and bouncing back.
+      const isMobileTouch = window.matchMedia('(hover: none) and (max-width: 768px)').matches;
+
       if (!skipWipe) createOverlay(fromSection, direction);
       toSection.scrollIntoView({
-        behavior: skipWipe ? 'smooth' : 'auto',
+        behavior: (skipWipe && !isMobileTouch) ? 'smooth' : 'auto',
         block: 'start',
       });
 
-      const duration = skipWipe ? 700 : WIPE_MS + 80;
+      const duration = skipWipe ? (isMobileTouch ? 200 : 700) : WIPE_MS + 80;
       setTimeout(() => {
         html.style.scrollSnapType = prevSnap;
         isSnapping = false;

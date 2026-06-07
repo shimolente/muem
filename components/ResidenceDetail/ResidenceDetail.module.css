@@ -101,6 +101,25 @@
   color: rgba(58,52,47,0.58);
   max-width: 62ch; margin: 0;
 }
+/* Primary CTA under the description — opens the same developer-contact modal
+   as the "How it works" section, surfacing it near the top. */
+.introCta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--page-button-fg, var(--color-white));
+  background: var(--page-button-bg, var(--color-warm-dark));
+  text-decoration: none;
+  padding: 16px 40px;
+  border-radius: 100px;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  margin-top: clamp(4px, 1vh, 12px);
+}
+.introCta:hover { opacity: 0.85; transform: translateY(-1px); }
 
 /* ── Info bar ─────────────────────────────────────────────────────────────── */
 .infoBar {

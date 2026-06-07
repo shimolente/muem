@@ -79,15 +79,22 @@ export function CategoriesSection() {
     const colHeight = clip.offsetHeight;
     const liftDist  = colHeight + 500; // overshoot so curtain clears the extension
     gsap.set(clip, { y: '0%' });
-    // Bottom radius starts rounded (400px) and straightens to sharp by end —
-    // the visible image's top edge transitions rounded → sharp during reveal.
-    // Rounded corners at y:0 idle are hidden inside the -400px bottom extension.
+    // Convex reveal edge: the curtain's bottom edge domes UP at the centre
+    // (quadratic curve via clip-path), so the image is uncovered centre-first —
+    // a convex wipe. (border-radius can only round corners → concave; clip-path
+    // is set inline so it bypasses the build's CSS minifier entirely.) At idle
+    // the dome lives in the -400px bottom extension, so the column stays covered.
+    const cw = curtain.offsetWidth;
+    const ch = curtain.offsetHeight;
+    // Elliptical-arc dome (not a single quadratic — that makes a pointed tip).
+    // rx = half-width, ry = arch height. The arc has vertical tangents where it
+    // meets the sides, so it blends into the column's vertical edges and rounds
+    // smoothly over the top — a rounded arch, not a sharp point.
+    const arch = Math.min(cw * 0.62, 340); // arch height (ry)
+    const convexBottom = `path('M0 0 L${cw} 0 L${cw} ${ch} A${cw / 2} ${arch} 0 0 0 0 ${ch} Z')`;
+    gsap.set(curtain, { clipPath: convexBottom, webkitClipPath: convexBottom });
     gsap.fromTo(curtain,
-      {
-        y: 0,
-        borderTopLeftRadius: 0,    borderTopRightRadius: 0,
-        borderBottomLeftRadius: 400, borderBottomRightRadius: 400,
-      },
+      { y: 0 },
       {
         y: -liftDist,
         duration: 1.1,
@@ -101,10 +108,6 @@ export function CategoriesSection() {
         },
       },
     );
-    gsap.to(curtain, {
-      borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
-      duration: 0.72, ease: 'power2.out',
-    });
   }
 
   function runLeave(id: string) {
@@ -112,31 +115,29 @@ export function CategoriesSection() {
     const curtain = curtainRefs.current[id];
     if (!clip || !curtain) return;
     stateRef.current[id] = 'exiting';
-    // Kill in-progress tweens; curtain teleports below column for slide-up cover
+    // Kill in-progress tweens; curtain teleports below column for slide-up cover.
     gsap.killTweensOf([clip, curtain]);
     setOverlayIds(prev => { const s = new Set(prev); s.delete(id); return s; });
     const colHeight = clip.offsetHeight;
-    const dropDist  = colHeight + 500; // matches reveal's liftDist
-    // Curtain rises from below: top corners start sharp, round to 400 during
-    // the cover motion — visible image's bottom edge goes sharp → rounded.
-    // At y:0 end-state, the rounded top corners live in the -400px top extension.
+    const riseDist  = colHeight + 500; // matches reveal's liftDist
+    // Cover moves UP (like the reveal), but its leading edge is a ∪ — a
+    // DOWNWARD bulge at the centre (not the reveal's ∩ dome). The curtain rises
+    // from below; the centre is covered last, and as the edge passes into the
+    // -400px top extension the ∪ eases out into a flat, full cover.
+    const cw = curtain.offsetWidth;
+    const ch = curtain.offsetHeight;
+    const arch = Math.min(cw * 0.62, 340);
+    const concaveTop = `path('M0 0 A${cw / 2} ${arch} 0 0 0 ${cw} 0 L${cw} ${ch} L0 ${ch} Z')`;
+    gsap.set(curtain, { clipPath: concaveTop, webkitClipPath: concaveTop });
     gsap.fromTo(curtain,
-      {
-        y: dropDist,
-        borderTopLeftRadius: 0,    borderTopRightRadius: 0,
-        borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
-      },
+      { y: riseDist },
       {
         y: 0,
         duration: 0.75,
         ease: 'power3.inOut',
         onComplete: () => {
-          // Reset to enter-ready state: curtain covering at y:0, all corners sharp
-          gsap.set(curtain, {
-            y: 0,
-            borderTopLeftRadius: 0,    borderTopRightRadius: 0,
-            borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
-          });
+          // Reset to enter-ready state: full-rectangle cover, no clip
+          gsap.set(curtain, { y: 0, clipPath: 'none', webkitClipPath: 'none' });
           stateRef.current[id] = 'idle';
           const origin = getOrigin(id);
           if (origin === 'left')  setNavLogoLight(false);
@@ -148,10 +149,6 @@ export function CategoriesSection() {
         },
       },
     );
-    gsap.to(curtain, {
-      borderTopLeftRadius: 400, borderTopRightRadius: 400,
-      duration: 0.5, ease: 'power2.in', delay: 0.1,
-    });
   }
 
   /* ── Hover dispatchers ───────────────────────────────────────────────── */

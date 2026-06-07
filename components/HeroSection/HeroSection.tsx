@@ -21,7 +21,6 @@ export function HeroSection() {
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
   const setNavBg             = useUIStore(s => s.setNavBg);
-  const setFloatingArrowHide = useUIStore(s => s.setFloatingArrowHide);
   const setNavLogoSrc        = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Nav: full links while hero is visible. Also suppress the floating
@@ -36,7 +35,6 @@ export function HeroSection() {
             setNavTheme('light'); // white bars over dark video
             setNavStyle('full');
             setNavBg('transparent'); // homepage hero: no fill over video
-            setFloatingArrowHide(true);
             setNavLogoSrc(null); // hero shows the mark, not the wordmark
           });
         }
@@ -45,7 +43,7 @@ export function HeroSection() {
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setNavBg, setFloatingArrowHide, setNavLogoSrc]);
+  }, [setNavTheme, setNavStyle, setNavBg, setNavLogoSrc]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {

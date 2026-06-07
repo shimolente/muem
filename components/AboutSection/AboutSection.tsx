@@ -41,7 +41,12 @@ export function AboutSection() {
             setNavLogoSrc('/logo-and-brandbook/word-only.svg');
           });
         } else {
-          setFloatingArrowHide(false);  // restore on other sections — instant, doesn't need to wait for wipe
+          // About left the viewport. Only show the floating ↓ when About is
+          // ABOVE us (we scrolled down to lower sections). When About sits
+          // BELOW us (rect.top > 0) we're back on the hero, which has its own
+          // arrow — keep the floating one hidden so it never covers it.
+          const aboveViewport = entry.boundingClientRect.top < 0;
+          setFloatingArrowHide(!aboveViewport);
         }
       },
       { threshold: 0.5 },

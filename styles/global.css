@@ -180,9 +180,10 @@ html.snap-scroll [data-snap-section] {
     scroll-snap-stop: normal;
   }
   html.snap-scroll [data-snap-section="hero"],
-  html.snap-scroll [data-snap-section="about"] {
+  html.snap-scroll [data-snap-section="about"],
+  html.snap-scroll [data-snap-section="categories"] {
     scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;
   }
 }
 

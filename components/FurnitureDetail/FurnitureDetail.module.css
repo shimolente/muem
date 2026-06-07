@@ -118,9 +118,9 @@
 
 /* Tagline */
 .subtitle {
-  font-family: var(--font-display-italic);
-  font-size: clamp(14px, 1.2vw, 18px);
-  color: rgba(58, 52, 47, 0.48);
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1.2vw, 17px);
+  color: rgba(58, 52, 47, 0.72);
   margin: 0 0 clamp(16px, 2.5vh, 28px);
   line-height: var(--leading-snug);
 }

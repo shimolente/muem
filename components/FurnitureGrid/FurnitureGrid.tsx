@@ -13,6 +13,28 @@ import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
 import styles from './FurnitureGrid.module.css';
 
+/* ── Mobile filter collapse: trigger when filterWrap becomes sticky ─────────── */
+function useStickyCollapse(sentinelRef: React.RefObject<HTMLDivElement | null>) {
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (window.innerWidth > 768) return;
+        // Sentinel scrolled above viewport top → filterWrap is now pinned sticky
+        setIsSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+      },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return isSticky;
+}
+
 /* ── Furniture card ───────────────────────────────────────────────────────── */
 function FurnitureCard({ item }: { item: FurnitureItem }) {
   const [idx, setIdx] = useState(0);
@@ -151,40 +173,70 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 /* ── Main grid ────────────────────────────────────────────────────────────── */
 export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
-  const sectionRef  = useRef<HTMLElement>(null);
-  const gridRef     = useRef<HTMLDivElement>(null);
-  const processRef  = useRef<HTMLDivElement>(null);
-  const hasEntered  = useRef(false);
+  const sectionRef    = useRef<HTMLElement>(null);
+  const listRef       = useRef<HTMLDivElement>(null);
+  const sentinelRef   = useRef<HTMLDivElement>(null);
+  const gridRef       = useRef<HTMLDivElement>(null);
+  const processRef    = useRef<HTMLDivElement>(null);
+  const hasEntered    = useRef(false);
   const processEntered = useRef(false);
 
   const [activeCategory, setActiveCategory] = useState<FurnitureCategory | 'All'>('All');
   const [limit, setLimit] = useState(8);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const isSticky = useStickyCollapse(sentinelRef);
+  const collapsed = isSticky && !filterOpen;
 
-  const setNavTheme  = useUIStore(s => s.setNavTheme);
-  const setNavStyle  = useUIStore(s => s.setNavStyle);
-  const setNavBg     = useUIStore(s => s.setNavBg);
-  const setNavShadow = useUIStore(s => s.setNavShadow);
+  const setNavTheme          = useUIStore(s => s.setNavTheme);
+  const setNavStyle          = useUIStore(s => s.setNavStyle);
+  const setNavBg             = useUIStore(s => s.setNavBg);
+  const setNavShadow         = useUIStore(s => s.setNavShadow);
+  const setNavHamburgerLight = useUIStore(s => s.setNavHamburgerLight);
 
-  /* ── Nav theming ──────────────────────────────────────────────────────── */
+  /* ── Nav theming ──────────────────────────────────────────────────────────
+     Two adjacent zones, each authoritative on enter (no leave handlers — the
+     entering zone wins, so scrolling either direction lands on the right look):
+       • list (intro + filter + grid) → brown bar, light logo/hamburger
+       • process ("how it works", green-light bg) → no fill, dark logo/hamburger
+     The hero above is owned by <CategoryHero> (transparent). */
   useEffect(() => {
-    const el = sectionRef.current;
+    const el = listRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setNavTheme('light');
-          setNavStyle('minimal');
-          setNavBg('transparent');
-          setNavShadow(false);
-        } else {
-          setNavShadow(false);
-        }
+        if (!entry.isIntersecting) return;
+        setNavTheme('light');          // white logo
+        setNavStyle('minimal');
+        setNavHamburgerLight(true);
+        setNavBg('transparent');       // no fill — nav stays transparent over the list
+        setNavShadow(false);
       },
-      { threshold: 0.1 },
+      // Thin top-strip root: re-asserts the transparent/light nav when the grid
+      // is in view (e.g. scrolling back up out of the "how it works" section).
+      { threshold: 0, rootMargin: '0px 0px -90% 0px' },
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [setNavTheme, setNavStyle, setNavBg, setNavShadow]);
+  }, [setNavTheme, setNavStyle, setNavBg, setNavShadow, setNavHamburgerLight]);
+
+  /* Process zone — revert the nav to a light-surface look. */
+  useEffect(() => {
+    const el = processRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setNavTheme('dark');           // dark logo/text over green-light
+        setNavStyle('minimal');
+        setNavHamburgerLight(false);   // dark bars
+        setNavBg('transparent');       // blend with the green-light surface
+        setNavShadow(false);
+      },
+      { threshold: 0.15 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [setNavTheme, setNavStyle, setNavBg, setNavShadow, setNavHamburgerLight]);
 
   /* ── Filtered + paginated data ────────────────────────────────────────── */
   const filtered = activeCategory === 'All'
@@ -198,7 +250,10 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
   const animateCards = useCallback(() => {
     const cards = gridRef.current?.querySelectorAll<HTMLElement>(`.${styles.card}`);
     if (!cards || cards.length === 0) return;
-    revealUp(Array.from(cards), { stagger: 0.06, clearProps: 'borderRadius' });
+    // clearProps transform too: GSAP leaves an inline transform → Chrome keeps
+    // the card on a composited layer that paints OVER the sticky filter bar
+    // (crops the circles). Clearing it drops the layer so the bar stays on top.
+    revealUp(Array.from(cards), { stagger: 0.06, clearProps: 'borderRadius,transform' });
   }, []);
 
   useEffect(() => {
@@ -277,47 +332,87 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
         </div>
       </div>
 
-      {/* ── Category circle filter ───────────────────────────────────────── */}
-      <div className={styles.filterWrap}>
-        <div className={styles.filterRow}>
-          {(['All', ...FURNITURE_CATEGORIES] as const).map(cat => (
-            <button
-              key={cat}
-              className={`${styles.filterCircle} ${activeCategory === cat ? styles.filterCircleActive : ''}`}
-              onClick={() => setActiveCategory(cat as FurnitureCategory | 'All')}
-              aria-label={cat}
-            >
-              <span className={styles.filterCircleIcon}>
-                {CATEGORY_ICONS[cat]}
-              </span>
-              <span className={styles.filterCircleLabel}>{cat}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Card grid ────────────────────────────────────────────────────── */}
-      <div ref={gridRef} className={styles.grid}>
-        {visible.length > 0 ? (
-          <>
-            {visible.map(item => (
-              <FurnitureCard key={item.id} item={item} />
-            ))}
-            {hasMore && (
+      {/* ── List zone: sticky filter + grid ──────────────────────────────────
+          The sticky filter sticks within this wrapper, so it releases the
+          instant the grid ends — it scrolls away with the list before the
+          "How it works" section, instead of floating over it. */}
+      <div ref={listRef} className={styles.listWrap}>
+        {/* Sentinel: when it scrolls above the viewport, filterWrap is sticky */}
+        <div ref={sentinelRef} className={styles.filterSentinel} />
+        {/* ── Category circle filter ─────────────────────────────────────── */}
+        <div className={`${styles.filterWrap} ${collapsed ? styles.filterWrapCollapsed : ''}`}>
+          {/* Desktop / mobile-expanded: full row */}
+          <div className={`${styles.filterRow} ${filterOpen ? styles.filterRowOpen : ''}`}>
+            {/* Mobile expanded: X button as first item */}
+            {filterOpen && (
               <button
-                type="button"
-                className={styles.loadMoreCard}
-                onClick={() => setLimit(l => l + 4)}
-                aria-label="Load more items"
+                key="close"
+                className={styles.filterCircle}
+                onClick={() => setFilterOpen(false)}
+                aria-label="Close filters"
               >
-                <span className={styles.loadMoreLabel}>Load more</span>
-                <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
+                <span className={styles.filterCircleIcon}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </span>
+                <span className={styles.filterCircleLabel}>Close</span>
               </button>
             )}
-          </>
-        ) : (
-          <p className={styles.empty}>No items in this category yet.</p>
-        )}
+            {(['All', ...FURNITURE_CATEGORIES] as const).map(cat => (
+              <button
+                key={cat}
+                className={`${styles.filterCircle} ${activeCategory === cat ? styles.filterCircleActive : ''}`}
+                onClick={() => {
+                  setActiveCategory(cat as FurnitureCategory | 'All');
+                  setFilterOpen(false);
+                }}
+                aria-label={cat}
+              >
+                <span className={styles.filterCircleIcon}>
+                  {CATEGORY_ICONS[cat]}
+                </span>
+                <span className={styles.filterCircleLabel}>{cat}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile collapsed: single bubble showing active category */}
+          <button
+            className={styles.filterBubble}
+            onClick={() => setFilterOpen(true)}
+            aria-label="Open filters"
+          >
+            <span className={styles.filterCircleIcon}>
+              {CATEGORY_ICONS[activeCategory]}
+            </span>
+          </button>
+        </div>
+
+        {/* ── Card grid ──────────────────────────────────────────────────── */}
+        <div ref={gridRef} className={styles.grid}>
+          {visible.length > 0 ? (
+            <>
+              {visible.map(item => (
+                <FurnitureCard key={item.id} item={item} />
+              ))}
+              {hasMore && (
+                <button
+                  type="button"
+                  className={styles.loadMoreCard}
+                  onClick={() => setLimit(l => l + 4)}
+                  aria-label="Load more items"
+                >
+                  <span className={styles.loadMoreLabel}>Load more</span>
+                  <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
+                </button>
+              )}
+            </>
+          ) : (
+            <p className={styles.empty}>No items in this category yet.</p>
+          )}
+        </div>
       </div>
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
