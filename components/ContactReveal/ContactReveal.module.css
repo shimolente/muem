@@ -1,0 +1,22 @@
+/* ── Contact reveal (curtain) ─────────────────────────────────────────────────
+   Used on Properties / Studio / Lifestyle. The page reads as if it ends at the
+   last content section; as you keep scrolling, that section freezes and the
+   contact section rises up over it (curtain reveal).
+
+   How: .above holds all content and is `sticky; bottom: 0` — once its bottom
+   reaches the viewport bottom it pins, freezing the last screen. .target (the
+   contact section) sits BELOW it in normal flow with a higher z-index, so as
+   you keep scrolling it slides up and covers the frozen content. Full document
+   height is preserved (above + contact), so scrolling is never blocked, and the
+   contact's own IntersectionObserver only fires when it's actually revealed. */
+
+.above {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}
+
+.target {
+  position: relative;
+  z-index: 2;
+}
