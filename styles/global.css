@@ -175,6 +175,12 @@ html.snap-scroll [data-snap-section] {
    embed horizontal scrollers (Featured, Philosophy) — y-snap-stop:always
    blocks native touch swipe, so disable snap-align past the second screen. */
 @media (max-width: 768px) {
+  /* mandatory forces snap to nearest point; since categories is the last
+     snap point, scrolling past it gets yanked back. proximity only snaps
+     when already near a point, so scroll flows freely into Featured below. */
+  html.snap-scroll {
+    scroll-snap-type: y proximity;
+  }
   html.snap-scroll [data-snap-section] {
     scroll-snap-align: none;
     scroll-snap-stop: normal;
