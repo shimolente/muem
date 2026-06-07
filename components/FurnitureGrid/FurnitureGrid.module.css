@@ -125,7 +125,8 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: rgba(53, 50, 47, 0.07);
+  /* same muem brown-dark as the sidebar/button, 70% more translucent (1.0 → 0.30) */
+  background: rgba(53, 50, 47, 0.30);
   color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.9);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
