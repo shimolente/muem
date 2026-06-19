@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code (session data + worktrees — worktrees are embedded git repos)
+.claude/projects/
+.claude/worktrees/
+
+# raw source image dumps (not site assets)
+/furniture_images/
+/property_images/
+
+# scratch / reference
+/wipe-example/
