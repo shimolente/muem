@@ -14,28 +14,17 @@ import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
 import styles from './StudioGrid.module.css';
 
-/* ── Build DropdownOption[] from a category's subcategories ──────────────── */
-function subOptions(catId: string): DropdownOption[] {
-  const cat = CATEGORIES.find(c => c.id === catId)!;
-  return cat.subs.map(s => ({ label: s.label, value: s.label }));
-}
+/* Top-level category id (single-select). 'all' = no category filter. */
+type CatId = 'all' | 'residential' | 'hospitality' | 'commercial';
 
-/* ── Derive matching topologies from selected sub-labels ─────────────────── */
-function toTopologies(catId: string, subs: string[]): string[] | null {
-  if (subs.length === 0) return null; // filter not active
-  const cat = CATEGORIES.find(c => c.id === catId)!;
-  const tops = new Set<string>();
-  for (const sub of cat.subs) {
-    if (subs.includes(sub.label)) sub.topologies.forEach(t => tops.add(t));
-  }
-  return Array.from(tops);
-}
+/* Category dropdown options (single-select) — value = CatId. */
+const CATEGORY_OPTIONS: DropdownOption[] = CATEGORIES.map(c => ({ label: c.label, value: c.id }));
 
 /* ── Arrow icons ──────────────────────────────────────────────────────────── */
 function ChevronLeft() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="1.8"
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2"
       strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 18 9 12 15 6" />
     </svg>
@@ -43,8 +32,8 @@ function ChevronLeft() {
 }
 function ChevronRight() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="1.8"
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2"
       strokeLinecap="round" strokeLinejoin="round">
       <polyline points="9 18 15 12 9 6" />
     </svg>
@@ -97,17 +86,9 @@ function ProjectCard({ project }: { project: StudioProject }) {
         </>
       )}
 
-      <div className={styles.cardHover} aria-hidden="true">
-        <span className={styles.seeDetail}>See Detail</span>
-      </div>
-
       <div className={styles.cardBottom}>
         <span className={styles.cardLocation}>{project.location.toUpperCase()}</span>
         <h3 className={styles.cardTitle}>{project.title}</h3>
-        <div className={styles.cardMeta}>
-          <span>{project.size}</span>
-          <span>{project.year}</span>
-        </div>
       </div>
     </Link>
   );
@@ -126,20 +107,11 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
   const gridRef    = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
 
-  /* One sub-filter state per category. When deep-linked from Featured, the
-     matching category starts with all of its sub labels pre-selected. */
-  const allSubsOf = (id: 'residential' | 'hospitality' | 'commercial') =>
-    CATEGORIES.find(c => c.id === id)?.subs.map(s => s.label) ?? [];
-  const [resSubs,  setResSubs]  = useState<string[]>(
-    initialCategoryId === 'residential' ? allSubsOf('residential') : [],
-  );
-  const [hosSubs,  setHosSubs]  = useState<string[]>(
-    initialCategoryId === 'hospitality' ? allSubsOf('hospitality') : [],
-  );
-  const [comSubs,  setComSubs]  = useState<string[]>(
-    initialCategoryId === 'commercial' ? allSubsOf('commercial') : [],
-  );
-  const [limit,    setLimit]    = useState(9);
+  /* Single active category (deep-linked from Featured/landing) + optional
+     sub-type refinement chips within it. */
+  const [activeCat, setActiveCat] = useState<CatId>(initialCategoryId ?? 'all');
+  const [subs,      setSubs]      = useState<string[]>([]);
+  const [limit,     setLimit]     = useState(9);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);
   const setNavStyle  = useUIStore(s => s.setNavStyle);
@@ -168,17 +140,17 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
   }, [setNavTheme, setNavStyle, setNavBg, setNavShadow]);
 
   /* ── Filtered + paginated data ────────────────────────────────────────── */
-  const rFilter = toTopologies('residential', resSubs);
-  const hFilter = toTopologies('hospitality', hosSubs);
-  const cFilter = toTopologies('commercial',  comSubs);
-  const anyActive = rFilter !== null || hFilter !== null || cFilter !== null;
+  const activeDef = activeCat === 'all'
+    ? null
+    : CATEGORIES.find(c => c.id === activeCat) ?? null;
 
   const allFiltered = projects.filter(p => {
-    if (!anyActive) return true;
-    if (rFilter && rFilter.includes(p.topology)) return true;
-    if (hFilter && hFilter.includes(p.topology)) return true;
-    if (cFilter && cFilter.includes(p.topology)) return true;
-    return false;
+    if (!activeDef) return true; // "All"
+    // Sub-chips selected → union of their topologies; none → whole category.
+    const tops = subs.length > 0
+      ? activeDef.subs.filter(s => subs.includes(s.label)).flatMap(s => s.topologies)
+      : activeDef.topologies;
+    return tops.includes(p.topology);
   });
 
   const visible = allFiltered.slice(0, limit);
@@ -214,7 +186,7 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
   }, [visible.length, animateCards]);
 
   /* Reset limit when filters change */
-  useEffect(() => { setLimit(9); }, [resSubs, hosSubs, comSubs]);
+  useEffect(() => { setLimit(9); }, [activeCat, subs]);
 
   const lines = STUDIO_INTRO.headline.split('\n');
 
@@ -244,33 +216,29 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
         </div>
       </div>
 
-      {/* ── Filter bar — 3 columns matching image grid ───────────────────── */}
+      {/* ── Filter bar — grey dropdowns: single-select Category (+ optional
+           Type refinement within it). Category stays switchable always. ──── */}
       <div className={styles.filterBarWrap}>
         <div className={styles.filterBar}>
           <FilterDropdown
-            label="Residential"
-            allValue="All Residential"
-            options={subOptions('residential')}
-            values={resSubs}
-            onChange={setResSubs}
+            label="Category"
+            allValue="All Categories"
+            options={CATEGORY_OPTIONS}
+            values={activeCat === 'all' ? [] : [activeCat]}
+            onChange={vals => { setActiveCat((vals[0] as CatId) ?? 'all'); setSubs([]); }}
             filled
+            single
           />
-          <FilterDropdown
-            label="Hospitality"
-            allValue="All Hospitality"
-            options={subOptions('hospitality')}
-            values={hosSubs}
-            onChange={setHosSubs}
-            filled
-          />
-          <FilterDropdown
-            label="Commercial & other"
-            allValue="All Commercial"
-            options={subOptions('commercial')}
-            values={comSubs}
-            onChange={setComSubs}
-            filled
-          />
+          {activeDef && activeDef.subs.length > 0 && (
+            <FilterDropdown
+              label="Type"
+              allValue={`All ${activeDef.label}`}
+              options={activeDef.subs.map(s => ({ label: s.label, value: s.label }))}
+              values={subs}
+              onChange={setSubs}
+              filled
+            />
+          )}
         </div>
       </div>
 

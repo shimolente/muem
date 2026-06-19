@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { Bath, BedDouble, Car } from 'lucide-react';
 import { type ResidenceProject, unitsAvailable, isSoldOut } from '@/content/residences';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
@@ -31,7 +32,9 @@ export function ResidenceDetail({ project, related }: Props) {
   const titleRef    = useRef<HTMLHeadingElement>(null);
   const locationRef = useRef<HTMLSpanElement>(null);
   const arrowRef    = useRef<HTMLDivElement>(null);
+  const relatedScrollRef = useRef<HTMLDivElement>(null);
   const [contactOpen, setContactOpen] = useState(false);
+  const [relatedIdx, setRelatedIdx]   = useState(0);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -142,14 +145,7 @@ export function ResidenceDetail({ project, related }: Props) {
         <div className={styles.specsRow}>
           {project.bedrooms != null && (
             <div className={styles.specsChip}>
-              {/* Bed icon */}
-              <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
-                <rect x="1" y="10" width="14" height="3" rx="0.5"/>
-                <path d="M3 10V8a1 1 0 011-1h4a1 1 0 011 1v2"/>
-                <path d="M9 10V8a1 1 0 011-1h2a1 1 0 011 1v2"/>
-                <line x1="1" y1="10" x2="1" y2="8"/>
-                <line x1="15" y1="10" x2="15" y2="8"/>
-              </svg>
+              <BedDouble size={26} strokeWidth={1.6} className={styles.specsIcon} aria-hidden="true" />
               <span className={styles.specsCount}>{project.bedrooms}</span>
               <span className={styles.specsLabel}>Bedrooms</span>
             </div>
@@ -159,13 +155,7 @@ export function ResidenceDetail({ project, related }: Props) {
             <>
               <span className={styles.specsDot} aria-hidden="true">·</span>
               <div className={styles.specsChip}>
-                {/* Bath/shower icon */}
-                <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
-                  <path d="M2 9h12v1.5a4 4 0 01-4 4H6a4 4 0 01-4-4V9z"/>
-                  <path d="M4 9V5a2 2 0 012-2h.5"/>
-                  <line x1="5" y1="14.5" x2="4.5" y2="16"/>
-                  <line x1="11" y1="14.5" x2="11.5" y2="16"/>
-                </svg>
+                <Bath size={26} strokeWidth={1.6} className={styles.specsIcon} aria-hidden="true" />
                 <span className={styles.specsCount}>{project.bathrooms}</span>
                 <span className={styles.specsLabel}>Bathrooms</span>
               </div>
@@ -176,13 +166,7 @@ export function ResidenceDetail({ project, related }: Props) {
             <>
               <span className={styles.specsDot} aria-hidden="true">·</span>
               <div className={styles.specsChip}>
-                {/* Car port icon */}
-                <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className={styles.specsIcon} aria-hidden="true">
-                  <path d="M2 9h12M3 9l1.5-4h7L13 9"/>
-                  <rect x="1" y="9" width="14" height="4" rx="0.5"/>
-                  <circle cx="4.5" cy="13" r="1"/>
-                  <circle cx="11.5" cy="13" r="1"/>
-                </svg>
+                <Car size={26} strokeWidth={1.6} className={styles.specsIcon} aria-hidden="true" />
                 <span className={styles.specsCount}>{project.carPort === 0 ? '—' : project.carPort}</span>
                 <span className={styles.specsLabel}>Car Port</span>
               </div>
@@ -264,7 +248,15 @@ export function ResidenceDetail({ project, related }: Props) {
             </p>
           </div>
 
-          <div className={styles.relatedGrid}>
+          <div
+            ref={relatedScrollRef}
+            className={styles.relatedGrid}
+            onScroll={() => {
+              const el = relatedScrollRef.current;
+              if (!el) return;
+              setRelatedIdx(Math.min(related.length - 1, Math.round(el.scrollLeft / (el.scrollWidth / related.length))));
+            }}
+          >
             {related.map(p => {
               const pSoldOut   = isSoldOut(p);
               const pAvailable = unitsAvailable(p);
@@ -293,6 +285,15 @@ export function ResidenceDetail({ project, related }: Props) {
                 </Link>
               );
             })}
+          </div>
+
+          <div className={styles.relatedScrollDots} aria-hidden="true">
+            {related.map((_, i) => (
+              <span
+                key={i}
+                className={`${styles.relatedScrollDot} ${i === relatedIdx ? styles.relatedScrollDotActive : ''}`}
+              />
+            ))}
           </div>
 
           <div className={styles.relatedCta}>

@@ -207,7 +207,7 @@
 }
 
 .specsIcon {
-  color: rgba(58,52,47,0.40);
+  color: rgba(58,52,47,0.70);
   flex-shrink: 0;
 }
 
@@ -358,7 +358,8 @@
 .related {
   position: relative;
   z-index: 1;
-  background: #1A1714;
+  /* Dark green — same token as the section's CTA button (page-button-bg). */
+  background: var(--page-button-bg, #3F443B);
   padding-bottom: clamp(64px, 10vh, 120px);
 }
 
@@ -391,12 +392,28 @@
   max-width: 52ch; margin: 0;
 }
 
-/* 4-col card grid */
+/* 4-col card grid (desktop) → horizontal scroll on mobile */
 .relatedGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: clamp(6px, 0.55vw, 10px);
   padding: 0 clamp(6px, 0.55vw, 10px);
+}
+
+/* Scroll indicator dots — hidden on desktop, shown on mobile */
+.relatedScrollDots {
+  display: none;
+}
+.relatedScrollDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(245, 242, 238, 0.22);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.relatedScrollDotActive {
+  background: rgba(245, 242, 238, 0.75);
+  transform: scale(1.3);
 }
 
 .relatedCard {
@@ -517,9 +534,29 @@
   .processSteps { grid-template-columns: 1fr; gap: 40px; }
   .step { align-items: flex-start; text-align: left; }
 
-  .relatedGrid { grid-template-columns: repeat(2, 1fr); }
-}
+  /* Related → horizontal scroll gallery (matches studio related projects) */
+  .relatedGrid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .relatedGrid::-webkit-scrollbar { display: none; }
 
-@media (max-width: 480px) {
-  .relatedGrid { grid-template-columns: 1fr; }
+  .relatedCard {
+    flex: 0 0 72vw;
+    scroll-snap-align: start;
+    aspect-ratio: 3 / 4;
+  }
+
+  .relatedScrollDots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0 0;
+  }
 }

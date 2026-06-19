@@ -8,12 +8,17 @@
   width: 44px;
   height: 44px;
   border-radius: 100px;        /* stays pill-shaped; circle at width=height */
-  /* Faux frosted glass — Chrome won't reliably composite backdrop-filter
-     on a position:fixed element under will-change:transform. Solid dark
-     gradient + soft inner highlight reads as frosted without real blur. */
-  background: linear-gradient(135deg, rgba(50, 46, 42, 0.88) 0%, rgba(32, 28, 24, 0.92) 100%);
+  /* Real frosted glass. Translucent dark tint + live backdrop blur of the
+     page content underneath. Verified to composite in Chrome even with the
+     mix-blend-mode cursor present (older Chromium neutralised it; current
+     Chrome does not). The element's own translateZ(0) does NOT disable its
+     backdrop-filter — only a transform/filter/will-change on an *ancestor*
+     would, and <main> only gains a filter while the nav panel is open. */
+  background: linear-gradient(135deg, rgba(50, 46, 42, 0.34) 0%, rgba(32, 28, 24, 0.42) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 8px 24px rgba(0, 0, 0, 0.22);
   transform: translateZ(0);
   display: flex;
@@ -55,9 +60,9 @@
   left: auto;
   right: clamp(24px, 2.5vw, 40px);
   width: clamp(115px, 12vw, 140px);
-  /* Gradient stays visible — opacity up so button reads as a button.
-     Behind it: heavy blur on whatever sits underneath (page content). */
-  background: linear-gradient(135deg, rgba(52, 48, 44, 0.9) 0%, rgba(34, 30, 26, 0.94) 100%);
+  /* Slightly denser tint in pill state for label legibility; blur inherited
+     from .cta blurs the page content sitting underneath. */
+  background: linear-gradient(135deg, rgba(52, 48, 44, 0.38) 0%, rgba(34, 30, 26, 0.46) 100%);
   gap: clamp(6px, 0.6vw, 10px);
   justify-content: flex-end;   /* text + arrow sit together at right; left border shifts right */
   padding: 4px 0 4px 10px;

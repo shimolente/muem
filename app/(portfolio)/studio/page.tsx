@@ -23,7 +23,9 @@ const CATEGORY_TO_GRID_ID: Record<string, 'residential' | 'hospitality' | 'comme
 export default async function StudioPage({ searchParams }: StudioPageProps) {
   const { category: rawCategory } = await searchParams;
   const category = parseCategoryParam(rawCategory);
-  const projects = await getPublishedStudioProjects(category ? { category } : undefined);
+  // Always load the full set — the param only seeds the initial filter tab so
+  // every category stays switchable client-side (no "stuck" dataset).
+  const projects = await getPublishedStudioProjects();
   const initialCategoryId = category ? CATEGORY_TO_GRID_ID[category] : undefined;
   return (
     <div data-palette="studio">

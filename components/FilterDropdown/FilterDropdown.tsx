@@ -22,6 +22,7 @@ interface FilterDropdownProps {
   onChange: (v: string[]) => void;
   compact?: boolean;    /* pill variant — used for compact Location / Year filters */
   filled?:  boolean;    /* filled block variant — used for the 3 category filters */
+  single?:  boolean;    /* single-select: picking an option replaces selection + closes */
 }
 
 /* ── Trigger display label ─────────────────────────────────────────────────── */
@@ -69,7 +70,7 @@ function Checkbox({ checked }: { checked: boolean }) {
 
 /* ── Component ─────────────────────────────────────────────────────────────── */
 export function FilterDropdown({
-  label, allValue, options, values, onChange, compact = false, filled = false,
+  label, allValue, options, values, onChange, compact = false, filled = false, single = false,
 }: FilterDropdownProps) {
   const [open, setOpen]  = useState(false);
   const containerRef     = useRef<HTMLDivElement>(null);
@@ -78,9 +79,14 @@ export function FilterDropdown({
 
   const close    = ()  => setOpen(false);
   const toggle   = (v: string) => {
+    if (single) {
+      onChange(values.includes(v) ? [] : [v]); // replace, not accumulate
+      close();
+      return;
+    }
     onChange(values.includes(v) ? values.filter(x => x !== v) : [...values, v]);
   };
-  const clearAll = () => onChange([]);
+  const clearAll = () => { onChange([]); if (single) close(); };
 
   /* Close on outside click */
   useEffect(() => {

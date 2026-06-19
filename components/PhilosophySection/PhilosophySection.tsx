@@ -175,7 +175,52 @@ export function PhilosophySection() {
   const [mobileIdx, setMobileIdx] = useState(0);
   const onMobileScroll = useCallback(() => {
     const el = mobileScrollerRef.current;
-    if (el) setMobileIdx(Math.round(el.scrollLeft / el.clientWidth));
+    if (!el) return;
+    const w = el.clientWidth;
+    // A clone of slide 0 sits after the last real slide. Once the scroll
+    // settles on it, jump instantly back to the real slide 0 → seamless loop
+    // (the clone shows identical content, so the jump is invisible).
+    if (el.scrollLeft >= PHILOSOPHY.length * w - 2) {
+      el.scrollLeft = 0;
+      setMobileIdx(0);
+      return;
+    }
+    setMobileIdx(Math.round(el.scrollLeft / w) % PHILOSOPHY.length);
+  }, []);
+
+  /* ── Mobile autoplay — advance the pillar scroller every 7s ──────────── */
+  // Native scrollTo({behavior:'smooth'}) is suppressed page-wide (Lenis) and
+  // gsap treats `scrollLeft` as CSS (no-op). Direct scrollLeft assignment is
+  // the only thing that moves it — glide it with a timer-stepped tween.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const sc = mobileScrollerRef.current;
+    if (!sc) return;
+
+    let stepId: ReturnType<typeof setInterval> | null = null;
+    const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    const glideTo = (to: number) => {
+      if (stepId) clearInterval(stepId);
+      const from = sc.scrollLeft;
+      const dist = to - from;
+      const dur = 600;
+      const t0 = performance.now();
+      stepId = setInterval(() => {
+        const k = Math.min(1, (performance.now() - t0) / dur);
+        sc.scrollLeft = from + dist * easeInOutQuad(k);
+        if (k >= 1 && stepId) { clearInterval(stepId); stepId = null; }
+      }, 16);
+    };
+
+    const id = setInterval(() => {
+      const cur = Math.round(sc.scrollLeft / sc.clientWidth) % PHILOSOPHY.length;
+      // Always advance forward — past the last real slide we glide onto the
+      // clone, then onScroll snaps back to slide 0 (seamless wrap).
+      glideTo((cur + 1) * sc.clientWidth);
+    }, 7000);
+
+    return () => { clearInterval(id); if (stepId) clearInterval(stepId); };
   }, []);
 
   return (
@@ -188,10 +233,11 @@ export function PhilosophySection() {
         onScroll={onMobileScroll}
         aria-hidden="true"
       >
-        {PHILOSOPHY.map(p => {
+        {/* Real slides + a trailing clone of slide 0 for seamless looping. */}
+        {[...PHILOSOPHY, PHILOSOPHY[0]].map((p, i) => {
           const tp = translate(p);
           return (
-            <div key={p.id} className={styles.mobilePage}>
+            <div key={i} className={styles.mobilePage}>
               <div
                 className={styles.mobileImage}
                 style={{ backgroundImage: tp.imageSrc ? `url(${tp.imageSrc})` : undefined }}

@@ -28,204 +28,228 @@ function freezeHoverInto(clone: HTMLElement, originals: Element[]) {
 
 export function WipeTransitions() {
   useEffect(() => {
-    const getSections = () =>
-      Array.from(document.querySelectorAll<HTMLElement>('[data-snap-section]'));
+    // Desktop-only scroll hijack. On mobile (touch) the wheel/touch capture
+    // fights native momentum and nested horizontal scrollers (Featured,
+    // Philosophy) — so we don't bind it there. Mobile uses native scroll;
+    // section panels are sized in CSS. Re-evaluated on breakpoint change.
+    const mql = window.matchMedia('(max-width: 768px)');
+    let teardown: (() => void) | null = null;
 
-    let isSnapping = false;
-    let wheelDelta = 0;
-    let wheelTimer: ReturnType<typeof setTimeout> | undefined;
-    let touchStartY = 0;
+    function bindDesktop() {
+      const getSections = () =>
+        Array.from(document.querySelectorAll<HTMLElement>('[data-snap-section]'));
 
-    function currentIndex() {
-      const sections = getSections();
-      return sections.reduce(
-        (best, s, i) => {
-          const d = Math.abs(s.getBoundingClientRect().top);
-          return d < best.d ? { i, d } : best;
-        },
-        { i: 0, d: Infinity }
-      ).i;
-    }
+      let isSnapping = false;
+      let wheelDelta = 0;
+      let wheelTimer: ReturnType<typeof setTimeout> | undefined;
+      let touchStartY = 0;
 
-    function createOverlay(from: HTMLElement, direction: 1 | -1) {
-      document.querySelectorAll('.' + styles.layer).forEach(el => el.remove());
-
-      // Tag hovered descendants so we can restore their look in the clone
-      const hovered = Array.from(from.querySelectorAll(':hover')) as HTMLElement[];
-      hovered.forEach((el, i) => { el.dataset.wipeHoverIdx = String(i); });
-
-      const layer = document.createElement('div');
-      const capture = document.createElement('div');
-      const clone = from.cloneNode(true) as HTMLElement;
-
-      // Cleanup markers on originals
-      hovered.forEach(el => { delete el.dataset.wipeHoverIdx; });
-
-      // Apply frozen hover styles inside clone
-      freezeHoverInto(clone, hovered);
-
-      clone.removeAttribute('id');
-      clone.removeAttribute('data-snap-section');
-      clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
-      clone.querySelectorAll('[data-wipe-hover-idx]').forEach(n =>
-        n.removeAttribute('data-wipe-hover-idx')
-      );
-      // freeze any videos in the clone to avoid double playback cost
-      clone.querySelectorAll('video').forEach(v => {
-        (v as HTMLVideoElement).pause();
-        (v as HTMLVideoElement).removeAttribute('autoplay');
-      });
-
-      capture.className = styles.capture;
-
-      // If the outgoing section is transparent, the live hero video bg is
-      // what was visible behind it. Don't move or clone it — raise its
-      // z-index so it paints above incoming sections (which would otherwise
-      // occlude it after the scroll jump), and apply the same clip-path
-      // animation so it wipes in sync with the overlay.
-      const fromBg = getComputedStyle(from).backgroundColor;
-      const isTransparent =
-        fromBg === 'rgba(0, 0, 0, 0)' || fromBg === 'transparent';
-      const heroBgRoot = document.querySelector<HTMLElement>('[data-hero-bg]');
-      let heroAnim: Animation | null = null;
-      let heroRestore: { z: string; willChange: string; clipPath: string } | null = null;
-      if (isTransparent && heroBgRoot) {
-        heroRestore = {
-          z: heroBgRoot.style.zIndex,
-          willChange: heroBgRoot.style.willChange,
-          clipPath: heroBgRoot.style.clipPath,
-        };
-        heroBgRoot.style.zIndex = '60';
-        heroBgRoot.style.willChange = 'clip-path';
-        heroBgRoot.style.clipPath = 'inset(0 0 0 0)';
-        const keyframes: Keyframe[] =
-          direction > 0
-            ? [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }]
-            : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(100% 0 0 0)' }];
-        heroAnim = heroBgRoot.animate(keyframes, {
-          duration: WIPE_MS,
-          easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
-          fill: 'forwards',
-        });
+      function currentIndex() {
+        const sections = getSections();
+        return sections.reduce(
+          (best, s, i) => {
+            const d = Math.abs(s.getBoundingClientRect().top);
+            return d < best.d ? { i, d } : best;
+          },
+          { i: 0, d: Infinity }
+        ).i;
       }
 
-      capture.appendChild(clone);
+      function createOverlay(from: HTMLElement, direction: 1 | -1) {
+        document.querySelectorAll('.' + styles.layer).forEach(el => el.remove());
 
-      layer.className =
-        styles.layer + ' ' + (direction > 0 ? styles.down : styles.up);
-      layer.appendChild(capture);
+        // Tag hovered descendants so we can restore their look in the clone
+        const hovered = Array.from(from.querySelectorAll(':hover')) as HTMLElement[];
+        hovered.forEach((el, i) => { el.dataset.wipeHoverIdx = String(i); });
 
-      document.body.appendChild(layer);
-      setTimeout(() => {
-        if (heroRestore && heroBgRoot) {
-          heroAnim?.cancel();
-          heroBgRoot.style.zIndex = heroRestore.z;
-          heroBgRoot.style.willChange = heroRestore.willChange;
-          heroBgRoot.style.clipPath = heroRestore.clipPath;
+        const layer = document.createElement('div');
+        const capture = document.createElement('div');
+        const clone = from.cloneNode(true) as HTMLElement;
+
+        // Cleanup markers on originals
+        hovered.forEach(el => { delete el.dataset.wipeHoverIdx; });
+
+        // Apply frozen hover styles inside clone
+        freezeHoverInto(clone, hovered);
+
+        clone.removeAttribute('id');
+        clone.removeAttribute('data-snap-section');
+        clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+        clone.querySelectorAll('[data-wipe-hover-idx]').forEach(n =>
+          n.removeAttribute('data-wipe-hover-idx')
+        );
+        // freeze any videos in the clone to avoid double playback cost
+        clone.querySelectorAll('video').forEach(v => {
+          (v as HTMLVideoElement).pause();
+          (v as HTMLVideoElement).removeAttribute('autoplay');
+        });
+
+        capture.className = styles.capture;
+
+        // If the outgoing section is transparent, the live hero video bg is
+        // what was visible behind it. Don't move or clone it — raise its
+        // z-index so it paints above incoming sections (which would otherwise
+        // occlude it after the scroll jump), and apply the same clip-path
+        // animation so it wipes in sync with the overlay.
+        const fromBg = getComputedStyle(from).backgroundColor;
+        const isTransparent =
+          fromBg === 'rgba(0, 0, 0, 0)' || fromBg === 'transparent';
+        const heroBgRoot = document.querySelector<HTMLElement>('[data-hero-bg]');
+        let heroAnim: Animation | null = null;
+        let heroRestore: { z: string; willChange: string; clipPath: string } | null = null;
+        if (isTransparent && heroBgRoot) {
+          heroRestore = {
+            z: heroBgRoot.style.zIndex,
+            willChange: heroBgRoot.style.willChange,
+            clipPath: heroBgRoot.style.clipPath,
+          };
+          heroBgRoot.style.zIndex = '60';
+          heroBgRoot.style.willChange = 'clip-path';
+          heroBgRoot.style.clipPath = 'inset(0 0 0 0)';
+          const keyframes: Keyframe[] =
+            direction > 0
+              ? [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }]
+              : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(100% 0 0 0)' }];
+          heroAnim = heroBgRoot.animate(keyframes, {
+            duration: WIPE_MS,
+            easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+            fill: 'forwards',
+          });
         }
-        layer.remove();
-      }, WIPE_MS + 80);
+
+        capture.appendChild(clone);
+
+        layer.className =
+          styles.layer + ' ' + (direction > 0 ? styles.down : styles.up);
+        layer.appendChild(capture);
+
+        document.body.appendChild(layer);
+        setTimeout(() => {
+          if (heroRestore && heroBgRoot) {
+            heroAnim?.cancel();
+            heroBgRoot.style.zIndex = heroRestore.z;
+            heroBgRoot.style.willChange = heroRestore.willChange;
+            heroBgRoot.style.clipPath = heroRestore.clipPath;
+          }
+          layer.remove();
+        }, WIPE_MS + 80);
+      }
+
+      function snapTo(targetIdx: number) {
+        if (isSnapping) return;
+        const sections = getSections();
+        if (!sections.length) return;
+
+        const from = currentIndex();
+        const to = Math.max(0, Math.min(targetIdx, sections.length - 1));
+        if (to === from) {
+          wheelDelta = 0;
+          return;
+        }
+
+        const fromSection = sections[from];
+        const toSection = sections[to];
+        const direction: 1 | -1 = to > from ? 1 : -1;
+        const fromKey = fromSection.dataset.snapSection ?? '';
+        const toKey = toSection.dataset.snapSection ?? '';
+        const skipWipe = EXCLUDE.has(fromKey) || EXCLUDE.has(toKey);
+
+        isSnapping = true;
+        const html = document.documentElement;
+        const prevSnap = html.style.scrollSnapType;
+        html.style.scrollSnapType = 'none';
+
+        if (!skipWipe) createOverlay(fromSection, direction);
+        toSection.scrollIntoView({
+          behavior: skipWipe ? 'smooth' : 'auto',
+          block: 'start',
+        });
+
+        const duration = skipWipe ? 700 : WIPE_MS + 80;
+        setTimeout(() => {
+          html.style.scrollSnapType = prevSnap;
+          isSnapping = false;
+          wheelDelta = 0;
+        }, duration);
+      }
+
+      function onWheel(e: WheelEvent) {
+        const t = e.target as HTMLElement | null;
+        if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+        // Always intercept — even for EXCLUDE'd transitions — so a single
+        // gesture can't bleed across boundaries (e.g. about→categories
+        // momentum triggering categories→featured wipe mid-flight).
+        e.preventDefault();
+        if (isSnapping) return;
+        wheelDelta += e.deltaY;
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(() => {
+          wheelDelta = 0;
+        }, 160);
+        if (Math.abs(wheelDelta) < WHEEL_THRESHOLD) return;
+        snapTo(currentIndex() + Math.sign(wheelDelta));
+      }
+
+      function onTouchStart(e: TouchEvent) {
+        touchStartY = e.touches[0].clientY;
+      }
+      function onTouchMove(e: TouchEvent) {
+        const t = e.target as HTMLElement | null;
+        if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+        e.preventDefault();
+      }
+      function onTouchEnd(e: TouchEvent) {
+        if (isSnapping) return;
+        const dy = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(dy) < TOUCH_THRESHOLD) return;
+        snapTo(currentIndex() + (Math.sign(dy) as 1 | -1));
+      }
+      function onKey(e: KeyboardEvent) {
+        const down = ['ArrowDown', 'PageDown', ' '];
+        const up = ['ArrowUp', 'PageUp'];
+        if (![...down, ...up].includes(e.key)) return;
+        const t = e.target as HTMLElement | null;
+        if (t?.closest('input,select,textarea')) return;
+        e.preventDefault();
+        if (isSnapping) return;
+        snapTo(currentIndex() + (down.includes(e.key) ? 1 : -1));
+      }
+
+      window.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('touchend', onTouchEnd, { passive: true });
+      window.addEventListener('keydown', onKey);
+
+      return () => {
+        window.removeEventListener('wheel', onWheel);
+        window.removeEventListener('touchstart', onTouchStart);
+        window.removeEventListener('touchmove', onTouchMove);
+        window.removeEventListener('touchend', onTouchEnd);
+        window.removeEventListener('keydown', onKey);
+        clearTimeout(wheelTimer);
+        document.querySelectorAll('.' + styles.layer).forEach(el => el.remove());
+      };
     }
 
-    function snapTo(targetIdx: number) {
-      if (isSnapping) return;
-      const sections = getSections();
-      if (!sections.length) return;
-
-      const from = currentIndex();
-      const to = Math.max(0, Math.min(targetIdx, sections.length - 1));
-      if (to === from) {
-        wheelDelta = 0;
+    function sync() {
+      if (mql.matches) {
+        // Mobile: hand control back to native scroll.
+        teardown?.();
+        teardown = null;
+        document.documentElement.style.scrollSnapType = '';
+        document.querySelectorAll('.' + styles.layer).forEach(el => el.remove());
         return;
       }
-
-      const fromSection = sections[from];
-      const toSection = sections[to];
-      const direction: 1 | -1 = to > from ? 1 : -1;
-      const fromKey = fromSection.dataset.snapSection ?? '';
-      const toKey = toSection.dataset.snapSection ?? '';
-      const skipWipe = EXCLUDE.has(fromKey) || EXCLUDE.has(toKey);
-
-      isSnapping = true;
-      const html = document.documentElement;
-      const prevSnap = html.style.scrollSnapType;
-      html.style.scrollSnapType = 'none';
-
-      // On mobile, skip-wipe transitions use instant scroll so CSS mandatory snap
-      // re-enables while the scroll is already settled at the target — prevents
-      // snap from finding the previous section as the nearest point and bouncing back.
-      const isMobileTouch = window.matchMedia('(hover: none) and (max-width: 768px)').matches;
-
-      if (!skipWipe) createOverlay(fromSection, direction);
-      toSection.scrollIntoView({
-        behavior: (skipWipe && !isMobileTouch) ? 'smooth' : 'auto',
-        block: 'start',
-      });
-
-      const duration = skipWipe ? (isMobileTouch ? 200 : 700) : WIPE_MS + 80;
-      setTimeout(() => {
-        html.style.scrollSnapType = prevSnap;
-        isSnapping = false;
-        wheelDelta = 0;
-      }, duration);
+      if (!teardown) teardown = bindDesktop();
     }
 
-    function onWheel(e: WheelEvent) {
-      const t = e.target as HTMLElement | null;
-      if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
-      // Always intercept — even for EXCLUDE'd transitions — so a single
-      // gesture can't bleed across boundaries (e.g. about→categories
-      // momentum triggering categories→featured wipe mid-flight).
-      e.preventDefault();
-      if (isSnapping) return;
-      wheelDelta += e.deltaY;
-      clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(() => {
-        wheelDelta = 0;
-      }, 160);
-      if (Math.abs(wheelDelta) < WHEEL_THRESHOLD) return;
-      snapTo(currentIndex() + Math.sign(wheelDelta));
-    }
-
-    function onTouchStart(e: TouchEvent) {
-      touchStartY = e.touches[0].clientY;
-    }
-    function onTouchMove(e: TouchEvent) {
-      const t = e.target as HTMLElement | null;
-      if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
-      e.preventDefault();
-    }
-    function onTouchEnd(e: TouchEvent) {
-      if (isSnapping) return;
-      const dy = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) < TOUCH_THRESHOLD) return;
-      snapTo(currentIndex() + (Math.sign(dy) as 1 | -1));
-    }
-    function onKey(e: KeyboardEvent) {
-      const down = ['ArrowDown', 'PageDown', ' '];
-      const up = ['ArrowUp', 'PageUp'];
-      if (![...down, ...up].includes(e.key)) return;
-      const t = e.target as HTMLElement | null;
-      if (t?.closest('input,select,textarea')) return;
-      e.preventDefault();
-      if (isSnapping) return;
-      snapTo(currentIndex() + (down.includes(e.key) ? 1 : -1));
-    }
-
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('keydown', onKey);
+    sync();
+    mql.addEventListener('change', sync);
 
     return () => {
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('keydown', onKey);
-      clearTimeout(wheelTimer);
-      document.querySelectorAll('.' + styles.layer).forEach(el => el.remove());
+      mql.removeEventListener('change', sync);
+      teardown?.();
     };
   }, []);
 

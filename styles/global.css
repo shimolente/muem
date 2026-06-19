@@ -138,6 +138,12 @@
   --page-button-fg: #EBECEA;
   --page-input-bg: #DEE0DC;
 }
+/* Real estate page: the body bg peeks below content (contact reveal /
+   overscroll). Use dark green there instead of the global brown-dark. */
+body:has([data-palette="properties"]) {
+  background-color: #3F443B;
+}
+
 [data-palette="furniture"] {
   --page-bg: #37322F;
   --page-fg: #F4F3EF;
@@ -171,24 +177,15 @@ html.snap-scroll [data-snap-section] {
   scroll-snap-stop: always;
 }
 
-/* Mobile: snap only on first two sections (hero, about). Sections below
-   embed horizontal scrollers (Featured, Philosophy) — y-snap-stop:always
-   blocks native touch swipe, so disable snap-align past the second screen. */
+/* Mobile: no vertical snap. The JS scroll-hijack (WipeTransitions) is
+   desktop-only — touch uses plain native scroll, which composes correctly
+   with the horizontal x-snap carousels inside Philosophy/Featured. */
 @media (max-width: 768px) {
-  /* mandatory forces snap to nearest point; since categories is the last
-     snap point, scrolling past it gets yanked back. proximity only snaps
-     when already near a point, so scroll flows freely into Featured below. */
   html.snap-scroll {
-    scroll-snap-type: y proximity;
+    scroll-snap-type: none;
   }
   html.snap-scroll [data-snap-section] {
     scroll-snap-align: none;
-    scroll-snap-stop: normal;
-  }
-  html.snap-scroll [data-snap-section="hero"],
-  html.snap-scroll [data-snap-section="about"],
-  html.snap-scroll [data-snap-section="categories"] {
-    scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
 }

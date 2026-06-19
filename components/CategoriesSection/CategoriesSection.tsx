@@ -90,7 +90,7 @@ export function CategoriesSection() {
     // rx = half-width, ry = arch height. The arc has vertical tangents where it
     // meets the sides, so it blends into the column's vertical edges and rounds
     // smoothly over the top — a rounded arch, not a sharp point.
-    const arch = Math.min(cw * 0.62, 340); // arch height (ry)
+    const arch = Math.min(cw * 0.434, 238); // arch height (ry) — 30% less rounded
     const convexBottom = `path('M0 0 L${cw} 0 L${cw} ${ch} A${cw / 2} ${arch} 0 0 0 0 ${ch} Z')`;
     gsap.set(curtain, { clipPath: convexBottom, webkitClipPath: convexBottom });
     gsap.fromTo(curtain,
@@ -126,7 +126,7 @@ export function CategoriesSection() {
     // -400px top extension the ∪ eases out into a flat, full cover.
     const cw = curtain.offsetWidth;
     const ch = curtain.offsetHeight;
-    const arch = Math.min(cw * 0.62, 340);
+    const arch = Math.min(cw * 0.434, 238); // 30% less rounded — matches runEnter
     const concaveTop = `path('M0 0 A${cw / 2} ${arch} 0 0 0 ${cw} 0 L${cw} ${ch} L0 ${ch} Z')`;
     gsap.set(curtain, { clipPath: concaveTop, webkitClipPath: concaveTop });
     gsap.fromTo(curtain,

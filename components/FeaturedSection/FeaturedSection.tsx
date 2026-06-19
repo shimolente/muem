@@ -41,8 +41,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const tLabel = () => t('label');
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
-  const [mobileIdx, setMobileIdx] = useState(0);
-  const mobileScrollerRef         = useRef<HTMLDivElement>(null);
+  const [mobileCat, setMobileCat] = useState(0); // mobile tab selection — independent of desktop bento
   const isAnimating               = useRef(false);
   const catIdxRef             = useRef(0);   // mirrors catIdx — avoids stale closure in autoplay
   const autoTimerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -90,20 +89,6 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   useEffect(() => () => {
     if (autoTimerRef.current) clearInterval(autoTimerRef.current);
   }, []);
-
-  /* ── Mobile autoplay — advance scroller every 7s ─────────────────── */
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!window.matchMedia('(max-width: 768px)').matches) return;
-    const sc = mobileScrollerRef.current;
-    if (!sc) return;
-    const id = setInterval(() => {
-      const cur = Math.round(sc.scrollLeft / sc.clientWidth);
-      const next = (cur + 1) % FEATURED.length;
-      sc.scrollTo({ left: next * sc.clientWidth, behavior: 'smooth' });
-    }, 7000);
-    return () => clearInterval(id);
-  }, [FEATURED.length]);
 
   /* ── Nav theming ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -213,56 +198,38 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
 
-      {/* ── Mobile-only: horizontal scroll-snap between categories ────── */}
-      <div
-        ref={mobileScrollerRef}
-        className={styles.mobileScroller}
-        aria-hidden="true"
-        onScroll={() => {
-          const el = mobileScrollerRef.current;
-          if (el) setMobileIdx(Math.round(el.scrollLeft / el.clientWidth));
-        }}
-      >
-        {FEATURED.map((c, ci) => (
-          <div key={c.id} className={styles.mobileCategory}>
-            <div className={styles.mobileCards}>
-              {c.projects.slice(0, 2).map(p => (
-                <a key={p.id} href={p.href} className={styles.mobileCard}
-                   style={{ backgroundImage: `url(${p.imageSrc})` }}
-                   aria-label={`${p.title} — ${p.location}`}>
-                  <div className={styles.mobileCardOverlay} />
-                  <span className={styles.mobileCardTitle}>{p.title}</span>
-                </a>
-              ))}
-            </div>
+      {/* ── Mobile-only: pinned category tabs + vertical card feed ────── */}
+      <div className={styles.mobileFeed}>
+        <span className={styles.mobileLabel}>{tLabel()}</span>
 
-            <div className={styles.mobileMiddle}>
-              <span className={styles.mobileLabel}>{tLabel()}</span>
-              <h2 className={styles.mobileTitle}>{tName(c.id, c.name)}</h2>
-            </div>
+        <div className={styles.mobileTabs} role="tablist" aria-label="Browse categories">
+          {FEATURED.map((c, i) => (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={i === mobileCat}
+              className={`${styles.mobileTab} ${i === mobileCat ? styles.mobileTabActive : ''}`}
+              onClick={() => setMobileCat(i)}
+            >
+              {tName(c.id, c.name)}
+            </button>
+          ))}
+        </div>
 
-            <div className={styles.mobileCards}>
-              {c.projects.slice(2, 4).map(p => (
-                <a key={p.id} href={p.href} className={styles.mobileCard}
-                   style={{ backgroundImage: `url(${p.imageSrc})` }}
-                   aria-label={`${p.title} — ${p.location}`}>
-                  <div className={styles.mobileCardOverlay} />
-                  <span className={styles.mobileCardTitle}>{p.title}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Mobile-only fixed dots — overlay outside scroller, anchored under title */}
-      <div className={styles.mobileDotsFixed} aria-hidden="true">
-        {FEATURED.map((_, i) => (
-          <span
-            key={i}
-            className={`${styles.mobileDot} ${i === mobileIdx ? styles.mobileDotActive : ''}`}
-          />
-        ))}
+        <div className={styles.mobileFeedScroll}>
+          {FEATURED[mobileCat].projects.slice(0, 6).map(p => (
+            <a key={p.id} href={p.href} className={styles.mobileFeedCard}
+               style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
+               aria-label={`${p.title} — ${p.location}`}>
+              <div className={styles.mobileFeedOverlay} />
+              <div className={styles.mobileFeedMeta}>
+                <span className={styles.mobileFeedLocation}>{p.location}</span>
+                <span className={styles.mobileFeedTitle}>{p.title}</span>
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
 
       <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : cat.id === 'residences' ? styles.gridResidences : ''}`}>
