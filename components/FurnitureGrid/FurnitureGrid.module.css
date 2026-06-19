@@ -521,19 +521,6 @@
   color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.55);
 }
 
-/* ── Sentinel: zero-height marker at the natural top of filterWrap ─────────── */
-/* IntersectionObserver watches this; when it exits viewport top, filterWrap is sticky */
-.filterSentinel {
-  height: 0;
-  pointer-events: none;
-}
-
-/* ── Mobile filter bubble (collapsed state) ────────────────────────────────── */
-/* Hidden on desktop, shown only when filterWrapCollapsed on mobile */
-.filterBubble {
-  display: none;
-}
-
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .grid {
@@ -557,68 +544,38 @@
   .step { align-items: flex-start; text-align: left; }
   .stepBody { max-width: 100%; }
 
-  /* ── Mobile filter: single centred bubble + tap-to-open overlay ────────────
-     Always a centred bubble (no left-snap), with a CONSTANT-height wrap so
-     toggling open/closed never reflows the page. The expanded picker is an
-     absolutely-positioned overlay — out of flow, so it can't shift layout. */
+  /* ── Mobile filter: horizontal scroll bar of frosted circles ──────────────
+     No overlay, no panel — the same circle language as desktop, laid out as a
+     single horizontally-scrollable row pinned below the nav. The edge fade lets
+     a half-cut circle signal "scroll for more". */
   .filterWrap {
     top: calc(var(--space-nav-v) + clamp(40px, 4.2vw, 56px) + 6px);
-    padding: 10px 20px;
+    padding: 8px 0;
     margin-bottom: clamp(28px, 5vh, 48px);
-    /* fixed height = bubble → no layout shift between states */
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  }
+
+  .filterRow {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 20px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+  }
+  .filterRow::-webkit-scrollbar { display: none; }
+
+  .filterCircle {
+    scroll-snap-align: start;
+    gap: 7px;
   }
 
   .filterCircleIcon { width: 56px; height: 56px; }
   .filterCircleIcon svg { width: 23px; height: 23px; }
-
-  /* Inline row is never shown inline on mobile — only the overlay (below). */
-  .filterRow { display: none; }
-
-  /* Bubble — always visible, centred (the collapsed-state class is irrelevant). */
-  .filterBubble {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0 auto;
-    cursor: pointer;
-  }
-  .filterBubble .filterCircleIcon {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--page-button-bg, var(--color-warm-dark));
-    color: var(--page-button-fg, var(--color-off-white));
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-  }
-  .filterBubble .filterCircleIcon svg { width: 24px; height: 24px; }
-
-  /* Open: floating panel anchored under the bubble — absolute, no reflow. */
-  .filterRowOpen {
-    display: flex !important;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: clamp(12px, 3.5vw, 20px);
-    position: absolute;
-    left: 16px;
-    right: 16px;
-    top: calc(100% + 4px);
-    padding: 20px 16px;
-    border-radius: 24px;
-    background: rgba(40, 36, 32, 0.92);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    z-index: 20;
-  }
-  /* The bubble hides while the overlay is open (the overlay has its own close X). */
-  .filterRowOpen ~ .filterBubble { visibility: hidden; }
 }
 
 @media (max-width: 480px) {

@@ -13,18 +13,11 @@ export default function Loading() {
         </div>
       </header>
 
+      {/* List-shaped: count line + table. Matches projects / properties /
+          furniture / inbox / featured. Dashboard has its own loading.tsx. */}
       <div className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
         <Skeleton className="h-4 w-48" />
 
-        {/* stat-card-style 4-up grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-        </div>
-
-        {/* table-style block */}
         <div className="rounded-md border bg-card">
           <div className="border-b px-4 py-3">
             <Skeleton className="h-4 w-32" />

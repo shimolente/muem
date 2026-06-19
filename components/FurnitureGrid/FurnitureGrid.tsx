@@ -13,28 +13,6 @@ import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
 import styles from './FurnitureGrid.module.css';
 
-/* ── Mobile filter collapse: trigger when filterWrap becomes sticky ─────────── */
-function useStickyCollapse(sentinelRef: React.RefObject<HTMLDivElement | null>) {
-  const [isSticky, setIsSticky] = useState(false);
-
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (window.innerWidth > 768) return;
-        // Sentinel scrolled above viewport top → filterWrap is now pinned sticky
-        setIsSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0);
-      },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return isSticky;
-}
-
 /* ── Furniture card ───────────────────────────────────────────────────────── */
 function FurnitureCard({ item }: { item: FurnitureItem }) {
   const [idx, setIdx] = useState(0);
@@ -175,7 +153,6 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
   const sectionRef    = useRef<HTMLElement>(null);
   const listRef       = useRef<HTMLDivElement>(null);
-  const sentinelRef   = useRef<HTMLDivElement>(null);
   const gridRef       = useRef<HTMLDivElement>(null);
   const processRef    = useRef<HTMLDivElement>(null);
   const hasEntered    = useRef(false);
@@ -183,9 +160,6 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
 
   const [activeCategory, setActiveCategory] = useState<FurnitureCategory | 'All'>('All');
   const [limit, setLimit] = useState(8);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const isSticky = useStickyCollapse(sentinelRef);
-  const collapsed = isSticky && !filterOpen;
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
   const setNavStyle          = useUIStore(s => s.setNavStyle);
@@ -337,37 +311,16 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
           instant the grid ends — it scrolls away with the list before the
           "How it works" section, instead of floating over it. */}
       <div ref={listRef} className={styles.listWrap}>
-        {/* Sentinel: when it scrolls above the viewport, filterWrap is sticky */}
-        <div ref={sentinelRef} className={styles.filterSentinel} />
-        {/* ── Category circle filter ─────────────────────────────────────── */}
-        <div className={`${styles.filterWrap} ${collapsed ? styles.filterWrapCollapsed : ''}`}>
-          {/* Desktop / mobile-expanded: full row */}
-          <div className={`${styles.filterRow} ${filterOpen ? styles.filterRowOpen : ''}`}>
-            {/* Mobile expanded: X button as first item */}
-            {filterOpen && (
-              <button
-                key="close"
-                className={styles.filterCircle}
-                onClick={() => setFilterOpen(false)}
-                aria-label="Close filters"
-              >
-                <span className={styles.filterCircleIcon}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </span>
-                <span className={styles.filterCircleLabel}>Close</span>
-              </button>
-            )}
+        {/* ── Category circle filter ───────────────────────────────────────
+            Desktop: centred wrapping row. Mobile: single horizontally-scrollable
+            row of frosted circles (no overlay panel) — edge fade hints at more. */}
+        <div className={styles.filterWrap}>
+          <div className={styles.filterRow}>
             {(['All', ...FURNITURE_CATEGORIES] as const).map(cat => (
               <button
                 key={cat}
                 className={`${styles.filterCircle} ${activeCategory === cat ? styles.filterCircleActive : ''}`}
-                onClick={() => {
-                  setActiveCategory(cat as FurnitureCategory | 'All');
-                  setFilterOpen(false);
-                }}
+                onClick={() => setActiveCategory(cat as FurnitureCategory | 'All')}
                 aria-label={cat}
               >
                 <span className={styles.filterCircleIcon}>
@@ -377,17 +330,6 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
               </button>
             ))}
           </div>
-
-          {/* Mobile collapsed: single bubble showing active category */}
-          <button
-            className={styles.filterBubble}
-            onClick={() => setFilterOpen(true)}
-            aria-label="Open filters"
-          >
-            <span className={styles.filterCircleIcon}>
-              {CATEGORY_ICONS[activeCategory]}
-            </span>
-          </button>
         </div>
 
         {/* ── Card grid ──────────────────────────────────────────────────── */}
