@@ -7,7 +7,8 @@ export interface StudioProject {
   id:           string;
   title:        string;
   location:     string;
-  topology:     string;   /* Villas | Houses | Apartments | Residential | Commercial | Hospitality */
+  topology:     string;   /* free-text descriptor, e.g. 'Villas' */
+  category?:    string;   /* admin-managed Category(kind: STUDIO).label — drives the public filter */
   size:         string;   /* e.g. '480 m²' */
   year:         number;
   status?:      string;   /* e.g. 'Completed' | 'In Progress' | 'Concept' */

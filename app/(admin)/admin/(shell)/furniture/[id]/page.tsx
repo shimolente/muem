@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { FurnitureForm } from '../furniture-form';
 import { DeleteFurnitureButton } from './delete-button';
+import { getCategories } from '@/lib/queries/categories';
 
 export const metadata = { title: 'Edit Furniture' };
 export const dynamic  = 'force-dynamic';
@@ -14,7 +15,10 @@ export default async function EditFurniturePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const item = await prisma.furniture.findFirst({ where: { id, deletedAt: null } });
+  const [item, categories] = await Promise.all([
+    prisma.furniture.findFirst({ where: { id, deletedAt: null } }),
+    getCategories('FURNITURE'),
+  ]);
   if (!item) notFound();
 
   return (
@@ -32,6 +36,7 @@ export default async function EditFurniturePage({
 
       <FurnitureForm
         furnitureId={item.id}
+        categories={categories}
         initial={{
           slug:        item.slug,
           name:        item.name,

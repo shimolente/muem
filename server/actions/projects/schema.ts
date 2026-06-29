@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 const STATUS    = ['Completed', 'InProgress', 'Concept'] as const;
-const CATEGORY  = ['Residential', 'Hospitality', 'Commercial', 'FoodAndBeverage', 'Retail'] as const;
 
 /**
  * Schema is built so input === output (no z.coerce, no z.default).
@@ -20,7 +19,7 @@ export const projectSchema = z.object({
   description: z.string().nullable(),
   location:    z.string().nullable(),
   topology:    z.string().nullable(),
-  category:    z.enum(CATEGORY).nullable(),
+  category:    z.string().nullable(),  // validated against Category(kind: STUDIO) in the action
   size:        z.string().nullable(),
   year:        z.number().int().min(1900).max(2100).nullable(),
   status:      z.enum(STATUS),
@@ -32,4 +31,3 @@ export const projectSchema = z.object({
 export type ProjectInput = z.infer<typeof projectSchema>;
 
 export const PROJECT_STATUSES   = STATUS;
-export const PROJECT_CATEGORIES = CATEGORY;

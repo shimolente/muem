@@ -3,6 +3,7 @@ import { CategoryHero }  from '@/components/CategoryHero/CategoryHero';
 import { FurnitureGrid } from '@/components/FurnitureGrid/FurnitureGrid';
 import { ContactSection } from '@/components/ContactSection/ContactSection';
 import { getPublishedFurniture } from '@/lib/queries/furniture';
+import { getCategories } from '@/lib/queries/categories';
 import reveal from '@/components/ContactReveal/ContactReveal.module.css';
 
 export const metadata: Metadata = {
@@ -12,7 +13,11 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function HabitusPage() {
-  const items = await getPublishedFurniture();
+  const [items, categories] = await Promise.all([
+    getPublishedFurniture(),
+    getCategories('FURNITURE'),
+  ]);
+  const categoryLabels = categories.map((c) => c.label);
   return (
     <div data-palette="furniture">
       <div className={reveal.above}>
@@ -22,7 +27,7 @@ export default async function HabitusPage() {
           tagline="our collections."
           imageSrc="/images/habitus-cover.jpg"
         />
-        <FurnitureGrid items={items} />
+        <FurnitureGrid items={items} categories={categoryLabels} />
       </div>
       <div className={reveal.target}>
         <ContactSection />

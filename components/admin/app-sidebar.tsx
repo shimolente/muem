@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Building2, Home, Inbox, LayoutDashboard, Sofa, Star, type LucideIcon,
+  Building2, Home, Inbox, LayoutDashboard, Settings, Sofa, Star, Tags, type LucideIcon,
 } from 'lucide-react';
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -22,11 +22,16 @@ const CONTENT: NavItem[] = [
   { title: 'Studio Projects', url: '/admin/projects',   icon: Building2 },
   { title: 'Properties',      url: '/admin/properties', icon: Home      },
   { title: 'Furniture',       url: '/admin/furniture',  icon: Sofa      },
+  { title: 'Categories',      url: '/admin/categories', icon: Tags      },
 ];
 
 const CURATION: NavItem[] = [
   { title: 'Featured', url: '/admin/featured', icon: Star  },
   { title: 'Inbox',    url: '/admin/inbox',    icon: Inbox },
+];
+
+const SYSTEM: NavItem[] = [
+  { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 
 interface Props extends React.ComponentProps<typeof Sidebar> {
@@ -52,6 +57,7 @@ export function AppSidebar({ user, ...props }: Props) {
         <NavGroup items={PRIMARY} />
         <NavGroup label="Content"  items={CONTENT} />
         <NavGroup label="Curation" items={CURATION} />
+        <NavGroup label="System"   items={SYSTEM} />
       </SidebarContent>
 
       <SidebarFooter>

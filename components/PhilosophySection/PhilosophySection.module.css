@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(80px, 9vh, 108px) var(--space-panel-h) clamp(28px, 3.5vw, 56px);
+  padding: var(--section-pad-y) var(--space-panel-h) clamp(28px, 3.5vw, 56px);
   background: transparent;
   overflow: hidden;
 }
@@ -218,7 +218,7 @@
   /* Matched to FeaturedSection .mobileLabel for consistent section eyebrows. */
   .mobileLabel {
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: var(--text-micro);
     font-weight: 400;
     letter-spacing: 0.2em;
     text-transform: uppercase;

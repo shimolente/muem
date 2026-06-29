@@ -1,10 +1,13 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { FurnitureForm } from '../furniture-form';
+import { getCategories } from '@/lib/queries/categories';
 
 export const metadata = { title: 'New Furniture' };
+export const dynamic  = 'force-dynamic';
 
-export default function NewFurniturePage() {
+export default async function NewFurniturePage() {
+  const categories = await getCategories('FURNITURE');
   return (
     <div className="mx-auto max-w-3xl px-8 py-8">
       <div className="mb-6">
@@ -13,7 +16,7 @@ export default function NewFurniturePage() {
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">New Furniture</h1>
       </div>
-      <FurnitureForm />
+      <FurnitureForm categories={categories} />
     </div>
   );
 }

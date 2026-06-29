@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { ProjectForm } from '../project-form';
 import { DeleteProjectButton } from './delete-button';
+import { getCategories } from '@/lib/queries/categories';
 
 export const metadata = { title: 'Edit Studio Project' };
 export const dynamic  = 'force-dynamic';
@@ -14,9 +15,10 @@ export default async function EditProjectPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const project = await prisma.studioProject.findFirst({
-    where: { id, deletedAt: null },
-  });
+  const [project, categories] = await Promise.all([
+    prisma.studioProject.findFirst({ where: { id, deletedAt: null } }),
+    getCategories('STUDIO'),
+  ]);
   if (!project) notFound();
 
   return (
@@ -39,6 +41,7 @@ export default async function EditProjectPage({
 
       <ProjectForm
         projectId={project.id}
+        categories={categories}
         initial={{
           slug:        project.slug,
           title:       project.title,

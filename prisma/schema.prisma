@@ -16,14 +16,9 @@ enum Role {
   ADMIN
 }
 
-enum ProjectCategory {
-  Residential
-  Hospitality
-  Commercial
-  FoodAndBeverage
-  Retail
-}
-
+// Studio / Property / Furniture categories are admin-managed at runtime via the
+// Category model (below), so they are plain String columns — not enums.
+// FeaturedCategory stays an enum: the 3 homepage tabs are a fixed structure.
 enum FeaturedCategory {
   Residential
   Hospitality
@@ -36,21 +31,11 @@ enum ProjectStatus {
   Concept
 }
 
-enum PropertyTopology {
-  Villa
-  Apartment
-  Townhouse
-  Land
-  Commercial
-}
-
-enum FurnitureCategory {
-  Chairs
-  Tables
-  Consoles
-  Shelving
-  Sofas
-  Extras
+// Which content type a Category row belongs to.
+enum CategoryKind {
+  STUDIO
+  PROPERTY
+  FURNITURE
 }
 
 // ── Auth (single admin) ────────────────────────────────────────────────────
@@ -73,7 +58,7 @@ model StudioProject {
   description String?
   location    String?
   topology    String?
-  category    ProjectCategory?
+  category    String?          // → Category(kind: STUDIO).label
   size        String?
   year        Int?
   status      ProjectStatus    @default(Completed)
@@ -100,7 +85,7 @@ model Property {
   subtitle    String?
   description String?
   location    String?
-  topology    PropertyTopology?
+  topology    String?           // → Category(kind: PROPERTY).label
   size        String?
   year        Int?
   status      ProjectStatus     @default(Completed)
@@ -129,7 +114,7 @@ model Furniture {
   slug        String            @unique
   name        String
   collection  String?
-  category    FurnitureCategory
+  category    String            // → Category(kind: FURNITURE).label
   material    String?
   price       String?
   subtitle    String?
@@ -163,6 +148,39 @@ model FeaturedSlot {
 
   @@unique([category, projectId])
   @@index([category, sortOrder])
+}
+
+// ── Categories (admin-managed, per content kind) ────────────────────────────
+// Drives both admin form selects and public filter bars. An entity stores the
+// category `label` string in its category/topology column (matched directly by
+// the public filters). Renames cascade to entity rows in the update action.
+model Category {
+  id        String       @id @default(cuid())
+  kind      CategoryKind
+  label     String
+  slug      String
+  sortOrder Int          @default(0)
+  deletedAt DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([kind, slug])
+  @@index([kind, sortOrder])
+}
+
+// ── Site settings (single row) ──────────────────────────────────────────────
+// Editable from /admin/settings; read by the public site (socials, stat
+// counters, contact details). One row, id = "singleton".
+model SiteSettings {
+  id              String   @id @default("singleton")
+  socials         Json     @default("[]") // [{ label, href }]
+  coconutsShared  Int      @default(84)
+  aboutStats      Json     @default("[]") // [{ value, label, tags: string[] }]
+  contactEmail    String?
+  contactWhatsapp String?
+  contactLocation String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 // ── Contact form submissions ───────────────────────────────────────────────

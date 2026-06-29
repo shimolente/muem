@@ -17,15 +17,17 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  propertySchema, PROPERTY_STATUSES, PROPERTY_TOPOLOGIES, type PropertyInput,
+  propertySchema, PROPERTY_STATUSES, type PropertyInput,
 } from '@/server/actions/properties/schema';
 import { createProperty, updateProperty } from '@/server/actions/properties';
 import { ImageUploader } from '@/components/admin/image-uploader';
 import { makeDraftId } from '@/lib/imageUrl';
+import type { CategoryOption } from '@/lib/queries/categories';
 
 interface Props {
   propertyId?: string;
   initial?: Partial<PropertyInput>;
+  categories: CategoryOption[];
 }
 
 const STATUS_LABEL: Record<typeof PROPERTY_STATUSES[number], string> = {
@@ -43,7 +45,7 @@ function slugify(s: string): string {
 
 const NUM_OR_NULL = (v: string) => v === '' ? null : Number(v);
 
-export function PropertyForm({ propertyId, initial }: Props) {
+export function PropertyForm({ propertyId, initial, categories }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
@@ -158,7 +160,7 @@ export function PropertyForm({ propertyId, initial }: Props) {
               <Select value={field.value ?? undefined} onValueChange={(v) => field.onChange(v || null)}>
                 <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="—" /></SelectTrigger></FormControl>
                 <SelectContent>
-                  {PROPERTY_TOPOLOGIES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {categories.map((c) => <SelectItem key={c.id} value={c.label}>{c.label}</SelectItem>)}
                 </SelectContent>
               </Select>
               <FormMessage />

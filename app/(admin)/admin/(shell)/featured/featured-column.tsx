@@ -38,12 +38,16 @@ interface Props {
   tagline:   string;
   slots:     Slot[];
   available: Available[];
+  max:       number;
 }
 
-export function FeaturedColumn({ category, label, tagline, slots: initialSlots, available }: Props) {
+export function FeaturedColumn({ category, label, tagline, slots: initialSlots, available, max }: Props) {
   const [slots, setSlots] = useState<Slot[]>(initialSlots);
   const [picking, setPicking] = useState<string>('');
   const [isPending, startTransition] = useTransition();
+
+  const isFull = slots.length >= max;
+  const slotsLeft = Math.max(0, max - slots.length);
 
   // Sync local state with server data after add/remove revalidate
   useEffect(() => {
@@ -99,8 +103,21 @@ export function FeaturedColumn({ category, label, tagline, slots: initialSlots, 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{label}</CardTitle>
-        <CardDescription>{tagline}</CardDescription>
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle>{label}</CardTitle>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+            isFull ? 'bg-muted text-muted-foreground' : 'bg-accent text-accent-foreground'
+          }`}>
+            {slots.length} / {max}
+          </span>
+        </div>
+        <CardDescription>
+          {tagline}
+          {' '}
+          <span className="text-muted-foreground">
+            {isFull ? '· All slots filled' : `· ${slotsLeft} slot${slotsLeft === 1 ? '' : 's'} left`}
+          </span>
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {slots.length === 0 && (
@@ -124,7 +141,7 @@ export function FeaturedColumn({ category, label, tagline, slots: initialSlots, 
           </SortableContext>
         </DndContext>
 
-        {available.length > 0 && (
+        {available.length > 0 && !isFull && (
           <div className="pt-2">
             <Select value={picking} onValueChange={onAdd} disabled={isPending}>
               <SelectTrigger className="w-full">
@@ -145,7 +162,13 @@ export function FeaturedColumn({ category, label, tagline, slots: initialSlots, 
           </div>
         )}
 
-        {available.length === 0 && slots.length > 0 && (
+        {isFull && (
+          <p className="text-center text-xs text-muted-foreground">
+            Category full — remove one to add another.
+          </p>
+        )}
+
+        {!isFull && available.length === 0 && slots.length > 0 && (
           <p className="text-center text-xs text-muted-foreground">All projects added.</p>
         )}
       </CardContent>

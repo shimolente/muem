@@ -17,29 +17,23 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  projectSchema, PROJECT_STATUSES, PROJECT_CATEGORIES, type ProjectInput,
+  projectSchema, PROJECT_STATUSES, type ProjectInput,
 } from '@/server/actions/projects/schema';
 import { createProject, updateProject } from '@/server/actions/projects';
 import { ImageUploader } from '@/components/admin/image-uploader';
 import { makeDraftId } from '@/lib/imageUrl';
+import type { CategoryOption } from '@/lib/queries/categories';
 
 interface Props {
   projectId?: string;             // present = edit mode
   initial?: Partial<ProjectInput>;
+  categories: CategoryOption[];
 }
 
 const STATUS_LABEL: Record<typeof PROJECT_STATUSES[number], string> = {
   Completed:  'Completed',
   InProgress: 'In Progress',
   Concept:    'Concept',
-};
-
-const CATEGORY_LABEL: Record<typeof PROJECT_CATEGORIES[number], string> = {
-  Residential:     'Residential',
-  Hospitality:     'Hospitality',
-  Commercial:      'Commercial',
-  FoodAndBeverage: 'F&B',
-  Retail:          'Retail',
 };
 
 function slugify(s: string): string {
@@ -49,7 +43,7 @@ function slugify(s: string): string {
     .replace(/-+/g, '-');
 }
 
-export function ProjectForm({ projectId, initial }: Props) {
+export function ProjectForm({ projectId, initial, categories }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
@@ -211,8 +205,8 @@ export function ProjectForm({ projectId, initial }: Props) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {PROJECT_CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>{CATEGORY_LABEL[c]}</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.label}>{c.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

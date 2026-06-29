@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { FeaturedColumn } from './featured-column';
 import { SiteHeader } from '@/components/admin/site-header';
+import { FEATURED_MAX_PER_CATEGORY } from '@/lib/featured';
 import type { FeaturedCategory } from '@prisma/client';
 
 export const metadata = { title: 'Featured Projects' };
@@ -32,6 +33,7 @@ export default async function FeaturedPage() {
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
       <p className="text-sm text-muted-foreground">
         Pick which Studio Projects appear in each homepage tab. Drag the handle to reorder.
+        Up to {FEATURED_MAX_PER_CATEGORY} per category.
       </p>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -51,6 +53,7 @@ export default async function FeaturedPage() {
                 location: s.project.location,
               }))}
               available={available}
+              max={FEATURED_MAX_PER_CATEGORY}
             />
           );
         })}

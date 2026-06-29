@@ -41,12 +41,6 @@ const AVAIL_OPTIONS: DropdownOption[] = [
   { label: 'Sold out',   value: 'soldout'   },
 ];
 
-const TOPO_OPTIONS: DropdownOption[] = [
-  { label: 'Villas',     value: 'Villas'     },
-  { label: 'Houses',     value: 'Houses'     },
-  { label: 'Apartments', value: 'Apartments' },
-];
-
 /* ── Property card ────────────────────────────────────────────────────────── */
 function PropertyCard({ project }: { project: ResidenceProject }) {
   const [idx, setIdx] = useState(0);
@@ -119,7 +113,8 @@ function PropertyCard({ project }: { project: ResidenceProject }) {
 }
 
 /* ── Main grid component ──────────────────────────────────────────────────── */
-export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
+export function ResidencesGrid({ projects, categories }: { projects: ResidenceProject[]; categories: string[] }) {
+  const topoOptions: DropdownOption[] = categories.map((c) => ({ label: c, value: c }));
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
@@ -266,7 +261,7 @@ export function ResidencesGrid({ projects }: { projects: ResidenceProject[] }) {
           <FilterDropdown
             label="Property type"
             allValue="All Types"
-            options={TOPO_OPTIONS}
+            options={topoOptions}
             values={topoFilter}
             onChange={setTopoFilter}
             filled

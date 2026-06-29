@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { PropertyForm } from '../property-form';
 import { DeletePropertyButton } from './delete-button';
+import { getCategories } from '@/lib/queries/categories';
 
 export const metadata = { title: 'Edit Property' };
 export const dynamic  = 'force-dynamic';
@@ -14,7 +15,10 @@ export default async function EditPropertyPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const property = await prisma.property.findFirst({ where: { id, deletedAt: null } });
+  const [property, categories] = await Promise.all([
+    prisma.property.findFirst({ where: { id, deletedAt: null } }),
+    getCategories('PROPERTY'),
+  ]);
   if (!property) notFound();
 
   return (
@@ -32,6 +36,7 @@ export default async function EditPropertyPage({
 
       <PropertyForm
         propertyId={property.id}
+        categories={categories}
         initial={{
           slug:        property.slug,
           title:       property.title,

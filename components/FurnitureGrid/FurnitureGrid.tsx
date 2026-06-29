@@ -6,8 +6,8 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { revealUp } from '@/lib/animation';
 import {
-  FURNITURE_INTRO, FURNITURE_CATEGORIES,
-  type FurnitureItem, type FurnitureCategory,
+  FURNITURE_INTRO,
+  type FurnitureItem,
 } from '@/content/furniture';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
@@ -150,7 +150,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 /* ── Main grid ────────────────────────────────────────────────────────────── */
-export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
+export function FurnitureGrid({ items, categories }: { items: FurnitureItem[]; categories: string[] }) {
   const sectionRef    = useRef<HTMLElement>(null);
   const listRef       = useRef<HTMLDivElement>(null);
   const gridRef       = useRef<HTMLDivElement>(null);
@@ -158,7 +158,7 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
   const hasEntered    = useRef(false);
   const processEntered = useRef(false);
 
-  const [activeCategory, setActiveCategory] = useState<FurnitureCategory | 'All'>('All');
+  const [activeCategory, setActiveCategory] = useState<string>('All');
   const [limit, setLimit] = useState(8);
 
   const setNavTheme          = useUIStore(s => s.setNavTheme);
@@ -316,15 +316,15 @@ export function FurnitureGrid({ items }: { items: FurnitureItem[] }) {
             row of frosted circles (no overlay panel) — edge fade hints at more. */}
         <div className={styles.filterWrap}>
           <div className={styles.filterRow}>
-            {(['All', ...FURNITURE_CATEGORIES] as const).map(cat => (
+            {['All', ...categories].map(cat => (
               <button
                 key={cat}
                 className={`${styles.filterCircle} ${activeCategory === cat ? styles.filterCircleActive : ''}`}
-                onClick={() => setActiveCategory(cat as FurnitureCategory | 'All')}
+                onClick={() => setActiveCategory(cat)}
                 aria-label={cat}
               >
                 <span className={styles.filterCircleIcon}>
-                  {CATEGORY_ICONS[cat]}
+                  {CATEGORY_ICONS[cat] ?? CATEGORY_ICONS.Extras}
                 </span>
                 <span className={styles.filterCircleLabel}>{cat}</span>
               </button>

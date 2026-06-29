@@ -6,7 +6,7 @@
 import { prisma } from '@/lib/prisma';
 import { imageUrl } from '@/lib/imageUrl';
 import type { StudioProject } from '@/content/studio';
-import type { StudioProject as DbStudioProject, ProjectStatus, ProjectCategory } from '@prisma/client';
+import type { StudioProject as DbStudioProject, ProjectStatus } from '@prisma/client';
 
 /** DB enum → legacy free-text status used by the existing UI. */
 function mapStatus(s: ProjectStatus): string {
@@ -19,6 +19,7 @@ function toUi(row: DbStudioProject): StudioProject {
     title:       row.title,
     location:    row.location ?? '',
     topology:    row.topology ?? '',
+    category:    row.category ?? '',          // drives the public category filter
     size:        row.size ?? '',
     year:        row.year ?? 0,
     status:      mapStatus(row.status),
@@ -35,7 +36,7 @@ function toUi(row: DbStudioProject): StudioProject {
 }
 
 export async function getPublishedStudioProjects(
-  filter?: { category?: ProjectCategory },
+  filter?: { category?: string },
 ): Promise<StudioProject[]> {
   const rows = await prisma.studioProject.findMany({
     where: {
@@ -48,17 +49,10 @@ export async function getPublishedStudioProjects(
   return rows.map(toUi);
 }
 
-const PROJECT_CATEGORIES: ProjectCategory[] = [
-  'Residential',
-  'Hospitality',
-  'Commercial',
-  'FoodAndBeverage',
-  'Retail',
-];
-
-export function parseCategoryParam(raw: unknown): ProjectCategory | undefined {
-  if (typeof raw !== 'string') return undefined;
-  return PROJECT_CATEGORIES.find(c => c === raw);
+/** Normalise a `?category=` deep-link param to a non-empty string (or undefined).
+ *  Matching against the live category list happens client-side in StudioGrid. */
+export function parseCategoryParam(raw: unknown): string | undefined {
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : undefined;
 }
 
 export async function getStudioProjectBySlug(slug: string): Promise<StudioProject | null> {

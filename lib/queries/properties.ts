@@ -7,22 +7,12 @@ function mapStatus(s: ProjectStatus): string {
   return s === 'InProgress' ? 'In Progress' : s;
 }
 
-/** DB topology enum → free-text label used by the existing UI. */
-function mapTopology(t: DbProperty['topology']): string {
-  if (!t) return '';
-  if (t === 'Villa')      return 'Villas';
-  if (t === 'Apartment')  return 'Apartments';
-  if (t === 'Townhouse')  return 'Houses';   // closest match in legacy categories
-  if (t === 'Land')       return 'Land';
-  return t;                                  // 'Commercial'
-}
-
 function toUi(row: DbProperty): ResidenceProject {
   return {
     id:          row.slug,
     title:       row.title,
     location:    row.location ?? '',
-    topology:    mapTopology(row.topology),
+    topology:    row.topology ?? '',  // = admin-managed Category(kind: PROPERTY).label
     size:        row.size ?? '',
     year:        row.year ?? 0,
     status:      mapStatus(row.status),

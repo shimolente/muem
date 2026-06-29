@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 const STATUS    = ['Completed', 'InProgress', 'Concept'] as const;
-const TOPOLOGY  = ['Villa', 'Apartment', 'Townhouse', 'Land', 'Commercial'] as const;
 
 export const propertySchema = z.object({
   /** Optional client-supplied id — see projects/schema.ts for rationale. */
@@ -11,7 +10,7 @@ export const propertySchema = z.object({
   subtitle:    z.string().nullable(),
   description: z.string().nullable(),
   location:    z.string().nullable(),
-  topology:    z.enum(TOPOLOGY).nullable(),
+  topology:    z.string().nullable(),  // validated against Category(kind: PROPERTY) in the action
   size:        z.string().nullable(),
   year:        z.number().int().min(1900).max(2100).nullable(),
   status:      z.enum(STATUS),
@@ -30,4 +29,3 @@ export const propertySchema = z.object({
 export type PropertyInput = z.infer<typeof propertySchema>;
 
 export const PROPERTY_STATUSES   = STATUS;
-export const PROPERTY_TOPOLOGIES = TOPOLOGY;

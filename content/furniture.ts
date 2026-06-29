@@ -7,7 +7,7 @@ export interface FurnitureItem {
   id:           string;
   name:         string;
   collection:   string;
-  category:     FurnitureCategory;
+  category:     string;   /* admin-managed Category(kind: FURNITURE).label */
   material:     string;
   price:        string;
   images:       string[];

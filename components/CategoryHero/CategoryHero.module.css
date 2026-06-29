@@ -38,7 +38,7 @@
     rgba(0, 0, 0, 0.18) 0%,
     rgba(0, 0, 0, 0.06) 35%,
     rgba(0, 0, 0, 0.38) 65%,
-    rgba(20, 16, 13, 0.78) 100%
+    rgba(var(--overlay-ink), 0.78) 100%
   );
 }
 
@@ -59,7 +59,7 @@
 /* ── Category label ───────────────────────────────────────────────────────── */
 .categoryLabel {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--text-micro);
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useTranslations } from 'next-intl';
-import { ABOUT } from '@/content/about';
+import { ABOUT, type Stat } from '@/content/about';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
 import styles from './AboutSection.module.css';
@@ -15,7 +15,7 @@ function parseValue(raw: string): { target: number; suffix: string } {
   return { target: parseFloat(m[1]), suffix: m[2] };
 }
 
-export function AboutSection() {
+export function AboutSection({ stats = ABOUT.stats }: { stats?: Stat[] }) {
   const sectionRef  = useRef<HTMLElement>(null);
   const linesRef    = useRef<HTMLSpanElement[]>([]);
   const statsRef    = useRef<HTMLDivElement>(null);
@@ -58,14 +58,14 @@ export function AboutSection() {
   /* ── Entrance animation ─────────────────────────────────────────────── */
   useEffect(() => {
     const lines = linesRef.current.filter(Boolean);
-    const stats = statsRef.current
+    const statEls = statsRef.current
       ? Array.from(statsRef.current.children) as HTMLElement[]
       : [];
 
     if (!lines.length) return;
 
     gsap.set(lines, { opacity: 0, y: 28 });
-    gsap.set(stats, { opacity: 0, y: 24 });
+    gsap.set(statEls, { opacity: 0, y: 24 });
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -79,14 +79,14 @@ export function AboutSection() {
             stagger: 0.14, duration: 1.0, ease: 'power3.out',
           });
 
-          gsap.to(stats, {
+          gsap.to(statEls, {
             opacity: 1, y: 0,
             stagger: 0.1, duration: 0.8, ease: 'power3.out',
             delay: lineDelay + 0.15,
           });
 
           // Count-up each number
-          ABOUT.stats.forEach((stat, i) => {
+          stats.forEach((stat, i) => {
             const el = numRefs.current[i];
             if (!el) return;
             const { target, suffix } = parseValue(stat.value);
@@ -107,10 +107,10 @@ export function AboutSection() {
 
         } else if (!entry.isIntersecting) {
           gsap.set(lines, { opacity: 0, y: 28 });
-          gsap.set(stats, { opacity: 0, y: 24 });
+          gsap.set(statEls, { opacity: 0, y: 24 });
           hasAnimated.current = false;
           // Reset counters so they re-animate on next entry
-          ABOUT.stats.forEach((stat, i) => {
+          stats.forEach((stat, i) => {
             const el = numRefs.current[i];
             if (el) el.textContent = '0';
           });
@@ -147,7 +147,7 @@ export function AboutSection() {
 
       {/* ── Stats row — pinned to bottom of section ──────────────── */}
       <div ref={statsRef} className={styles.stats}>
-        {ABOUT.stats.map((stat, i) => (
+        {stats.map((stat, i) => (
           <div key={stat.label} className={styles.stat}>
             {/* Ghost holds the final value's width so layout never shifts during count-up */}
             <span className={styles.statValueWrap}>

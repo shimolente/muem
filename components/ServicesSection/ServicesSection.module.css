@@ -63,7 +63,7 @@
   z-index: 2;
   background: linear-gradient(to bottom, var(--color-services-bg) 55%, transparent 100%);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--text-micro);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(var(--c-warm), 0.45);
@@ -92,7 +92,7 @@
 
 .activeTagline {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--text-micro);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(var(--c-warm), 0.45);
@@ -300,7 +300,7 @@
 .mobileLabel {
   text-align: center;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--text-micro);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(var(--c-warm), 0.45);

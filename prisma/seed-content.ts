@@ -9,9 +9,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import type {
-  ProjectCategory, ProjectStatus, PropertyTopology, FurnitureCategory,
-} from '@prisma/client';
+import type { ProjectStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -30,7 +28,7 @@ interface StudioSeed {
   description: string;
   location:    string;
   topology:    string;          // free-text for public site
-  category:    ProjectCategory;
+  category:    string;          // Category(kind: STUDIO).label
   size:        string;
   year:        number;
   status:      ProjectStatus;
@@ -207,7 +205,7 @@ interface PropertySeed {
   subtitle:    string;
   description: string;
   location:    string;
-  topology:    PropertyTopology;
+  topology:    string;          // Category(kind: PROPERTY).label
   size:        string;
   year:        number;
   status:      ProjectStatus;
@@ -352,7 +350,7 @@ interface FurnitureSeed {
   slug:        string;
   name:        string;
   collection:  string;
-  category:    FurnitureCategory;
+  category:    string;          // Category(kind: FURNITURE).label
   material:    string;
   price:       string;
   subtitle:    string;

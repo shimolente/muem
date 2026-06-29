@@ -46,6 +46,7 @@
   --text-heading: clamp(18px, 1.8vw,  28px);  /* section titles         */
   --text-body:    clamp(15px, 1.2vw,  18px);  /* paragraphs             */
   --text-label:   clamp(12px, 0.9vw,  14px);  /* nav, captions, labels  */
+  --text-micro:   11px;                       /* uppercase eyebrow / meta micro-labels */
 
   /* ── Type rhythm ─────────────────────────────────────────────────────────── */
   --leading-tight:  1.05;
@@ -66,13 +67,28 @@
   --space-gap:      clamp(6px, 0.55vw, 10px);
   --space-panel-h:  calc(var(--space-nav-h) - var(--space-gap));
 
+  /* ── Spacing scale ───────────────────────────────────────────────────────
+   * Step scale for component padding/margins/gaps. Use these instead of
+   * one-off px values so rhythm stays consistent across components.
+   */
+  --space-xs:  8px;
+  --space-sm:  12px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  /* Vertical padding at the top of listing/section grids (studio, residences,
+   * furniture all use this). Apply to section blocks for consistent rhythm. */
+  --section-pad-y: clamp(48px, 6vh, 80px);
+
   /* ── Reveal animation radii ──────────────────────────────────────────────
    * Cards/images enter with --radius-enter, snap to 0 on arrival.
    * On hover, sharp elements round to --radius-hover.
    * Tune here to adjust site-wide.
    */
-  --radius-enter: 20px;   /* border-radius at start of entrance animation  */
-  --radius-hover: 14px;   /* border-radius when hovering a sharp card/image */
+  --radius-enter: 20px;       /* border-radius at start of entrance animation  */
+  --radius-hover: 14px;       /* border-radius when hovering a sharp card/image */
+  --radius-card-hover: 48px;  /* large rounding on grid cards while hovered     */
+  --radius-pill: 100px;       /* buttons, chips, badges                         */
 
   /* Motion */
   --ease-smooth:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -91,10 +107,15 @@
    * Override in [data-design="v2"] to shift the whole warm palette.
    */
   --c-warm: 58, 52, 47;          /* warm brown — used in rgba() throughout  */
+  --overlay-ink: 20, 16, 13;     /* near-black ink for card/image overlays — rgba(var(--overlay-ink), a) */
   --color-overlay-dark: #1F1A16; /* CategoriesSection dark hover overlay    */
   --color-text-nav-dark: #29241D;/* Navbar text on light bg                 */
   --color-services-bg:   #E8E5E1;/* ServicesSection section background      */
   --color-services-left: #D9D5CF;/* ServicesSection left panel              */
+
+  /* Form feedback states (ContactSection) */
+  --color-success: #b3d4a8;
+  --color-error:   #e9a09a;
 }
 
 /* ── Design v2 — Muem brandbook palette ─────────────────────────────────────

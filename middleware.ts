@@ -19,16 +19,17 @@ export function middleware(request: NextRequest) {
     request.cookies.get('authjs.session-token')?.value ||
     request.cookies.get('__Secure-authjs.session-token')?.value;
 
-  // Unauthenticated → redirect to login
+  // Unauthenticated → redirect to login.
+  // Presence-only check (Edge-safe). The validated check happens in the
+  // (shell) layout via auth(). The reverse redirect (login → dashboard for
+  // logged-in users) lives in app/(admin)/admin/login/page.tsx where it can
+  // validate the JWT — doing it here on cookie presence alone causes an
+  // infinite loop when the cookie is stale (layout bounces to login, this
+  // bounces back). Do not reintroduce it.
   if (!isLogin && !sessionToken) {
     const loginUrl = new URL('/admin/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  // Already logged in visiting login page → dashboard
-  if (isLogin && sessionToken) {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
   return NextResponse.next();

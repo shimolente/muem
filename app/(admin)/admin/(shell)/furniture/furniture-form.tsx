@@ -17,15 +17,17 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  furnitureSchema, FURNITURE_CATEGORIES, type FurnitureInput,
+  furnitureSchema, type FurnitureInput,
 } from '@/server/actions/furniture/schema';
 import { createFurniture, updateFurniture } from '@/server/actions/furniture';
 import { ImageUploader } from '@/components/admin/image-uploader';
 import { makeDraftId } from '@/lib/imageUrl';
+import type { CategoryOption } from '@/lib/queries/categories';
 
 interface Props {
   furnitureId?: string;
   initial?: Partial<FurnitureInput>;
+  categories: CategoryOption[];
 }
 
 function slugify(s: string): string {
@@ -35,7 +37,7 @@ function slugify(s: string): string {
     .replace(/-+/g, '-');
 }
 
-export function FurnitureForm({ furnitureId, initial }: Props) {
+export function FurnitureForm({ furnitureId, initial, categories }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
@@ -47,7 +49,7 @@ export function FurnitureForm({ furnitureId, initial }: Props) {
       slug:        initial?.slug        ?? '',
       name:        initial?.name        ?? '',
       collection:  initial?.collection  ?? '',
-      category:    initial?.category    ?? 'Chairs',
+      category:    initial?.category    ?? categories[0]?.label ?? '',
       material:    initial?.material    ?? '',
       price:       initial?.price       ?? '',
       subtitle:    initial?.subtitle    ?? '',
@@ -136,7 +138,7 @@ export function FurnitureForm({ furnitureId, initial }: Props) {
               <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl><SelectTrigger className="w-full"><SelectValue /></SelectTrigger></FormControl>
                 <SelectContent>
-                  {FURNITURE_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {categories.map((c) => <SelectItem key={c.id} value={c.label}>{c.label}</SelectItem>)}
                 </SelectContent>
               </Select>
               <FormMessage />

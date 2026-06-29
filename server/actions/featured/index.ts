@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/permissions';
+import { FEATURED_MAX_PER_CATEGORY } from '@/lib/featured';
 import type { FeaturedCategory } from '@prisma/client';
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -22,6 +23,12 @@ export async function addFeatured(category: FeaturedCategory, projectId: string)
     await gate();
     const parsed = CATEGORY.safeParse(category);
     if (!parsed.success) return { ok: false, error: 'INVALID_CATEGORY' };
+
+    // Enforce per-category slot cap
+    const count = await prisma.featuredSlot.count({ where: { category } });
+    if (count >= FEATURED_MAX_PER_CATEGORY) {
+      return { ok: false, error: `Category full (max ${FEATURED_MAX_PER_CATEGORY})` };
+    }
 
     // Append to end of list
     const last = await prisma.featuredSlot.findFirst({

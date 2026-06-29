@@ -6,19 +6,13 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { revealUp } from '@/lib/animation';
 import {
-  STUDIO_INTRO, CATEGORIES,
+  STUDIO_INTRO,
   type StudioProject,
 } from '@/content/studio';
 import { FilterDropdown, type DropdownOption } from '@/components/FilterDropdown/FilterDropdown';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
 import styles from './StudioGrid.module.css';
-
-/* Top-level category id (single-select). 'all' = no category filter. */
-type CatId = 'all' | 'residential' | 'hospitality' | 'commercial';
-
-/* Category dropdown options (single-select) — value = CatId. */
-const CATEGORY_OPTIONS: DropdownOption[] = CATEGORIES.map(c => ({ label: c.label, value: c.id }));
 
 /* ── Arrow icons ──────────────────────────────────────────────────────────── */
 function ChevronLeft() {
@@ -97,20 +91,27 @@ function ProjectCard({ project }: { project: StudioProject }) {
 /* ── Main grid component ─────────────────────────────────────────────────── */
 type StudioGridProps = {
   projects: StudioProject[];
-  /** Pre-select all subs of this category — used when arriving via deep-link
-   *  from the Featured section (`/studio?category=Residential`). */
-  initialCategoryId?: 'residential' | 'hospitality' | 'commercial';
+  /** Admin-managed category labels (Category kind: STUDIO). */
+  categories: string[];
+  /** Pre-select a category — used when arriving via deep-link from the
+   *  Featured section (`/studio?category=…`). Matched case-insensitively. */
+  initialCategory?: string;
 };
 
-export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
+export function StudioGrid({ projects, categories, initialCategory }: StudioGridProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
 
-  /* Single active category (deep-linked from Featured/landing) + optional
-     sub-type refinement chips within it. */
-  const [activeCat, setActiveCat] = useState<CatId>(initialCategoryId ?? 'all');
-  const [subs,      setSubs]      = useState<string[]>([]);
+  /* Category dropdown options (single-select) — value = category label. */
+  const categoryOptions: DropdownOption[] = categories.map((c) => ({ label: c, value: c }));
+
+  /* Resolve a deep-link param to an actual category label, else "all". */
+  const resolvedInitial =
+    categories.find((c) => c.toLowerCase() === (initialCategory ?? '').toLowerCase()) ?? 'all';
+
+  /* Single active category — 'all' = no filter. */
+  const [activeCat, setActiveCat] = useState<string>(resolvedInitial);
   const [limit,     setLimit]     = useState(9);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);
@@ -140,18 +141,9 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
   }, [setNavTheme, setNavStyle, setNavBg, setNavShadow]);
 
   /* ── Filtered + paginated data ────────────────────────────────────────── */
-  const activeDef = activeCat === 'all'
-    ? null
-    : CATEGORIES.find(c => c.id === activeCat) ?? null;
-
-  const allFiltered = projects.filter(p => {
-    if (!activeDef) return true; // "All"
-    // Sub-chips selected → union of their topologies; none → whole category.
-    const tops = subs.length > 0
-      ? activeDef.subs.filter(s => subs.includes(s.label)).flatMap(s => s.topologies)
-      : activeDef.topologies;
-    return tops.includes(p.topology);
-  });
+  const allFiltered = activeCat === 'all'
+    ? projects
+    : projects.filter(p => p.category === activeCat);
 
   const visible = allFiltered.slice(0, limit);
   const hasMore = allFiltered.length > limit;
@@ -186,7 +178,7 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
   }, [visible.length, animateCards]);
 
   /* Reset limit when filters change */
-  useEffect(() => { setLimit(9); }, [activeCat, subs]);
+  useEffect(() => { setLimit(9); }, [activeCat]);
 
   const lines = STUDIO_INTRO.headline.split('\n');
 
@@ -216,29 +208,19 @@ export function StudioGrid({ projects, initialCategoryId }: StudioGridProps) {
         </div>
       </div>
 
-      {/* ── Filter bar — grey dropdowns: single-select Category (+ optional
-           Type refinement within it). Category stays switchable always. ──── */}
+      {/* ── Filter bar — single-select Category, driven by admin-managed
+           categories. Switchable any time. ─────────────────────────────── */}
       <div className={styles.filterBarWrap}>
         <div className={styles.filterBar}>
           <FilterDropdown
             label="Category"
             allValue="All Categories"
-            options={CATEGORY_OPTIONS}
+            options={categoryOptions}
             values={activeCat === 'all' ? [] : [activeCat]}
-            onChange={vals => { setActiveCat((vals[0] as CatId) ?? 'all'); setSubs([]); }}
+            onChange={vals => setActiveCat(vals[0] ?? 'all')}
             filled
             single
           />
-          {activeDef && activeDef.subs.length > 0 && (
-            <FilterDropdown
-              label="Type"
-              allValue={`All ${activeDef.label}`}
-              options={activeDef.subs.map(s => ({ label: s.label, value: s.label }))}
-              values={subs}
-              onChange={setSubs}
-              filled
-            />
-          )}
         </div>
       </div>
 
