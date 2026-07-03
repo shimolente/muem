@@ -16,14 +16,17 @@
 
   /* ── Typefaces ───────────────────────────────────────────────────────────── */
   /*
-   * Display (headings, statements): Aire Pro family — self-hosted
-   *   Light        → hero-scale headlines     ("Roots of Living")
-   *   Light Italic → section statements       ("For those who seek…")
-   *   Roman        → mid-weight display text
-   *   Roman Italic → pull quotes, emphasis
+   * TITLES (all headings / section titles / display words): Neiko — self-hosted.
+   *   Use --font-title everywhere a title renders. Single weight for now
+   *   (see fonts.css licensing note); wire Light/Bold when supplied.
    *
-   * UI (nav, body, labels): Brandon Grotesque via Adobe Typekit
+   * QUOTES / SLOGANS / STATEMENTS: Aire Pro family — self-hosted.
+   *   Reserved for pull quotes, slogans and italic statements only. Kept on
+   *   --font-display* so those spots stay Aire while titles move to Neiko.
+   *
+   * UI (nav, body, labels, eyebrows): Brandon Grotesque via Adobe Typekit.
    */
+  --font-title:                 'Neiko', 'Aire Roman Pro', Georgia, serif;
   --font-display:               'Aire Roman Pro',        Georgia, serif;
   --font-display-light:         'Aire Light Pro',        Georgia, serif;
   --font-display-bold:          'Aire Bold Pro',         Georgia, serif;
@@ -55,6 +58,41 @@
   --leading-loose:  1.85;
   --tracking-wide:  0.08em;
   --tracking-wider: 0.18em;
+
+  /* ── Typography roles — single source of truth ───────────────────────────
+   * Change a value here and it propagates to every section that consumes the
+   * token. Sections should reference these instead of hard-coding values.
+   */
+  /* Eyebrow — the STANDARD is the landing 3-categories label
+   * (DESIGN WITH US / FURNITURE COLLECTIONS / PROPERTIES BY MUEM). */
+  --eyebrow-font:      var(--font-body);
+  --eyebrow-size:      clamp(11px, 0.85vw, 14px);
+  --eyebrow-tracking:  0.18em;
+  --eyebrow-weight:    400;
+  /* Eyebrow colour on light surfaces — matches the landing categories label
+   * (strong warm-dark, per the "same size, colour" brief). Dark-bg sections
+   * (hero, contact) keep a white-based colour locally. */
+  --eyebrow-color:     var(--color-warm-dark);
+
+  /* Section title — universal treatment. Family / weight / spacing / leading
+   * are shared; only the font-size varies by role (via the --text-* scale). */
+  --title-font:      var(--font-title);
+  --title-weight:    400;
+  --title-tracking:  -0.02em;
+  --title-leading:   var(--leading-snug);
+  /* Neiko is already a display weight, so titles need no faux-bold outline.
+   * Aire quote/slogan spots can still opt into --aire-stroke locally. */
+  --title-stroke:    0px;
+
+  /* Body text tone — "stronger grey", pulled closer to the title tone.
+   * Paragraphs on light bg: rgba(var(--c-warm), var(--body-alpha)). */
+  --body-alpha: 0.72;
+
+  /* Vertical rhythm between stacked text roles — keep sections in sync.
+   *   eyebrow → title : --gap-eyebrow-title
+   *   title   → body  : --gap-title-body  */
+  --gap-eyebrow-title: clamp(12px, 1.6vh, 20px);
+  --gap-title-body:    clamp(14px, 2vh, 24px);
 
   /* Spacing */
   --space-nav-h:    clamp(48px, 8vw, 112px);
@@ -212,12 +250,15 @@ html.snap-scroll [data-snap-section] {
 }
 
 /*
- * ── Aire display font stroke ──────────────────────────────────────────────
- * h1–h4 all use an Aire variant. paint-order: stroke fill renders the stroke
- * behind the fill so letterforms stay sharp. Tune --aire-stroke in :root.
+ * ── Title face ────────────────────────────────────────────────────────────
+ * h1–h4 default to Neiko (the title face). Per-component classes may still set
+ * their own font, but this keeps any bare heading on-brand. --title-stroke is
+ * 0 for Neiko (no faux-bold outline needed); Aire quote spots opt into
+ * --aire-stroke locally.
  */
 h1, h2, h3, h4 {
-  -webkit-text-stroke: var(--aire-stroke) currentColor;
+  font-family: var(--font-title);
+  -webkit-text-stroke: var(--title-stroke) currentColor;
   paint-order: stroke fill;
 }
 

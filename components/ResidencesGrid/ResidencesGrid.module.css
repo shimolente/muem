@@ -31,17 +31,17 @@
 }
 
 .introLabel {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  letter-spacing: 0.18em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.55);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.9);
   display: block;
   margin-bottom: 12px;
 }
 
 .introHeadline {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(26px, 3.2vw, 52px);
   font-weight: 400;
   line-height: var(--leading-snug);
@@ -57,7 +57,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.75);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.85);
   margin: 0;
 }
 
@@ -230,7 +230,7 @@
 .card:hover .cardBottom { transform: translate(8px, -10px); }
 
 .cardTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(19px, 1.8vw, 26px);
   font-weight: 400;
   color: var(--color-white);
@@ -359,16 +359,16 @@
 
 .processLabel {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: var(--eyebrow-size);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.5);
   line-height: 1;
-  margin-bottom: clamp(16px, 2.5vh, 28px);
+  margin-bottom: var(--gap-eyebrow-title);
 }
 
 .processHeading {
-  font-family: var(--font-display-light); font-weight: 300;
+  font-family: var(--font-title); font-weight: var(--title-weight);
   font-size: var(--text-display);
   line-height: var(--leading-tight);
   color: var(--page-fg, var(--color-warm-dark));
@@ -395,7 +395,7 @@
    Large text (64px) so 3:1 WCAG large-text threshold applies.
    rgba(58,52,47,0.45) ≈ #948F8A on off-white: clearly visible, clearly secondary. */
 .stepNum {
-  font-family: var(--font-display-light);
+  font-family: var(--font-title);
   font-size: clamp(36px, 4.5vw, 64px);
   font-weight: 300;
   color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.5);
@@ -404,7 +404,7 @@
 }
 
 .stepTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(18px, 1.8vw, 26px);
   font-weight: 400;
   color: var(--page-fg, var(--color-warm-dark));

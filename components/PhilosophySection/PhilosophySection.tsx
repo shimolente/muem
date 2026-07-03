@@ -270,11 +270,10 @@ export function PhilosophySection() {
       {/* ── Left: text panel ──────────────────────────────────────────── */}
       <div className={styles.textPanel}>
 
-        <span ref={sectionLabelRef} className={styles.sectionLabel}>
-          {t('label')}
-        </span>
-
         <div className={styles.pillarsContent}>
+          <span ref={sectionLabelRef} className={styles.sectionLabel}>
+            {t('label')}
+          </span>
           <h2 ref={headingRef} className={styles.heading}>{pillar.heading}</h2>
 
           <div className={styles.dots} role="tablist" aria-label="Browse pillars">

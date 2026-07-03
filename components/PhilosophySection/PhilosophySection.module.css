@@ -24,16 +24,17 @@
   overflow: hidden;
 }
 
-/* Section label — centered, entrance-only */
+/* Section label — STANDARD eyebrow, sits just above the heading */
 .sectionLabel {
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0.2em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(var(--c-warm), 0.35);
+  color: var(--eyebrow-color);
   line-height: 1;
   text-align: center;
+  margin-bottom: var(--gap-eyebrow-title);
   will-change: transform, opacity;
 }
 
@@ -50,8 +51,8 @@
 
 /* Large heading — "Essence", "Team", "International" */
 .heading {
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
   font-size: clamp(52px, 5.2vw, 84px);
   line-height: 1;
   letter-spacing: -0.04em;
@@ -120,7 +121,7 @@
   font-weight: 400;
   line-height: 1.65;
   letter-spacing: 0.005em;
-  color: rgba(var(--c-warm), 0.6);
+  color: rgba(var(--c-warm), var(--body-alpha));
   max-width: 42ch;
   will-change: transform, opacity;
 }
@@ -215,20 +216,20 @@
     gap: 8px;
   }
 
-  /* Matched to FeaturedSection .mobileLabel for consistent section eyebrows. */
+  /* STANDARD eyebrow (shared token spec across all sections). */
   .mobileLabel {
-    font-family: var(--font-body);
-    font-size: var(--text-micro);
-    font-weight: 400;
-    letter-spacing: 0.2em;
+    font-family: var(--eyebrow-font);
+    font-size: var(--eyebrow-size);
+    font-weight: var(--eyebrow-weight);
+    letter-spacing: var(--eyebrow-tracking);
     text-transform: uppercase;
-    color: rgba(var(--c-warm), 0.4);
+    color: var(--eyebrow-color);
     line-height: 1;
   }
 
   .mobileHeading {
-    font-family: var(--font-display);
-    font-weight: 400;
+    font-family: var(--font-title);
+    font-weight: var(--title-weight);
     font-size: clamp(28px, 8vw, 40px);
     line-height: 1;
     letter-spacing: -0.04em;
@@ -251,7 +252,7 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 1.5;
-    color: rgba(var(--c-warm), 0.6);
+    color: rgba(var(--c-warm), var(--body-alpha));
     margin: 0;
     max-width: 100%;
   }

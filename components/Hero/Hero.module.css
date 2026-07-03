@@ -36,7 +36,7 @@
 }
 
 .headline {
-  font-family: var(--font-display-light);
+  font-family: var(--font-title);
   font-weight: 300;
   font-size: clamp(48px, 7.5vw, 120px);
   line-height: 1.0;

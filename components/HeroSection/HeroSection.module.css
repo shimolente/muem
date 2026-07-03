@@ -21,7 +21,7 @@
 
 /* ── Headline ────────────────────────────────────────────────────────────── */
 .headline {
-  font-family: var(--font-display-light);
+  font-family: var(--font-title);
   font-weight: 300;
   font-size: var(--text-hero);
   line-height: var(--leading-tight);
@@ -44,10 +44,10 @@
 .labelWrap { display: contents; }
 
 .label {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: var(--tracking-wider);
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
   /* 2.5× the default space between "Create / Live / Explore" — adds 1.5em
      on top of normal word width so total reads ~2.5× wider. */
   word-spacing: 1.5em;

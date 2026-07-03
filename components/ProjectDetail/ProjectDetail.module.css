@@ -54,7 +54,7 @@
   opacity: 0; will-change: opacity, transform;
 }
 .heroTitle {
-  font-family: var(--font-display-light); font-weight: 300;
+  font-family: var(--font-title); font-weight: var(--title-weight);
   font-size: clamp(48px, 6.9vw, 85px); line-height: var(--leading-tight);
   color: var(--color-white); margin: 0;
   opacity: 0; will-change: opacity, transform;
@@ -80,7 +80,7 @@
 
 .introLabel {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: var(--eyebrow-size);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: rgba(58,52,47,0.38); line-height: 1;
@@ -88,7 +88,7 @@
 
 /* --text-display keeps this on the same scale as relatedHeading below */
 .introSubtitle {
-  font-family: var(--font-display-light); font-weight: 300;
+  font-family: var(--font-title); font-weight: var(--title-weight);
   font-size: var(--text-display);        /* was clamp(28px, 4vw, 58px) — now token */
   line-height: var(--leading-tight);
   color: var(--color-warm-dark); margin: 0; max-width: 18em;
@@ -176,7 +176,7 @@
 }
 
 .relatedSup {
-  font-family: var(--font-body); font-size: 10px;
+  font-family: var(--font-body); font-size: var(--eyebrow-size);
   letter-spacing: var(--tracking-wider); /* unified */
   text-transform: uppercase;
   color: rgba(245,242,238,0.38); line-height: 1;
@@ -188,7 +188,7 @@
  * Was clamp(48px, 7vw, 96px) — now using the shared design token.
  */
 .relatedHeading {
-  font-family: var(--font-display-light); font-weight: 300;
+  font-family: var(--font-title); font-weight: var(--title-weight);
   font-size: var(--text-display);        /* unified with introSubtitle */
   line-height: var(--leading-tight);
   color: var(--color-off-white); margin: 0;
@@ -265,7 +265,7 @@
 }
 
 .relatedName {
-  font-family: var(--font-display); font-weight: 400;
+  font-family: var(--font-title); font-weight: 400;
   font-size: clamp(19px, 1.8vw, 26px);
   color: var(--color-white); line-height: 1.15; margin: 0;
 }

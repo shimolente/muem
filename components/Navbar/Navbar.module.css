@@ -10,6 +10,14 @@
   padding: var(--space-nav-v) var(--space-nav-h);
   background: transparent;
   transition: background 0.45s ease, box-shadow 0.45s ease;
+  /* The bar spans the full width but only the logo / nav / hamburger should
+     catch clicks — otherwise the transparent gaps eat clicks meant for sticky
+     UI beneath it (e.g. the Studio filter pinned to the top). Children re-enable
+     pointer events individually. */
+  pointer-events: none;
+}
+.navbar > * {
+  pointer-events: auto;
 }
 
 /* Cream background — inner-page grid sections */
@@ -268,7 +276,7 @@
   /* GSAP sets translateX(100%) on open/close — initial display: none in JSX */
 }
 .mobileNavItem {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(22px, 2.8vw, 40px);
   font-weight: 400;
   color: var(--color-white);

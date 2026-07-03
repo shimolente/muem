@@ -108,7 +108,7 @@
 
 /* Product name */
 .name {
-  font-family: var(--font-display-light);
+  font-family: var(--font-title);
   font-weight: 300;
   font-size: clamp(32px, 3.6vw, 58px);
   line-height: var(--leading-tight);
@@ -246,7 +246,7 @@
 
 .collectionLabel {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: var(--eyebrow-size);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: rgba(58, 52, 47, 0.38);
@@ -254,7 +254,7 @@
 }
 
 .collectionName {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-weight: 400;
   font-size: clamp(22px, 2.4vw, 36px);
   line-height: var(--leading-snug);
@@ -300,14 +300,14 @@
 }
 
 .relatedSup {
-  font-family: var(--font-body); font-size: 10px;
+  font-family: var(--font-body); font-size: var(--eyebrow-size);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: rgba(245, 242, 238, 0.38); line-height: 1;
 }
 
 .relatedHeading {
-  font-family: var(--font-display-light); font-weight: 300;
+  font-family: var(--font-title); font-weight: var(--title-weight);
   font-size: var(--text-display);
   line-height: var(--leading-tight);
   color: var(--color-off-white); margin: 0;
@@ -366,7 +366,7 @@
 }
 
 .relatedName {
-  font-family: var(--font-display); font-weight: 400;
+  font-family: var(--font-title); font-weight: 400;
   font-size: clamp(17px, 1.6vw, 23px);
   color: var(--color-white); line-height: 1.15; margin: 0;
 }

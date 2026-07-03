@@ -62,11 +62,11 @@
   text-align: center;
   z-index: 2;
   background: linear-gradient(to bottom, var(--color-services-bg) 55%, transparent 100%);
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  letter-spacing: 0.2em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(var(--c-warm), 0.45);
+  color: var(--eyebrow-color);
   margin: 0;
   pointer-events: none;
 }
@@ -91,16 +91,16 @@
 }
 
 .activeTagline {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  letter-spacing: 0.18em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(var(--c-warm), 0.45);
+  color: var(--eyebrow-color);
 }
 
 /* Slightly thicker roman weight for better legibility on cream bg */
 .activeTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(20px, 2.4vw, 38px);
   font-weight: 400;
   line-height: var(--leading-tight);
@@ -115,7 +115,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(var(--c-warm), 0.65);
+  color: rgba(var(--c-warm), var(--body-alpha));
   max-width: 36ch;
   text-align: center;
 }
@@ -175,10 +175,11 @@
 }
 
 .trackHeadline {
-  font-family: var(--font-display-italic);
-  font-size: clamp(12px, 1vw, 15px);
-  color: rgba(var(--c-warm), 0.55);
-  letter-spacing: 0.01em;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
+  font-size: clamp(15px, 1.4vw, 22px);
+  color: var(--color-warm-dark);
+  letter-spacing: var(--title-tracking);
   text-align: center;
 }
 
@@ -208,7 +209,7 @@
 .phaseName {
   text-align: left;
   padding-left: clamp(20px, 2.5vw, 36px);
-  font-family: var(--font-display-light);
+  font-family: var(--font-title);
   font-size: clamp(13px, 1.5vw, 22px);
   font-weight: 300;
   line-height: 1.2;
@@ -299,11 +300,11 @@
 
 .mobileLabel {
   text-align: center;
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  letter-spacing: 0.2em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(var(--c-warm), 0.45);
+  color: var(--eyebrow-color);
   margin: 0;
   padding: 48px 0 24px;
 }
@@ -341,7 +342,7 @@
 }
 
 .mobileName {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(20px, 5vw, 28px);
   font-weight: 400;
   color: var(--color-warm-dark);
@@ -361,7 +362,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.6;
-  color: rgba(var(--c-warm), 0.65);
+  color: rgba(var(--c-warm), var(--body-alpha));
   margin: 0;
 }
 

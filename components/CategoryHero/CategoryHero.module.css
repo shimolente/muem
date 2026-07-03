@@ -58,12 +58,12 @@
 
 /* ── Category label ───────────────────────────────────────────────────────── */
 .categoryLabel {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  font-weight: 400;
-  letter-spacing: 0.22em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.6); /* dark hero image → white eyebrow */
   line-height: 1;
 
   /* initial hidden state for GSAP */
@@ -73,7 +73,7 @@
 
 /* ── Headline — single line, reduced size ─────────────────────────────────── */
 .headline {
-  font-family: var(--font-display-light);
+  font-family: var(--font-title);
   font-size: clamp(24px, 2.8vw, 44px);
   font-weight: 300;
   line-height: var(--leading-tight);

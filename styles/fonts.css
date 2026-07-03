@@ -1,3 +1,18 @@
+/* Neiko — self-hosted title face.
+   ⚠️ LICENSING: Neiko ships under a personal-use-only license (see
+   public/fonts/neiko-regular-font/misc/Read Me.txt). A commercial license
+   MUST be purchased before production launch. Only the Regular weight was
+   supplied (neiko2.otf === NeikoRegular-XGMP2.otf), so every title currently
+   renders in a single weight. Add Light/Bold @font-face blocks once the
+   licensed webfont files (ideally woff2) are provided. */
+@font-face {
+  font-family: 'Neiko';
+  src: url('/fonts/neiko2.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Aire Pro — self-hosted */
 @font-face {
   font-family: 'Aire Light Pro';

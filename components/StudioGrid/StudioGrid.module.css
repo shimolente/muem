@@ -49,17 +49,17 @@
 }
 
 .introLabel {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  letter-spacing: 0.18em;
+  font-family: var(--eyebrow-font);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.55);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.9);
   display: block;
   margin-bottom: 12px;
 }
 
 .introHeadline {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(26px, 3.2vw, 52px);
   font-weight: 400;
   line-height: var(--leading-snug);
@@ -75,7 +75,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.75);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.85);
   margin: 0;
 }
 
@@ -94,18 +94,128 @@
 }
 .introCta:hover { opacity: 0.5; }
 
-/* ── Filter bar — wide padding matches introWrap / page-level spacing ─────── */
-.filterBarWrap {
-  padding: 0 var(--space-nav-h);
-  margin-bottom: clamp(64px, 8vh, 96px);
+/* ── List zone — sticky filter's containing block ─────────────────────────────
+   The sticky .filterBarWrap releases at this wrapper's bottom edge (= end of
+   the grid), so the bar scrolls away with the list instead of overlapping the
+   Services section. position: relative makes it the offset parent; no overflow
+   clipping (that would break sticky). Mirrors FurnitureGrid .listWrap. */
+.listWrap {
+  position: relative;
 }
 
-/* ── Filter bar — grey dropdowns (Category + optional Type) ───────────────── */
-.filterBar {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(6px, 0.55vw, 10px);
+/* ── Filter bar — sticky, centred on the navbar line ──────────────────────────
+   Centred (like Furniture) so the pills never sit under the muem logo / burger.
+   z-index sits ABOVE the fixed navbar (--z-nav) so pills stay clickable while
+   stuck to the top — the transparent navbar box would otherwise eat the clicks. */
+.filterBarWrap {
+  position: sticky;
+  top: var(--space-nav-v);
+  z-index: calc(var(--z-nav) + 2);
+  padding: clamp(12px, 2vh, 22px) var(--space-nav-h);
+  margin-bottom: clamp(40px, 6vh, 72px);
+  pointer-events: none; /* only the pills themselves catch clicks */
 }
+
+/* ── Multi-select frosted pills (Furniture-style) ─────────────────────────── */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 0.9vw, 14px);
+}
+
+.filterPill {
+  pointer-events: auto;
+  font-family: var(--font-body);
+  font-size: clamp(12px, 0.9vw, 14px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.9);
+  padding: clamp(9px, 1vw, 13px) clamp(16px, 1.6vw, 26px);
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  white-space: nowrap;
+  /* Frosted pill — translucent brown over a live blur of the content beneath.
+     webkit-first / standard-last so the minifier keeps the unprefixed prop. */
+  background: rgba(53, 50, 47, 0.10);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: background 0.22s ease, color 0.22s ease, opacity 0.22s ease;
+}
+.filterPill:hover {
+  background: rgba(var(--page-fg-rgb, 58, 52, 47), 0.16);
+  color: var(--page-fg, var(--color-warm-dark));
+}
+.filterPillActive,
+.filterPillActive:hover {
+  background: var(--page-button-bg, var(--color-warm-dark));
+  color: var(--page-button-fg, var(--color-off-white));
+}
+.filterPillActive:hover { opacity: 0.9; }
+
+/* Marks the bar's resting position — leaves the top band once the bar sticks. */
+.filterSentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* Stuck (pinned over the card images) → white text + darker frosted fill so
+   inactive pills stay legible over any photo behind them. */
+.filterBarStuck .filterPill {
+  color: var(--color-off-white);
+  background: rgba(var(--overlay-ink), 0.42);
+}
+.filterBarStuck .filterPill:hover {
+  color: var(--color-off-white);
+  background: rgba(var(--overlay-ink), 0.58);
+}
+.filterBarStuck .filterPillActive,
+.filterBarStuck .filterPillActive:hover {
+  background: var(--page-button-bg, var(--color-warm-dark));
+  color: var(--page-button-fg, var(--color-off-white));
+}
+
+/* ── Clear ("×") — rolls out from the left once a category is picked ──────── */
+.clearBtn {
+  pointer-events: none;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(38px, 3.4vw, 46px);
+  width: 0;
+  margin-right: 0;
+  padding: 0;
+  border: none;
+  border-radius: 100px;
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--page-button-fg, var(--color-off-white));
+  background: var(--page-button-bg, var(--color-warm-dark));
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    width 0.32s var(--ease-out-expo),
+    margin-right 0.32s var(--ease-out-expo),
+    opacity 0.24s ease,
+    transform 0.32s var(--ease-out-expo);
+}
+.clearBtn svg { flex-shrink: 0; }
+.clearBtnShown {
+  pointer-events: auto;
+  width: clamp(38px, 3.4vw, 46px);
+  margin-right: clamp(4px, 0.6vw, 12px);
+  opacity: 1;
+  transform: scale(1);
+}
+.clearBtnShown:hover { opacity: 0.88; }
 
 /* ── Project grid — SPACING B: edge padding = gap size ───────────────────── */
 /*  --grid-gap drives gap, padding, and grid-auto-rows together so vertical
@@ -193,6 +303,10 @@
 
 .carouselPrev { left: 12px; }
 .carouselNext { right: 12px; }
+/* Optically centre the chevron in the circle — a chevron's visual mass leans
+   toward its open side, so nudge each one 1px toward its point. */
+.carouselPrev svg { transform: translateX(-1px); }
+.carouselNext svg { transform: translateX(1px); }
 
 .carouselDots {
   position: absolute;
@@ -240,7 +354,7 @@
 .card:hover .cardBottom { transform: translate(8px, -10px); }
 
 .cardTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: clamp(19px, 1.8vw, 26px);
   font-weight: 400;
   color: var(--color-white);
@@ -253,7 +367,7 @@
   position: relative;
   /* height from grid-auto-rows = cell width → square */
   background: rgba(var(--page-fg-rgb, var(--c-warm)), 0.06);
-  border: 1px dashed rgba(var(--page-fg-rgb, var(--c-warm)), 0.28);
+  border: none;
   border-radius: 0;
   display: flex;
   flex-direction: column;
@@ -323,11 +437,18 @@
     grid-auto-rows: calc((100vw - 3 * var(--grid-gap)) / 2);
   }
   .cardFeatured { grid-column: span 2; }
-  .filterBarWrap { padding: 0 20px; }
+  .filterBarWrap { padding: clamp(12px, 2vh, 18px) 20px; }
+  /* Pills scroll horizontally on mobile (matches Furniture). */
   .filterBar {
-    grid-template-columns: 1fr 1fr;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
     gap: 8px;
   }
+  .filterBar::-webkit-scrollbar { display: none; }
+  .filterPill { flex-shrink: 0; }
 }
 
 @media (max-width: 480px) {

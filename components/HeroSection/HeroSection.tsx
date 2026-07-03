@@ -83,8 +83,8 @@ export function HeroSection() {
         {/* Big headline */}
         <h1 ref={headlineRef} className={styles.headline}>
           {words.map((word, i) => {
-            const clean = word.replace(/[^a-zA-ZáéíóúñÑ]/g, '').toLowerCase();
-            const isItalic = clean === 'luxury' || clean === 'lujo';
+            // "luxury" now renders in Neiko like the rest of the headline.
+            const isItalic = false;
             return (
               <span key={i} className={styles.wordClip}>
                 <span

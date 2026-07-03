@@ -21,7 +21,9 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  border-radius: 0;
+  /* Rounded top so the stripe "ends smooth" at the top with a little break,
+     instead of a hard rectangular edge. Bottom stays square (flush). */
+  border-radius: clamp(10px, 1.4vw, 22px) clamp(10px, 1.4vw, 22px) 0 0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -73,18 +75,19 @@
 .label {
   position: relative;
   z-index: 2;
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
   font-size: clamp(36px, 4.5vw, 76px);
   color: var(--color-warm-dark);
   letter-spacing: -0.01em;
   line-height: 1;
   pointer-events: none;
   transition: color 0.7s ease;
-  -webkit-text-stroke: var(--aire-stroke) currentColor;
+  -webkit-text-stroke: var(--title-stroke) currentColor;
   paint-order: stroke fill;
 }
 
+/* STANDARD eyebrow — every other section's eyebrow matches this. */
 .name {
   position: absolute;
   z-index: 2;
@@ -92,10 +95,10 @@
   top: 63%;
   left: 50%;
   transform: translateX(-50%);
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: clamp(11px, 0.85vw, 14px);
-  letter-spacing: var(--tracking-wider);
+  font-family: var(--eyebrow-font);
+  font-weight: var(--eyebrow-weight);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
   color: var(--color-warm-dark);
   white-space: nowrap;
@@ -103,11 +106,12 @@
   transition: color 0.7s ease;
 }
 
-/* Text turns white while overlay is active — delay syncs with curtain lift */
+/* Text turns white while overlay is active. Delay/duration kept short so the
+   label is already white by the time the reveal curtain reaches the top. */
 .columnHovered .label,
 .columnHovered .name {
   color: var(--color-white);
-  transition: color 0.3s ease 0.35s;
+  transition: color 0.22s ease 0.08s;
 }
 
 /* ── Expanded overlay ────────────────────────────────────────────────────── */
@@ -155,8 +159,8 @@
   left: 0;
   right: 0;
   text-align: center;
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-title);
+  font-weight: var(--title-weight);
   font-size: clamp(36px, 4.5vw, 76px);
   color: var(--color-white);
   letter-spacing: -0.01em;
@@ -218,10 +222,10 @@
   left: 0;
   right: 0;
   text-align: center;
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: clamp(11px, 0.85vw, 14px);
-  letter-spacing: var(--tracking-wider);
+  font-family: var(--eyebrow-font);
+  font-weight: var(--eyebrow-weight);
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
   color: var(--color-white);
   white-space: nowrap;
