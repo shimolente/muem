@@ -43,6 +43,7 @@ export function WipeTransitions() {
       let wheelDelta = 0;
       let wheelTimer: ReturnType<typeof setTimeout> | undefined;
       let touchStartY = 0;
+      let lastInputTs = 0; // timestamp of the most recent wheel/touch input
 
       function currentIndex() {
         const sections = getSections();
@@ -166,11 +167,20 @@ export function WipeTransitions() {
         });
 
         const duration = skipWipe ? 700 : WIPE_MS + 80;
-        setTimeout(() => {
+        const release = () => {
+          // Don't release the lock while wheel/touch momentum is still flowing —
+          // leftover trackpad inertia would re-cross the threshold and snap a
+          // second time, skipping a section (e.g. hero→about overshooting to
+          // categories). Wait until input has been quiet for a beat.
+          if (performance.now() - lastInputTs < 120) {
+            setTimeout(release, 120);
+            return;
+          }
           html.style.scrollSnapType = prevSnap;
           isSnapping = false;
           wheelDelta = 0;
-        }, duration);
+        };
+        setTimeout(release, duration);
       }
 
       function onWheel(e: WheelEvent) {
@@ -180,6 +190,7 @@ export function WipeTransitions() {
         // gesture can't bleed across boundaries (e.g. about→categories
         // momentum triggering categories→featured wipe mid-flight).
         e.preventDefault();
+        lastInputTs = performance.now(); // track momentum, even while snapping
         if (isSnapping) return;
         wheelDelta += e.deltaY;
         clearTimeout(wheelTimer);
@@ -197,6 +208,7 @@ export function WipeTransitions() {
         const t = e.target as HTMLElement | null;
         if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
         e.preventDefault();
+        lastInputTs = performance.now();
       }
       function onTouchEnd(e: TouchEvent) {
         if (isSnapping) return;

@@ -20,8 +20,7 @@ export default async function ResidencesPage() {
       <div className={reveal.above}>
         <CategoryHero
           category="Properties"
-          headline={"Design &\nInvestment."}
-          tagline="curated real estate."
+          headline="Properties"
           imageSrc="/images/residences-cover.jpg"
         />
         <ResidencesGrid projects={projects} categories={categoryLabels} />

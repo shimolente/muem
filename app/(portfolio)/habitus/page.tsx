@@ -23,8 +23,7 @@ export default async function HabitusPage() {
       <div className={reveal.above}>
         <CategoryHero
           category="Lifestyle"
-          headline={"Your Own Space,\nThe Way You Want"}
-          tagline="our collections."
+          headline="Lifestyle"
           imageSrc="/images/habitus-cover.jpg"
         />
         <FurnitureGrid items={items} categories={categoryLabels} />

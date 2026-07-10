@@ -301,8 +301,8 @@ export function StudioGrid({ projects, categories, initialCategory }: StudioGrid
                   onClick={() => setLimit(l => l + 3)}
                   aria-label="Load more projects"
                 >
-                  <span className={styles.loadMoreLabel}>Load more</span>
                   <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
+                  <span className={styles.loadMoreLabel}>Load more</span>
                 </button>
               )}
             </>

@@ -346,8 +346,8 @@ export function FurnitureGrid({ items, categories }: { items: FurnitureItem[]; c
                   onClick={() => setLimit(l => l + 4)}
                   aria-label="Load more items"
                 >
-                  <span className={styles.loadMoreLabel}>Load more</span>
                   <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
+                  <span className={styles.loadMoreLabel}>Load more</span>
                 </button>
               )}
             </>

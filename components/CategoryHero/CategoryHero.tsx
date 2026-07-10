@@ -11,16 +11,12 @@ export interface CategoryHeroProps {
   category: string;
   /** Headline text — use \n to split into separate animated lines */
   headline: string;
-  /** Supporting tagline below the headline */
-  tagline:  string;
   /** Absolute path to the hero background image */
   imageSrc: string;
 }
 
-export function CategoryHero({ category, headline, tagline, imageSrc }: CategoryHeroProps) {
+export function CategoryHero({ category, headline, imageSrc }: CategoryHeroProps) {
   const sectionRef  = useRef<HTMLElement>(null);
-  const pillRef     = useRef<HTMLDivElement>(null);
-  const taglineRef  = useRef<HTMLParagraphElement>(null);
   const linesRef    = useRef<HTMLSpanElement[]>([]);
   const arrowRef    = useRef<HTMLDivElement>(null);
 
@@ -50,24 +46,20 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
 
   /* ── GSAP entrance — runs once on mount ──────────────────────────────── */
   useEffect(() => {
-    const pill    = pillRef.current;
-    const tag     = taglineRef.current;
     const lines   = linesRef.current.filter(Boolean);
-    if (!pill || !tag || lines.length === 0) return;
+    if (lines.length === 0) return;
 
     /* Double rAF: ensure Next.js has committed styles before GSAP reads them */
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-        tl.fromTo(pill,  { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7 }, 0.1)
-          .fromTo(
+        tl.fromTo(
             lines,
             { opacity: 0, y: 44 },
             { opacity: 1, y: 0,  duration: 1.0, stagger: 0.12 },
             0.3,
           )
-          .fromTo(tag,   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, 0.65)
           .fromTo(arrowRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6 }, 0.9);
 
         // Bounce loop
@@ -108,11 +100,6 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
 
       {/* Centered content */}
       <div className={styles.content}>
-        {/* Category label */}
-        <div ref={pillRef} className={styles.categoryLabel}>
-          {category}
-        </div>
-
         {/* Headline */}
         <h1 className={styles.headline}>
           {lines.map((line, i) => (
@@ -136,11 +123,6 @@ export function CategoryHero({ category, headline, tagline, imageSrc }: Category
             </span>
           ))}
         </h1>
-
-        {/* Tagline */}
-        <p ref={taglineRef} className={styles.tagline}>
-          {tagline}
-        </p>
       </div>
 
       {/* Scroll arrow — centred at bottom */}

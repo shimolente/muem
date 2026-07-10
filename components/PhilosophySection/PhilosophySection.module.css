@@ -53,9 +53,9 @@
 .heading {
   font-family: var(--font-title);
   font-weight: var(--title-weight);
-  font-size: clamp(52px, 5.2vw, 84px);
+  font-size: clamp(36px, 4.5vw, 76px);
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.01em;
   color: var(--color-warm-dark);
   margin-bottom: clamp(18px, 2.5vh, 32px);
   will-change: transform, opacity;
@@ -232,7 +232,7 @@
     font-weight: var(--title-weight);
     font-size: clamp(28px, 8vw, 40px);
     line-height: 1;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.01em;
     color: var(--color-warm-dark);
     margin: 0;
   }

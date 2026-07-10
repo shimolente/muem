@@ -283,8 +283,8 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
                 onClick={() => setLimit(l => l + 3)}
                 aria-label="Load more properties"
               >
-                <span className={styles.loadMoreLabel}>Load more</span>
                 <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
+                <span className={styles.loadMoreLabel}>Load more</span>
               </button>
             )}
           </>

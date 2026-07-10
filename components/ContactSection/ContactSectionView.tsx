@@ -142,7 +142,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
       // counter finishes and the drop animation in onComplete kicks in.
       if (iconRef.current) {
         const isDesktop = window.matchMedia('(min-width: 769px)').matches;
-        gsap.set(iconRef.current, { opacity: 0, y: isDesktop ? -44 : 0 });
+        gsap.set(iconRef.current, { opacity: 0, y: isDesktop ? -18 : 0 });
       }
     }
 
@@ -173,47 +173,22 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
       className={`${styles.section} ${isPage ? styles.sectionPage : ''}`}
     >
 
-      {/* ── Main content row ─────────────────────────────────────────── */}
-      <div className={styles.mainContent}>
+      {/* ── Centered single-column layout ───────────────────────────── */}
+      <div className={styles.inner}>
 
-        {/* Left: image background + text */}
-        <div className={styles.leftPanel}>
-          {/* Background image */}
-          <div className={styles.leftBg} style={{ backgroundImage: "url('/images/studio-cover.jpg')" }} />
-          {/* Dark gradient overlay */}
-          <div className={styles.leftGradient} />
-
-          {/* Text content — grid: label top · headline dead-centre · tagline bottom */}
-          <div className={styles.leftContent}>
-
-            {/* Row 1 — label, aligned to bottom of row */}
-            <span ref={labelRef} className={styles.sectionLabel}>{t('label')}</span>
-
-            {/* Row 2 — headline, dead centre */}
-            <h2 ref={headlineRef} className={styles.headline}>{t('headline')}</h2>
-
-            {/* Row 3 — tagline, aligned to top of row */}
-            <div ref={taglineRef} className={styles.tagline}>
-              {taglineParagraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-
-            {/* Stat — pinned to bottom via absolute */}
-            <div ref={statRef} className={styles.stat}>
-              <div className={styles.statNumberRow}>
-                <span ref={numRef} className={styles.statNumber}>0</span>
-                <img ref={iconRef} src="/coconut.svg" alt="" className={styles.statIcon} />
-              </div>
-              <span className={styles.statLabel}>{t('coconutsLabel')}</span>
-            </div>
-
+        {/* Header — eyebrow · headline · tagline, dead-centre */}
+        <div className={styles.header}>
+          <span ref={labelRef} className={styles.sectionLabel}>{t('label')}</span>
+          <h2 ref={headlineRef} className={styles.headline}>{t('headline')}</h2>
+          <div ref={taglineRef} className={styles.tagline}>
+            {taglineParagraphs.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
           </div>
         </div>
 
-        {/* Right: form */}
-        <div className={styles.rightPanel}>
-          <form
+        {/* Form */}
+        <form
             ref={formRef}
             className={styles.form}
             onSubmit={(e) => {
@@ -257,8 +232,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
             }}
           >
 
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}></label>
+            <div className={styles.formRow}>
               <input
                 name="name"
                 type="text"
@@ -268,50 +242,39 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
                 required
                 disabled={isPending}
               />
-            </div>
-
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}></label>
               <input
                 name="email"
                 type="email"
                 className={styles.input}
-                placeholder="Your email address"
+                placeholder="Email address"
                 autoComplete="email"
                 required
                 disabled={isPending}
               />
             </div>
 
-
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}></label>
-              <div className={styles.selectWrapper}>
-                <select name="lookingFor" className={styles.select} defaultValue="" required disabled={isPending}>
-                  <option value="" disabled>{t('lookingFor')}</option>
-                  {CONTACT.needs.map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
+            <div className={styles.selectWrapper}>
+              <select name="lookingFor" className={styles.select} defaultValue="" required disabled={isPending}>
+                <option value="" disabled>{t('lookingFor')}</option>
+                {CONTACT.needs.map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </div>
 
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}></label>
-              <textarea
-                name="message"
-                className={styles.textarea}
-                placeholder="Tell us about your project..."
-                rows={3}
-                required
-                disabled={isPending}
-              />
-            </div>
+            <textarea
+              name="message"
+              className={styles.textarea}
+              placeholder="Tell us about your project..."
+              rows={3}
+              required
+              disabled={isPending}
+            />
 
             <label className={styles.consentLabel}>
               <input type="checkbox" className={styles.consentCheckbox} required disabled={isPending} />
               <span className={styles.consentText}>
-                I consent to my data being stored to process this inquiry. It will not be used for commercial purposes.
+                I consent to the use of my data for this inquiry only.
               </span>
             </label>
 
@@ -329,13 +292,14 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
               </p>
             )}
 
-          </form>
+        </form>
 
-          {/* Social icons — pinned to bottom, aligned with the coconut stat */}
-          <div className={styles.socialRow}>
-            {socials.map(s => (
+        {/* Social row — icon + label, centred with divider */}
+        <div className={styles.socialRow}>
+          {socials.map((s, i) => (
+            <span key={s.label} className={styles.socialItem}>
+              {i > 0 && <span className={styles.socialSep} aria-hidden="true">|</span>}
               <a
-                key={s.label}
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -343,20 +307,29 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
                 aria-label={s.label}
               >
                 <SocialGlyph label={s.label} />
+                <span className={styles.socialLabel}>{s.label}</span>
               </a>
-            ))}
-          </div>
-
-          {/* Cookie + copyright — bottom of right column */}
-          <div className={styles.rightMeta}>
-            <a href="/cookie-policy" className={styles.metaLink}>Cookie Policy</a>
-            <span className={styles.metaSep}>·</span>
-            <span className={styles.metaCopyright}>© {year} Muem Studio</span>
-            <span id="footer-cta" className={styles.footerCtaTarget} aria-hidden="true" />
-          </div>
-
+            </span>
+          ))}
         </div>
 
+        {/* Coconut counter */}
+        <div ref={statRef} className={styles.stat}>
+          <img ref={iconRef} src="/coconut.svg" alt="" className={styles.statIcon} />
+          <span ref={numRef} className={styles.statNumber}>0</span>
+          <span className={styles.statLabel}>{t('coconutsLabel')}</span>
+        </div>
+
+      </div>
+
+      {/* Cookie + copyright — pinned to the very bottom of the section.
+          Kept OUTSIDE .inner so .inner's transform can't become its containing
+          block (which would drag it up onto the coconut). */}
+      <div className={styles.rightMeta}>
+        <a href="/cookie-policy" className={styles.metaLink}>Cookie Policy</a>
+        <span className={styles.metaSep}>·</span>
+        <span className={styles.metaCopyright}>© {year} Muem Studio</span>
+        <span id="footer-cta" className={styles.footerCtaTarget} aria-hidden="true" />
       </div>
 
       {/* Invisible anchor — triggers FloatingCTA snap on scroll ─────── */}

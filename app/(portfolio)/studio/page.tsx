@@ -29,8 +29,7 @@ export default async function StudioPage({ searchParams }: StudioPageProps) {
       <div className={reveal.above}>
         <CategoryHero
           category="Studio"
-          headline={"From Concept\nto Reality"}
-          tagline="our projects."
+          headline="Studio"
           imageSrc="/images/studio-cover.jpg"
         />
         <StudioGrid projects={projects} categories={categoryLabels} initialCategory={initialCategory} />

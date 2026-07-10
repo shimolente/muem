@@ -21,9 +21,8 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  /* Rounded top so the stripe "ends smooth" at the top with a little break,
-     instead of a hard rectangular edge. Bottom stays square (flush). */
-  border-radius: clamp(10px, 1.4vw, 22px) clamp(10px, 1.4vw, 22px) 0 0;
+  /* Sharp edges — the revealed image fills the column as a clean rectangle. */
+  border-radius: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -60,12 +59,13 @@
   pointer-events: none;
 }
 
-/* ── Curtain (sits above image inside clip, lifts/drops to reveal/cover) ──
-   Extends 400px above + below column so rounded corners (max 400px radius)
-   live entirely in the offscreen extension — image never leaks at corners. */
+/* ── Curtain (sits above image inside clip, slides up to reveal/cover) ──
+   Extends 500px above + below column so the rounded dome edge (arch < 500)
+   lives entirely in the offscreen extension — image never leaks before hover.
+   Must stay in sync with CURTAIN_EXT in CategoriesSection.tsx. */
 .curtain {
   position: absolute;
-  inset: -400px 0;
+  inset: -500px 0;
   background: var(--color-off-white);
   z-index: 1;
   will-change: transform;

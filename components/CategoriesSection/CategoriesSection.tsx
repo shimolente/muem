@@ -73,41 +73,47 @@ export function CategoriesSection() {
     const origin = getOrigin(id);
     if (origin === 'left')  setNavLogoLight(true);
     if (origin === 'right') setNavHamburgerLight(true);
-    // Image stays put. Curtain lifts off the top to reveal it.
-    // Pixel-based translate so motion distance matches column height regardless
-    // of curtain's extended height (column + 800px from the -400px insets).
+    // Image stays put. The curtain covers it and slides UP to reveal. Its
+    // leading (bottom) edge is a rounded dome while travelling; as it reaches
+    // the top the dome height eases to 0, so the image settles into a full,
+    // SHARP rectangle. Position eases out (glide + settle); the flatten happens
+    // late so it "slowly becomes sharp" only near the final position.
+    // CURTAIN_EXT must match `.curtain` inset in the CSS module. The dome peak
+    // stays below the column at rest (arch < CURTAIN_EXT) so the image never
+    // pokes through before hover.
+    const CURTAIN_EXT = 500;
     const colHeight = clip.offsetHeight;
-    const liftDist  = colHeight + 500; // overshoot so curtain clears the extension
-    gsap.set(clip, { y: '0%' });
-    // Convex reveal edge: the curtain's bottom edge domes UP at the centre
-    // (quadratic curve via clip-path), so the image is uncovered centre-first —
-    // a convex wipe. (border-radius can only round corners → concave; clip-path
-    // is set inline so it bypasses the build's CSS minifier entirely.) At idle
-    // the dome lives in the -400px bottom extension, so the column stays covered.
+    const liftDist  = colHeight + CURTAIN_EXT + 100; // clears the extension fully
     const cw = curtain.offsetWidth;
     const ch = curtain.offsetHeight;
-    // Elliptical-arc dome (not a single quadratic — that makes a pointed tip).
-    // rx = half-width, ry = arch height. The arc has vertical tangents where it
-    // meets the sides, so it blends into the column's vertical edges and rounds
-    // smoothly over the top — a rounded arch, not a sharp point.
-    const arch = Math.min(cw * 0.434, 238); // arch height (ry) — 30% less rounded
-    const convexBottom = `path('M0 0 L${cw} 0 L${cw} ${ch} A${cw / 2} ${arch} 0 0 0 0 ${ch} Z')`;
-    gsap.set(curtain, { clipPath: convexBottom, webkitClipPath: convexBottom });
-    gsap.fromTo(curtain,
-      { y: 0 },
-      {
-        y: -liftDist,
-        duration: 1.1,
-        ease: 'power4.out',
-        onComplete: () => {
-          stateRef.current[id] = 'visible';
-          if (pendingRef.current[id] === 'leave') {
-            pendingRef.current[id] = null;
-            runLeave(id);
-          }
-        },
+    const startArch = Math.min(cw * 0.6, 340); // rounded dome, safely < CURTAIN_EXT
+    const applyFrame = (yProg: number, archMul: number) => {
+      const arch = startArch * archMul;
+      const dome = `path('M0 0 L${cw} 0 L${cw} ${ch} A${cw / 2} ${arch} 0 0 0 0 ${ch} Z')`;
+      gsap.set(curtain, { y: -liftDist * yProg, clipPath: dome, webkitClipPath: dome });
+    };
+    gsap.set(clip, { y: '0%' });
+    gsap.killTweensOf(curtain);
+    applyFrame(0, 1); // start: covering, full rounded dome
+    const prog = { t: 0 };
+    gsap.to(prog, {
+      t: 1,
+      duration: 1.0,
+      ease: 'none',
+      onUpdate: () => {
+        const t = prog.t;
+        const yEase   = 1 - Math.pow(1 - t, 3); // easeOutCubic — glide, settle
+        const archMul = 1 - Math.pow(t, 2.5);   // stays rounded, flattens late
+        applyFrame(yEase, archMul);
       },
-    );
+      onComplete: () => {
+        stateRef.current[id] = 'visible';
+        if (pendingRef.current[id] === 'leave') {
+          pendingRef.current[id] = null;
+          runLeave(id);
+        }
+      },
+    });
   }
 
   function runLeave(id: string) {
@@ -115,18 +121,17 @@ export function CategoriesSection() {
     const curtain = curtainRefs.current[id];
     if (!clip || !curtain) return;
     stateRef.current[id] = 'exiting';
-    // Kill in-progress tweens; curtain teleports below column for slide-up cover.
+    // Kill in-progress tweens; the curtain rises UP from below the column to
+    // re-cover it (same upward direction as the reveal). Leading (top) edge is
+    // a rounded ∪ so the cover reads smooth; eased so it settles gently.
     gsap.killTweensOf([clip, curtain]);
     setOverlayIds(prev => { const s = new Set(prev); s.delete(id); return s; });
+    const CURTAIN_EXT = 500;
     const colHeight = clip.offsetHeight;
-    const riseDist  = colHeight + 500; // matches reveal's liftDist
-    // Cover moves UP (like the reveal), but its leading edge is a ∪ — a
-    // DOWNWARD bulge at the centre (not the reveal's ∩ dome). The curtain rises
-    // from below; the centre is covered last, and as the edge passes into the
-    // -400px top extension the ∪ eases out into a flat, full cover.
+    const riseDist  = colHeight + CURTAIN_EXT + 100; // matches reveal's liftDist
     const cw = curtain.offsetWidth;
     const ch = curtain.offsetHeight;
-    const arch = Math.min(cw * 0.434, 238); // 30% less rounded — matches runEnter
+    const arch = Math.min(cw * 0.6, 340); // matches runEnter's dome
     const concaveTop = `path('M0 0 A${cw / 2} ${arch} 0 0 0 ${cw} 0 L${cw} ${ch} L0 ${ch} Z')`;
     gsap.set(curtain, { clipPath: concaveTop, webkitClipPath: concaveTop });
     gsap.fromTo(curtain,

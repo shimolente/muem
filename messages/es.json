@@ -16,7 +16,7 @@
     "closeMenu": "Cerrar menú"
   },
   "about": {
-    "headline": "Menos palabras.\nMás diseño."
+    "headline": "Menos palabras\nMás diseño"
   },
   "categories": {
     "create":     "Crear",
@@ -41,11 +41,11 @@
   "contact": {
     "label":          "Contáctanos",
     "headline":       "Creemos juntos",
-    "tagline":        "¿Buscas un socio para tu próximo proyecto?\n\nHablemos de tus ideas y cómo convertirlas en algo real — sin complicarlo. El coco también ayuda.",
+    "tagline":        "Hablemos de tus ideas y cómo convertirlas en algo real — sin complicarlo. El coco también ayuda.",
     "lookingFor":     "Estoy buscando:",
     "send":           "Enviar mensaje",
     "sending":        "Enviando…",
-    "coconutsLabel":  "Cocos compartidos con clientes"
+    "coconutsLabel":  "Cocos y contando"
   },
   "footer": {
     "studio":        "Estudio",

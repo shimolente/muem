@@ -16,7 +16,7 @@
     "closeMenu": "Close menu"
   },
   "about": {
-    "headline": "Less talk.\nMore design."
+    "headline": "Less talk\nMore design"
   },
   "categories": {
     "create":     "Create",
@@ -41,11 +41,11 @@
   "contact": {
     "label":          "Get in touch",
     "headline":       "Let's create together",
-    "tagline":        "Looking for a partner for your next project?\n\nLet's discuss your ideas and how to turn them into something real — without overcomplicating it. Coconut helps too.",
+    "tagline":        "Let's discuss your ideas and how to turn them into something real — without overcomplicating it. Coconut helps too.",
     "lookingFor":     "Looking for:",
     "send":           "Send Message",
     "sending":        "Sending…",
-    "coconutsLabel":  "Coconuts shared with clients"
+    "coconutsLabel":  "Coconuts and counting"
   },
   "footer": {
     "studio":        "Studio",

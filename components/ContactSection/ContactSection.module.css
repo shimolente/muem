@@ -1,92 +1,50 @@
-/* ── Submit feedback ─────────────────────────────────────────────────────── */
-.submitFeedback {
-  margin-top: 12px;
-  font-size: var(--text-label);
-  line-height: 1.5;
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.72);
-}
-.submitFeedback[data-state="success"] {
-  color: var(--color-success);
-}
-.submitFeedback[data-state="error"] {
-  color: var(--color-error);
-}
+/* ─────────────────────────────────────────────────────────────────────────────
+   Contact — centered single-column layout on a dark surface.
+   Used both as the end-of-page section and as the standalone /contact page.
+───────────────────────────────────────────────────────────────────────────── */
 
-/* ── Section — flex column: main content + footer bar ────────────────────── */
+/* ── Section ─────────────────────────────────────────────────────────────── */
 .section {
   position: relative;
   z-index: 2;
   width: 100%;
-  height: 100svh;
-  min-height: 660px;
-  background: var(--page-bg, var(--color-off-white));
+  min-height: 100svh;
+  background: rgba(var(--overlay-ink), 1);
   display: flex;
   flex-direction: column;
-}
-
-/* Dedicated page variant — fills viewport but can grow if form needs space */
-.sectionPage {
-  height: auto;
-  min-height: 100svh;
-}
-
-/* ── Main content row ─────────────────────────────────────────────────────── */
-.mainContent {
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  min-height: 0;
-}
-
-/* ── Left panel — image bg + text ─────────────────────────────────────────── */
-.leftPanel {
-  width: 50%;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-  display: flex;
   align-items: center;
   justify-content: center;
+  padding: clamp(32px, 4vh, 64px) clamp(24px, 5vw, 64px);
+  box-sizing: border-box;
 }
 
-/* Background image */
-.leftBg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
+/* Dedicated page variant — grows if the form needs more room */
+.sectionPage {
+  height: auto;
 }
 
-/* Dark solid fill — covers image entirely, pure dark panel */
-.leftGradient {
-  position: absolute;
-  inset: 0;
-  background: rgba(var(--overlay-ink), 1);
-}
-
-/* Text content — 3-row grid. Tighter top fr pulls headline/tagline UP from
-   dead-centre so the block sits in the upper-half above the absolute stat */
-.leftContent {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-rows: 0.55fr auto 1.45fr;
-  row-gap: clamp(14px, 2vh, 22px);
-  justify-items: center;
-  text-align: center;
+/* ── Inner column ─────────────────────────────────────────────────────────── */
+.inner {
   width: 100%;
-  height: 100%;
-  padding: clamp(48px, 6vw, 80px);
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(16px, 2.4vh, 26px);
+  /* Nudge the block down so it reads as vertically centred rather than sitting
+     high. Safe now that the footer lives in .section (not affected by this
+     transform's containing block). */
+  transform: translateY(clamp(16px, 4vh, 44px));
 }
 
-/* Label sits at the bottom of its row — closest to headline */
-.sectionLabel { align-self: end; }
-
-/* Tagline sits at the top of its row — closest to headline */
-.tagline      { align-self: start; }
-
-/* copyBlock removed — label/headline/tagline are direct grid children */
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1vh, 12px);
+}
 
 .sectionLabel {
   font-family: var(--eyebrow-font);
@@ -94,17 +52,17 @@
   font-weight: var(--eyebrow-weight);
   letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55); /* dark-bg section keeps white eyebrow */
+  color: rgba(255, 255, 255, 0.5);
   line-height: 1;
   will-change: transform, opacity;
 }
 
 .headline {
   font-family: var(--font-title);
-  font-weight: 400;
-  font-size: clamp(32px, 3.8vw, 60px);
-  line-height: 1.06;
-  letter-spacing: -0.03em;
+  font-weight: var(--title-weight);
+  font-size: clamp(38px, 4.8vw, 72px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
   color: var(--color-white);
   margin: 0;
   will-change: transform, opacity;
@@ -113,131 +71,52 @@
 .tagline {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2vh, 22px);
+  gap: clamp(6px, 1vh, 10px);
+  max-width: 46ch;
   will-change: transform, opacity;
 }
 
 .tagline p {
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: var(--text-body);
   font-weight: 400;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.65);
-  max-width: 38ch;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
-}
-
-/* Counter stat — pinned to bottom of panel */
-.stat {
-  position: absolute;
-  bottom: clamp(40px, 6vh, 72px);
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  will-change: transform, opacity;
-}
-
-/* Number + coconut icon — row, icon to right of number */
-.statNumberRow {
-  display: flex;
-  align-items: center;
-  gap: clamp(10px, 1vw, 18px);
-}
-
-.statIcon {
-  width:  clamp(36px, 3.6vw, 56px);
-  height: clamp(36px, 3.6vw, 56px);
-  display: block;
-  /* Hidden until the counter completes and the drop animation runs —
-     keeps the icon from popping in at its final spot during entrance. */
-  opacity: 0;
-  filter: brightness(0) invert(1) opacity(0.85);
-}
-
-.statNumber {
-  font-family: var(--font-title);
-  font-weight: 400;
-  font-size: clamp(48px, 5vw, 80px);
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: var(--color-white);
-}
-
-.statLabel {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1;
-}
-
-/* ── Right panel ──────────────────────────────────────────────────────────── */
-.rightPanel {
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: clamp(40px, 5vw, 80px) clamp(40px, 5vw, 72px) clamp(40px, 5vw, 80px);
-  background: var(--page-bg, var(--color-off-white));
 }
 
 /* ── Form ─────────────────────────────────────────────────────────────────── */
 .form {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2vh, 22px);
-  will-change: transform, opacity;
+  gap: clamp(10px, 1.5vh, 15px);
   width: 100%;
-  max-width: 38ch;
-  font-size: 18px;
+  /* Extra breathing room below the tagline — drops the form fields slightly. */
+  margin-top: clamp(10px, 2.4vh, 28px);
+  will-change: transform, opacity;
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(12px, 1.4vw, 18px);
-}
-
-.fieldGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.fieldLabel {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.62);
-  line-height: 1;
-  text-align: center;
+  gap: clamp(12px, 1.6vh, 16px);
 }
 
 /* Shared input / textarea / select */
 .input,
 .textarea,
 .select {
-  background: var(--page-input-bg, #EAE5E1);
-  border: none;
-  box-shadow: 0 2px 10px rgba(var(--page-fg-rgb, var(--c-warm)), 0.00);
-  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 16px 20px;
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 400;
-  color: var(--page-fg, var(--color-warm-dark));
+  color: var(--color-white);
   outline: none;
   width: 100%;
   box-sizing: border-box;
-  transition: box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
   border-radius: 100px;
 }
 
@@ -249,32 +128,33 @@
 
 .input::placeholder,
 .textarea::placeholder {
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .input:focus,
 .textarea:focus,
 .select:focus {
-  border-color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.30);
-  box-shadow: 0 3px 12px rgba(var(--page-fg-rgb, var(--c-warm)), 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Select — custom chevron */
 .selectWrapper {
   position: relative;
+  width: 100%;
 }
 
 .selectWrapper::after {
   content: '';
   position: absolute;
-  right: 20px;
+  right: 22px;
   top: 50%;
   transform: translateY(-50%);
   width: 0;
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
-  border-top: 5px solid rgba(var(--page-fg-rgb, var(--c-warm)), 0.4);
+  border-top: 5px solid rgba(255, 255, 255, 0.5);
   pointer-events: none;
 }
 
@@ -282,13 +162,14 @@
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  padding-right: 40px;
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.75);
+  padding-right: 44px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: left;
 }
 
 .select option {
-  background: var(--page-bg, var(--color-off-white));
-  color: var(--page-fg, var(--color-warm-dark));
+  background: rgba(var(--overlay-ink), 1);
+  color: var(--color-white);
 }
 
 /* Consent checkbox */
@@ -297,6 +178,7 @@
   align-items: flex-start;
   gap: 10px;
   cursor: pointer;
+  text-align: left;
 }
 
 .consentCheckbox {
@@ -305,24 +187,25 @@
   margin-top: 2px;
   flex-shrink: 0;
   cursor: pointer;
-  accent-color: var(--page-fg, var(--color-warm-dark));
+  accent-color: var(--color-white);
 }
 
 .consentText {
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 400;
-  line-height: 1.6;
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.65);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-/* Submit button */
+/* Submit button — full-width cream pill */
 .submitBtn {
-  background: var(--page-button-bg, var(--color-warm-dark));
-  color: var(--page-button-fg, var(--color-off-white));
+  background: var(--color-off-white);
+  color: var(--color-warm-dark);
   border: none;
   border-radius: 100px;
-  padding: 17px 24px;
+  padding: 16px 24px;
+  margin-top: clamp(2px, 0.5vh, 6px);
   font-family: var(--font-body);
   font-size: var(--text-micro);
   font-weight: 500;
@@ -333,36 +216,105 @@
   width: 100%;
   line-height: 1;
 }
-.submitBtn:hover { opacity: 0.75; }
+.submitBtn:hover { opacity: 0.82; }
+.submitBtn:disabled { opacity: 0.6; cursor: default; }
 
-/* Social icons row — pinned at the same vertical centre as the left "Coconuts
-   shared" stat block. Stat block extends ~90px upward from its `bottom: 40-72`,
-   so its visual centre sits ~85-115px from viewport bottom; matching that here. */
+/* ── Submit feedback ─────────────────────────────────────────────────────── */
+.submitFeedback {
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.72);
+}
+.submitFeedback[data-state="success"] { color: var(--color-success); }
+.submitFeedback[data-state="error"]   { color: var(--color-error); }
+
+/* ── Social row — icon + label, centred with divider ─────────────────────── */
 .socialRow {
-  position: absolute;
-  bottom: clamp(60px, 8vh, 95px);
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 80px;
+  gap: clamp(18px, 3vw, 32px);
+}
+
+.socialItem {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(18px, 3vw, 32px);
+}
+
+.socialSep {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+  line-height: 1;
 }
 
 .socialIcon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.5);
+  gap: 9px;
+  color: rgba(255, 255, 255, 0.65);
   text-decoration: none;
   transition: color 0.22s ease;
 }
-.socialIcon:hover { color: var(--page-fg, var(--color-warm-dark)); }
+.socialIcon:hover { color: var(--color-white); }
 
-/* ── Right panel meta — cookie + copyright at bottom of right column ─────── */
+.socialIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.socialLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ── Coconut counter — extra breathing room above, set apart from the form ── */
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: clamp(24px, 4.5vh, 52px);
+  will-change: transform, opacity;
+}
+
+.statIcon {
+  width: clamp(20px, 2vw, 26px);
+  height: clamp(20px, 2vw, 26px);
+  display: block;
+  opacity: 0; /* revealed by GSAP once the counter finishes */
+  filter: brightness(0) invert(1) opacity(0.6);
+}
+
+.statNumber {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-micro);
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1;
+}
+
+.statLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1;
+}
+
+/* ── Cookie + copyright — pinned to the very bottom of the section ────────── */
 .rightMeta {
   position: absolute;
-  bottom: clamp(14px, 2vh, 22px);
+  bottom: clamp(16px, 2.5vh, 28px);
   left: 0;
   right: 0;
   display: flex;
@@ -371,31 +323,23 @@
   gap: 8px;
 }
 
-.metaCopyright {
-  font-family: var(--font-body);
-  font-size: var(--text-micro);
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.4);
-  line-height: 1;
-  white-space: nowrap;
-}
-
+.metaCopyright,
 .metaLink {
   font-family: var(--font-body);
   font-size: var(--text-micro);
   font-weight: 400;
   letter-spacing: 0.06em;
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.4);
-  text-decoration: none;
+  color: rgba(255, 255, 255, 0.35);
   line-height: 1;
-  transition: color 0.22s ease;
+  white-space: nowrap;
+  text-decoration: none;
 }
-.metaLink:hover { color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.7); }
+.metaLink { transition: color 0.22s ease; }
+.metaLink:hover { color: rgba(255, 255, 255, 0.65); }
 
 .metaSep {
   font-size: var(--text-micro);
-  color: rgba(var(--page-fg-rgb, var(--c-warm)), 0.3);
+  color: rgba(255, 255, 255, 0.25);
   line-height: 1;
 }
 
@@ -418,84 +362,25 @@
 /* ── Mobile (≤768 px) ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section {
-    height: auto;
-    min-height: unset;
+    padding: clamp(56px, 8vh, 88px) 22px calc(clamp(40px, 6vh, 64px) + env(safe-area-inset-bottom));
+    min-height: 100svh;
+    /* Let content flow from the top and grow past the viewport if needed —
+       native scroll handles the overflow (no snap on mobile). */
+    justify-content: flex-start;
   }
 
-  .mainContent {
-    flex-direction: column;
-  }
-
-  /* Left panel — full width, content flows naturally, stat in flow at bottom */
-  .leftPanel {
-    width: 100%;
-    min-height: unset;
-    padding: 56px 24px 40px;
-  }
-
-  /* Reset desktop grid — flex column, stat sits at end naturally */
-  .leftContent {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 22px;
-    padding: 0;
-    height: auto;
-  }
-
-  .headline {
-    font-size: clamp(30px, 8vw, 44px);
-  }
-
-  .tagline p {
-    font-size: 15px;
-    max-width: 100%;
-  }
-
-  /* Stat — out of absolute, flows in column */
-  .stat {
-    position: static;
-    margin-top: 16px;
-  }
-
-  .statNumberRow {
-    gap: 14px;
-  }
-
-  .statNumber {
-    font-size: clamp(54px, 16vw, 80px);
-  }
-
-  .statIcon {
-    width:  clamp(38px, 10vw, 52px);
-    height: clamp(38px, 10vw, 52px);
-  }
-
-  /* Right panel — full width, socials + meta flow naturally below form */
-  .rightPanel {
-    width: 100%;
-    padding: 32px 22px 24px;
-    align-items: stretch;
-    gap: 24px;
-  }
-
-  .form {
-    max-width: 100%;
-  }
+  /* No downward nudge on mobile — content flows naturally. */
+  .inner { transform: none; }
 
   .formRow { grid-template-columns: 1fr; }
 
-  .socialRow {
-    position: static;
-    bottom: auto;
-    gap: 56px;
-    padding-top: 8px;
-  }
+  .socialRow { gap: 18px; }
+  .socialItem { gap: 18px; }
 
+  /* Footer flows after the coconut with clear separation instead of being
+     pinned to the bottom (which clashed with the coconut on short screens). */
   .rightMeta {
     position: static;
-    bottom: auto;
+    margin-top: clamp(28px, 6vh, 48px);
   }
-
-  .sectionLabel { align-self: center; }
 }

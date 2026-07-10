@@ -147,10 +147,10 @@
 /* Tier 2 — display name — middle auto row = dead center */
 .textTitle {
   font-family: var(--font-title);
-  font-weight: 400;
-  font-size: 64px;
+  font-weight: var(--title-weight);
+  font-size: clamp(36px, 4.5vw, 76px);
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
   color: var(--color-warm-dark);
   margin: 0;
 }
