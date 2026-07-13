@@ -49,6 +49,19 @@ export function WipeTransitions() {
       let touchStartY = 0;
       let cooldownUntil = 0; // swallow inertia until this timestamp after a snap
 
+      // Let native scroll through only when the hovered field actually has
+      // scrollable content of its own (a tall textarea, or an explicit
+      // opt-out). A single-line input/select has nothing to scroll internally,
+      // so hijacking still needs to fire there — otherwise wheeling with the
+      // cursor merely resting over a form field silently skips the section
+      // wipe and falls back to plain native scroll.
+      function wantsNativeScroll(target: HTMLElement | null): boolean {
+        const el = target?.closest<HTMLElement>('input,select,textarea,[data-allow-scroll]');
+        if (!el) return false;
+        if (el.matches('[data-allow-scroll]')) return true;
+        return el.scrollHeight > el.clientHeight;
+      }
+
       function currentIndex() {
         const sections = getSections();
         return sections.reduce(
@@ -185,7 +198,7 @@ export function WipeTransitions() {
 
       function onWheel(e: WheelEvent) {
         const t = e.target as HTMLElement | null;
-        if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+        if (wantsNativeScroll(t)) return;
         // Always intercept — even for EXCLUDE'd transitions — so a single
         // gesture can't bleed across boundaries (e.g. about→categories
         // momentum triggering categories→featured wipe mid-flight).
@@ -212,7 +225,7 @@ export function WipeTransitions() {
       }
       function onTouchMove(e: TouchEvent) {
         const t = e.target as HTMLElement | null;
-        if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
+        if (wantsNativeScroll(t)) return;
         e.preventDefault();
       }
       function onTouchEnd(e: TouchEvent) {
