@@ -20,6 +20,15 @@ const nextConfig: NextConfig = {
       { protocol: 'https' as const, hostname: '**.supabase.co', pathname: '/storage/v1/object/public/**' },
     ],
   },
+  // Furniture is not launched — funnel every furniture URL to the coming-soon
+  // page at the edge (true 308, no page render/flash). Remove these two rules
+  // when the collection ships to restore /furniture and /furniture/[slug].
+  async redirects() {
+    return [
+      { source: '/furniture', destination: '/habitus', permanent: false },
+      { source: '/furniture/:slug*', destination: '/habitus', permanent: false },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

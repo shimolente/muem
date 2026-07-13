@@ -35,7 +35,12 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
 
     return (['Residential', 'Hospitality', 'Commercial'] as const).map((dbCat) => {
       const meta = META[dbCat];
-      const inCat = slots.filter((s) => s.category === dbCat && s.project.deletedAt === null);
+      const inCat = slots.filter(
+        (s) =>
+          s.category === dbCat &&
+          s.project.deletedAt === null &&
+          s.project.publishedAt !== null, // never surface drafts/unpublished on the public homepage
+      );
       return {
         id:      meta.id,
         label:   'Featured projects',

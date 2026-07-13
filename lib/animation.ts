@@ -28,6 +28,9 @@ export function revealUp(
   targets: gsap.TweenTarget,
   vars: gsap.TweenVars = {},
 ): gsap.core.Tween {
+  if (prefersReducedMotion()) {
+    return gsap.set(targets, { opacity: 1, y: 0, borderRadius: '0px' }) as gsap.core.Tween;
+  }
   return gsap.fromTo(
     targets,
     { opacity: 0, y: 40, borderRadius: ENTER_RADIUS },
@@ -50,6 +53,9 @@ export function revealFade(
   targets: gsap.TweenTarget,
   vars: gsap.TweenVars = {},
 ): gsap.core.Tween {
+  if (prefersReducedMotion()) {
+    return gsap.set(targets, { opacity: 1, scale: 1, borderRadius: '0px' }) as gsap.core.Tween;
+  }
   return gsap.fromTo(
     targets,
     { opacity: 0, scale: 0.96, borderRadius: ENTER_RADIUS },
@@ -70,4 +76,14 @@ export function revealFade(
  */
 export function setHidden(targets: gsap.TweenTarget): void {
   gsap.set(targets, { opacity: 0, y: 40, borderRadius: ENTER_RADIUS });
+}
+
+/**
+ * True when the user has asked the OS to reduce motion. Use to skip GSAP
+ * entrances/loops and jump straight to the final visible state. SSR-safe
+ * (returns false when `window`/`matchMedia` are unavailable).
+ */
+export function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

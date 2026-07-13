@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { useUIStore } from '@/store/ui';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './ComingSoon.module.css';
 
 export interface ComingSoonProps {
@@ -36,6 +37,7 @@ export function ComingSoon({ eyebrow, title, imageSrc }: ComingSoonProps) {
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
+    if (prefersReducedMotion()) return; // content is visible by default; skip motion
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         gsap.fromTo(
@@ -52,7 +54,7 @@ export function ComingSoon({ eyebrow, title, imageSrc }: ComingSoonProps) {
       <div className={styles.bg}>
         <Image
           src={imageSrc}
-          alt={title}
+          alt=""
           fill
           priority
           sizes="100vw"

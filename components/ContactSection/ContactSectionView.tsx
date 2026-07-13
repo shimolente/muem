@@ -43,6 +43,7 @@ interface ContactSectionViewProps {
 export function ContactSectionView({ isPage = false, socials, coconuts }: ContactSectionViewProps) {
   const t = useTranslations('contact');
   const sectionRef  = useRef<HTMLElement>(null);
+  const innerRef    = useRef<HTMLDivElement>(null);
   const hasEntered  = useRef(false);
 
   const labelRef    = useRef<HTMLSpanElement>(null);
@@ -93,12 +94,35 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
 
     const leftEls = [labelRef.current, headlineRef.current, taglineRef.current, statRef.current].filter(Boolean);
 
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Reduced motion: show the finished section immediately — no entrance, no
+    // wipe, no count-up (jump the coconut counter straight to its final value).
+    if (reduced) {
+      gsap.set(leftEls,         { opacity: 1, y: 0 });
+      gsap.set(formRef.current, { opacity: 1, y: 0 });
+      if (numRef.current)  numRef.current.textContent = coconuts.toString();
+      if (iconRef.current) gsap.set(iconRef.current, { opacity: 1, y: 0 });
+      return;
+    }
+
     gsap.set(leftEls,         { opacity: 0, y: 16 });
     gsap.set(formRef.current, { opacity: 0, y: 20 });
+
+    // Clip-path curtain reveal on scroll entry — the content column wipes up
+    // "from underneath". We clip the INNER content, never the .section itself:
+    // the section keeps its opaque dark background at all times, so the page's
+    // position:fixed CategoryHero (which sits behind everything) can never bleed
+    // through mid-reveal. Skipped on the standalone /contact page (isPage) and
+    // on the snap homepage (WipeTransitions owns the curtain there).
+    const onSnapHome = document.documentElement.classList.contains('snap-scroll');
+    const useWipe = !isPage && !onSnapHome;
+    if (useWipe) innerRef.current?.classList.add(styles.wipeInit);
 
     function runEntrance() {
       if (hasEntered.current) return;
       hasEntered.current = true;
+      if (useWipe) innerRef.current?.classList.add(styles.wipeRevealed);
 
       gsap.to(leftEls, {
         opacity: 1, y: 0,
@@ -156,7 +180,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
       ([entry]) => {
         if (entry.isIntersecting) { runEntrance(); obs.disconnect(); }
       },
-      { threshold: 0.2 },
+      { threshold: 0.15 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -174,12 +198,16 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
     >
 
       {/* ── Centered single-column layout ───────────────────────────── */}
-      <div className={styles.inner}>
+      <div ref={innerRef} className={styles.inner}>
 
         {/* Header — eyebrow · headline · tagline, dead-centre */}
         <div className={styles.header}>
           <span ref={labelRef} className={styles.sectionLabel}>{t('label')}</span>
-          <h2 ref={headlineRef} className={styles.headline}>{t('headline')}</h2>
+          {isPage ? (
+            <h1 ref={headlineRef} className={styles.headline}>{t('headline')}</h1>
+          ) : (
+            <h2 ref={headlineRef} className={styles.headline}>{t('headline')}</h2>
+          )}
           <div ref={taglineRef} className={styles.tagline}>
             {taglineParagraphs.map((p, i) => (
               <p key={i}>{p}</p>
@@ -238,6 +266,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
                 type="text"
                 className={styles.input}
                 placeholder="Your name"
+                aria-label="Your name"
                 autoComplete="name"
                 required
                 disabled={isPending}
@@ -247,6 +276,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
                 type="email"
                 className={styles.input}
                 placeholder="Email address"
+                aria-label="Email address"
                 autoComplete="email"
                 required
                 disabled={isPending}
@@ -254,7 +284,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
             </div>
 
             <div className={styles.selectWrapper}>
-              <select name="lookingFor" className={styles.select} defaultValue="" required disabled={isPending}>
+              <select name="lookingFor" className={styles.select} aria-label={t('lookingFor')} defaultValue="" required disabled={isPending}>
                 <option value="" disabled>{t('lookingFor')}</option>
                 {CONTACT.needs.map(n => (
                   <option key={n} value={n}>{n}</option>
@@ -266,6 +296,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
               name="message"
               className={styles.textarea}
               placeholder="Tell us about your project..."
+              aria-label="Your message"
               rows={3}
               required
               disabled={isPending}

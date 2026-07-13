@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { useTranslations } from 'next-intl';
 import { useUIStore } from '@/store/ui';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './FloatingCTA.module.css';
 
 type State = 'arrow' | 'pill' | 'snapped' | 'hidden';
@@ -34,7 +35,7 @@ export function FloatingCTA() {
     const icon = iconRef.current;
     if (!icon) return;
 
-    if (state === 'arrow' && visible) {
+    if (state === 'arrow' && visible && !prefersReducedMotion()) {
       gsap.to(icon, {
         y: 5,
         duration: 0.75,

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { useUIStore } from '@/store/ui';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './CategoryHero.module.css';
 
 export interface CategoryHeroProps {
@@ -48,6 +49,13 @@ export function CategoryHero({ category, headline, imageSrc }: CategoryHeroProps
   useEffect(() => {
     const lines   = linesRef.current.filter(Boolean);
     if (lines.length === 0) return;
+
+    /* Reduced motion: reveal instantly (headline lines are CSS opacity:0) */
+    if (prefersReducedMotion()) {
+      gsap.set(lines, { opacity: 1, y: 0 });
+      if (arrowRef.current) gsap.set(arrowRef.current, { opacity: 1, y: 0 });
+      return;
+    }
 
     /* Double rAF: ensure Next.js has committed styles before GSAP reads them */
     requestAnimationFrame(() => {

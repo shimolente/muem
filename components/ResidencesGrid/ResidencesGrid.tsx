@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { revealUp } from '@/lib/animation';
+import { revealUp, prefersReducedMotion } from '@/lib/animation';
 import {
   RESIDENCES_INTRO,
   unitsAvailable, isSoldOut,
@@ -207,6 +207,10 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
       `.${styles.processLabel}, .${styles.processHeading}, .${styles.step}, .${styles.processCta}`,
     ));
     if (targets.length === 0) return;
+    if (prefersReducedMotion()) {
+      gsap.set(targets, { opacity: 1, y: 0 });
+      return;
+    }
     gsap.set(targets, { opacity: 0, y: 32 });
     const obs = new IntersectionObserver(
       ([entry]) => {

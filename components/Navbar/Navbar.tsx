@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { NAV_ITEMS, LOGO } from '@/content/nav';
 import { useUIStore } from '@/store/ui';
 import { LocaleToggle } from '@/components/LocaleToggle/LocaleToggle';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './Navbar.module.css';
 
 // Map static nav item href → i18n key in the `nav` namespace. Keeps the
@@ -45,9 +46,16 @@ export function Navbar() {
     const logo      = logoRef.current;
     const items     = itemRefs.current.filter(Boolean);
     const hamburger = hamburgerRef.current;
+    const all       = [logo, ...items, hamburger].filter(Boolean);
+
+    // Reduced motion: show nav immediately, skip the slide/stagger
+    if (prefersReducedMotion()) {
+      gsap.set(all, { opacity: 1, y: 0 });
+      return;
+    }
 
     // Set starting state
-    gsap.set([logo, ...items, hamburger].filter(Boolean), {
+    gsap.set(all, {
       opacity: 0,
       y: -12,
     });

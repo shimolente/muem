@@ -5,7 +5,6 @@ import { StudioGrid }      from '@/components/StudioGrid/StudioGrid';
 import { ContactSection }  from '@/components/ContactSection/ContactSection';
 import { getPublishedStudioProjects, parseCategoryParam } from '@/lib/queries/studio';
 import { getCategories } from '@/lib/queries/categories';
-import reveal from '@/components/ContactReveal/ContactReveal.module.css';
 
 export const metadata: Metadata = { title: 'Studio' };
 export const dynamic  = 'force-dynamic';
@@ -26,18 +25,14 @@ export default async function StudioPage({ searchParams }: StudioPageProps) {
   const categoryLabels = categories.map((c) => c.label);
   return (
     <div data-palette="studio">
-      <div className={reveal.above}>
-        <CategoryHero
-          category="Studio"
-          headline="Studio"
-          imageSrc="/images/studio-cover.jpg"
-        />
-        <StudioGrid projects={projects} categories={categoryLabels} initialCategory={initialCategory} />
-        <ServicesSection navStyle="minimal" />
-      </div>
-      <div className={reveal.target}>
-        <ContactSection />
-      </div>
+      <CategoryHero
+        category="Studio"
+        headline="Studio"
+        imageSrc="/images/studio-cover.jpg"
+      />
+      <StudioGrid projects={projects} categories={categoryLabels} initialCategory={initialCategory} />
+      <ServicesSection navStyle="minimal" />
+      <ContactSection />
     </div>
   );
 }

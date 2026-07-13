@@ -4,8 +4,12 @@ import { useEffect } from 'react';
 import styles from './WipeTransitions.module.css';
 
 const WIPE_MS = 820;
-const WHEEL_THRESHOLD = 34;
+const WHEEL_THRESHOLD = 20;
 const TOUCH_THRESHOLD = 42;
+// After a snap finishes, swallow leftover trackpad inertia for this long so a
+// decaying gesture can't immediately re-cross the threshold and skip a section.
+// Fixed window — unlike the old momentum guard it can't extend indefinitely.
+const INERTIA_COOLDOWN_MS = 260;
 const EXCLUDE = new Set(['hero', 'about', 'footer']);
 
 function freezeHoverInto(clone: HTMLElement, originals: Element[]) {
@@ -43,7 +47,7 @@ export function WipeTransitions() {
       let wheelDelta = 0;
       let wheelTimer: ReturnType<typeof setTimeout> | undefined;
       let touchStartY = 0;
-      let lastInputTs = 0; // timestamp of the most recent wheel/touch input
+      let cooldownUntil = 0; // swallow inertia until this timestamp after a snap
 
       function currentIndex() {
         const sections = getSections();
@@ -167,20 +171,16 @@ export function WipeTransitions() {
         });
 
         const duration = skipWipe ? 700 : WIPE_MS + 80;
-        const release = () => {
-          // Don't release the lock while wheel/touch momentum is still flowing —
-          // leftover trackpad inertia would re-cross the threshold and snap a
-          // second time, skipping a section (e.g. hero→about overshooting to
-          // categories). Wait until input has been quiet for a beat.
-          if (performance.now() - lastInputTs < 120) {
-            setTimeout(release, 120);
-            return;
-          }
+        // Release the lock strictly when the transition ends — never extend it
+        // with momentum (that made the page feel stuck for ~1s+ after every
+        // snap). Overshoot from decaying inertia is instead absorbed by a fixed
+        // cooldown window in onWheel, so a deliberate scroll always responds.
+        setTimeout(() => {
           html.style.scrollSnapType = prevSnap;
           isSnapping = false;
           wheelDelta = 0;
-        };
-        setTimeout(release, duration);
+          cooldownUntil = performance.now() + INERTIA_COOLDOWN_MS;
+        }, duration);
       }
 
       function onWheel(e: WheelEvent) {
@@ -190,13 +190,19 @@ export function WipeTransitions() {
         // gesture can't bleed across boundaries (e.g. about→categories
         // momentum triggering categories→featured wipe mid-flight).
         e.preventDefault();
-        lastInputTs = performance.now(); // track momentum, even while snapping
         if (isSnapping) return;
+        // Absorb decaying inertia right after a snap without triggering another.
+        if (performance.now() < cooldownUntil) {
+          wheelDelta = 0;
+          return;
+        }
         wheelDelta += e.deltaY;
         clearTimeout(wheelTimer);
+        // Longer idle reset than before (240ms) so a gentle trackpad scroll has
+        // time to accumulate past the threshold instead of decaying to 0.
         wheelTimer = setTimeout(() => {
           wheelDelta = 0;
-        }, 160);
+        }, 240);
         if (Math.abs(wheelDelta) < WHEEL_THRESHOLD) return;
         snapTo(currentIndex() + Math.sign(wheelDelta));
       }
@@ -208,7 +214,6 @@ export function WipeTransitions() {
         const t = e.target as HTMLElement | null;
         if (t?.closest('input,select,textarea,[data-allow-scroll]')) return;
         e.preventDefault();
-        lastInputTs = performance.now();
       }
       function onTouchEnd(e: TouchEvent) {
         if (isSnapping) return;

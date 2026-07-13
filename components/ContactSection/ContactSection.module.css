@@ -23,6 +23,22 @@
   height: auto;
 }
 
+/* ── Wipe reveal ───────────────────────────────────────────────────────────
+   Clip-path curtain played when the section scrolls into view (820ms,
+   bottom→top), matching the homepage WipeTransitions easing/duration. Applied
+   to the INNER content column — the .section keeps its opaque dark background,
+   so the page's fixed CategoryHero can never bleed through the reveal. Added
+   client-side only on inner pages (see ContactSectionView) — never on the
+   standalone /contact page, the snap homepage, or for reduced-motion users. */
+.wipeInit {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.82s cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: clip-path;
+}
+.wipeInit.wipeRevealed {
+  clip-path: inset(0 0 0 0);
+}
+
 /* ── Inner column ─────────────────────────────────────────────────────────── */
 .inner {
   width: 100%;
