@@ -9,6 +9,8 @@ interface Props {
   /** E.164 phone (e.g. +6281234567890). If absent the CTA is disabled. */
   developerPhone?: string;
   propertyTitle: string;
+  /** Property slug — recorded with the captured lead. */
+  propertySlug: string;
 }
 
 /** Strip non-digits + leading '+' for wa.me URL. */
@@ -16,7 +18,7 @@ function waNumber(raw: string): string {
   return raw.replace(/[^\d]/g, '');
 }
 
-export function DeveloperContactModal({ open, onClose, developerPhone, propertyTitle }: Props) {
+export function DeveloperContactModal({ open, onClose, developerPhone, propertyTitle, propertySlug }: Props) {
   const [name,  setName]  = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -37,7 +39,7 @@ export function DeveloperContactModal({ open, onClose, developerPhone, propertyT
 
   const canSubmit = !!developerPhone;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!developerPhone) {
       setError('Developer contact not available for this property.');
@@ -50,6 +52,24 @@ export function DeveloperContactModal({ open, onClose, developerPhone, propertyT
     if (!/^\S+@\S+\.\S+$/.test(email)) {
       setError('Please enter a valid email.');
       return;
+    }
+
+    // Capture the lead server-side (best-effort — never block the WhatsApp
+    // hand-off if the request fails). Recorded as a DEVELOPER submission.
+    try {
+      await fetch('/api/developer-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          propertySlug,
+          propertyTitle,
+        }),
+      });
+    } catch (err) {
+      console.error('[DeveloperContactModal] lead capture failed', err);
     }
 
     const message = `Hi, I'm ${name.trim()} (email: ${email.trim()}, phone: ${phone.trim()}). I'm interested in ${propertyTitle} — could you share more details?`;

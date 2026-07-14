@@ -16,6 +16,11 @@ interface ContactNotifyParams {
   email:      string;
   lookingFor: string;
   message:    string;
+  /** Present on developer-contact submissions. */
+  phone?:         string;
+  propertyTitle?: string;
+  /** 'developer' tweaks the subject/heading so admins can triage at a glance. */
+  kind?:          'general' | 'developer';
   submittedAt?: Date;
 }
 
@@ -27,15 +32,23 @@ export async function sendContactNotification(p: ContactNotifyParams): Promise<v
   }
 
   const when = (p.submittedAt ?? new Date()).toLocaleString('en-GB', { timeZone: 'Asia/Makassar' });
+  const isDev = p.kind === 'developer';
+  const heading = isDev ? 'New developer-contact request' : 'New inquiry';
+
+  const rows = [
+    `<tr><td style="padding:8px 0;color:#666;width:120px;">Email</td><td><a href="mailto:${escapeHtml(p.email)}">${escapeHtml(p.email)}</a></td></tr>`,
+    p.phone ? `<tr><td style="padding:8px 0;color:#666;">Phone</td><td>${escapeHtml(p.phone)}</td></tr>` : '',
+    p.propertyTitle ? `<tr><td style="padding:8px 0;color:#666;">Property</td><td>${escapeHtml(p.propertyTitle)}</td></tr>` : '',
+    `<tr><td style="padding:8px 0;color:#666;">Looking for</td><td>${escapeHtml(p.lookingFor)}</td></tr>`,
+  ].join('');
 
   const html = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1a1a1a;">
-      <h2 style="margin:0 0 4px;font-size:18px;font-weight:600;">New inquiry from ${escapeHtml(p.name)}</h2>
+      <h2 style="margin:0 0 4px;font-size:18px;font-weight:600;">${heading} from ${escapeHtml(p.name)}</h2>
       <p style="margin:0 0 24px;color:#666;font-size:13px;">${when}</p>
 
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
-        <tr><td style="padding:8px 0;color:#666;width:120px;">Email</td><td><a href="mailto:${escapeHtml(p.email)}">${escapeHtml(p.email)}</a></td></tr>
-        <tr><td style="padding:8px 0;color:#666;">Looking for</td><td>${escapeHtml(p.lookingFor)}</td></tr>
+        ${rows}
       </table>
 
       <h3 style="margin:24px 0 8px;font-size:14px;font-weight:600;">Message</h3>
@@ -47,14 +60,26 @@ export async function sendContactNotification(p: ContactNotifyParams): Promise<v
     </div>
   `;
 
-  const text = `New inquiry from ${p.name}\n\nEmail: ${p.email}\nLooking for: ${p.lookingFor}\n\nMessage:\n${p.message}\n\nSubmitted ${when}`;
+  const text = [
+    `${heading} from ${p.name}`,
+    ``,
+    `Email: ${p.email}`,
+    p.phone ? `Phone: ${p.phone}` : '',
+    p.propertyTitle ? `Property: ${p.propertyTitle}` : '',
+    `Looking for: ${p.lookingFor}`,
+    ``,
+    `Message:`,
+    p.message,
+    ``,
+    `Submitted ${when}`,
+  ].filter(Boolean).join('\n');
 
   try {
     await resend.emails.send({
       from:    `Muem Studio <${FROM}>`,
       to:      NOTIFY,
       replyTo: p.email,
-      subject: `New inquiry — ${p.name} · ${p.lookingFor}`,
+      subject: `${isDev ? 'Developer request' : 'New inquiry'} — ${p.name} · ${p.lookingFor}`,
       html,
       text,
     });

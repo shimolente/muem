@@ -38,6 +38,14 @@ enum CategoryKind {
   FURNITURE
 }
 
+// How a ContactSubmission was created:
+//   GENERAL   → public contact form (/api/contact)
+//   DEVELOPER → "Contact the developer" modal on a property page
+enum SubmissionKind {
+  GENERAL
+  DEVELOPER
+}
+
 // ── Auth (single admin) ────────────────────────────────────────────────────
 model User {
   id           String   @id @default(cuid())
@@ -185,14 +193,21 @@ model SiteSettings {
 
 // ── Contact form submissions ───────────────────────────────────────────────
 model ContactSubmission {
-  id         String    @id @default(cuid())
+  id         String         @id @default(cuid())
+  kind       SubmissionKind @default(GENERAL)
   name       String
   email      String
+  phone      String?        // captured by the developer-contact modal
   lookingFor String
   message    String
-  read       Boolean   @default(false)
+  // Denormalized property reference for DEVELOPER submissions (kept as strings,
+  // like `lookingFor`, so the record survives property renames / soft-deletes).
+  propertySlug  String?
+  propertyTitle String?
+  read       Boolean        @default(false)
   repliedAt  DateTime?
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime       @default(now())
 
   @@index([read, createdAt])
+  @@index([kind, createdAt])
 }

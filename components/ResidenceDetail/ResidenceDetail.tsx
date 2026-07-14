@@ -227,13 +227,6 @@ export function ResidenceDetail({ project, related }: Props) {
             Contact the developer ↗
           </button>
         </div>
-
-        <DeveloperContactModal
-          open={contactOpen}
-          onClose={() => setContactOpen(false)}
-          developerPhone={project.developerPhone}
-          propertyTitle={project.title}
-        />
       </section>
 
       {/* ── Related properties ────────────────────────────────────────── */}
@@ -304,6 +297,17 @@ export function ResidenceDetail({ project, related }: Props) {
 
         </section>
       )}
+
+      {/* Modal lives at the fragment root — NOT inside a section — so its fixed
+          overlay isn't trapped in a section's stacking context (otherwise the
+          later "Similar Properties" section paints over it). */}
+      <DeveloperContactModal
+        open={contactOpen}
+        onClose={() => setContactOpen(false)}
+        developerPhone={project.developerPhone}
+        propertyTitle={project.title}
+        propertySlug={project.id}
+      />
     </>
   );
 }
