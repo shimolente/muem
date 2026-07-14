@@ -129,6 +129,14 @@ export function Navbar() {
     return () => { delete document.body.dataset.navOpen; };
   }, [open]);
 
+  // ── Nav logo hides while the panel is open ─────────────────────────────────
+  // The side panel shows its own logo, so fading the header logo here prevents
+  // two logos on screen at once.
+  useEffect(() => {
+    if (!logoRef.current) return;
+    gsap.to(logoRef.current, { opacity: open ? 0 : 1, duration: 0.3, ease: 'power2.out' });
+  }, [open]);
+
   // ── Mobile panel + backdrop ────────────────────────────────────────────────
   useEffect(() => {
     const panel    = overlayRef.current;
@@ -260,6 +268,16 @@ export function Navbar() {
 
       {/* Side panel — 1/3 width, right edge */}
       <div ref={overlayRef} className={styles.mobileOverlay} style={{ display: 'none' }}>
+        {/* Panel logo — replaces the header logo while open (header logo fades out) */}
+        <Link
+          href={LOGO.href}
+          className={styles.mobileLogo}
+          aria-label={LOGO.alt}
+          data-menu-item
+          onClick={() => setOpen(false)}
+        >
+          <Image src={LOGO.src} alt={LOGO.alt} width={44} height={44} />
+        </Link>
         <nav aria-label="Mobile navigation" className={styles.mobileNav}>
           {NAV_ITEMS.map(item => {
             const keys = NAV_KEY_BY_HREF[item.href];

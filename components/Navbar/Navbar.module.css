@@ -242,8 +242,8 @@
   /* Real blur lives HERE (full-screen, no transform → backdrop-filter works).
      The panel sits on top translucent, so the page reads as blurred-frosted
      through it — the panel itself can't blur (it's transform-animated). */
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
-  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(28px) saturate(130%);
+  backdrop-filter: blur(28px) saturate(130%);
   opacity: 0;
   pointer-events: none;
 }
@@ -291,6 +291,25 @@
 }
 .mobileNavItem:last-child { margin-bottom: 0; }
 .mobileNavItem:hover { opacity: 0.55 !important; }
+/* Extra breathing room above the "Let's Talk" CTA — separates destination
+   links from the primary call-to-action. */
+.mobileNavItem:nth-last-child(2) { margin-bottom: clamp(32px, 6vh, 56px); }
+
+/* Panel logo — sits at the top of the panel, aligned with the header logo's
+   vertical position so it reads as the logo "moving into" the open panel. */
+.mobileLogo {
+  position: absolute;
+  top: var(--space-nav-v);
+  left: clamp(28px, 3vw, 48px);
+  display: flex;
+  align-items: center;
+  opacity: 0; /* GSAP staggers it in with the menu items */
+}
+.mobileLogo img {
+  height: clamp(34px, 3.4vw, 44px);
+  width: auto;
+  filter: brightness(0) invert(1); /* white mark on the dark panel */
+}
 
 .mobileLocale {
   position: absolute;

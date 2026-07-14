@@ -115,6 +115,26 @@
   filter: brightness(0.85);
 }
 
+/* Sold-out — desaturated image + a wash of the page background colour over the
+   card, so it reads as clearly "unavailable" / dimmed out. The wash sits above
+   the image + gradient (z1) but below the text (z2) and badge (z4) so the
+   title stays legible. */
+.cardSold .cardImg {
+  filter: grayscale(85%) brightness(0.92);
+}
+.cardSold:hover .cardImg {
+  filter: grayscale(85%) brightness(0.82);
+}
+.cardSold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--page-bg, var(--color-off-white));
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .cardOverlay {
   position: absolute;
   inset: 0;

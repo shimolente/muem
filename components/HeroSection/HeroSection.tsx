@@ -116,19 +116,9 @@ export function HeroSection() {
         onClick={handleArrow}
         aria-label="Scroll to next section"
       >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={styles.arrowIcon}
-        >
-          <line x1="12" y1="4" x2="12" y2="20" />
-          <polyline points="6 14 12 20 18 14" />
-        </svg>
+        <span className={styles.arrowTrack} aria-hidden="true">
+          <span className={styles.arrowLine} />
+        </span>
       </button>
 
     </section>

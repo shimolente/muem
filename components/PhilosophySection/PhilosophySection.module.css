@@ -34,7 +34,7 @@
   color: var(--eyebrow-color);
   line-height: 1;
   text-align: center;
-  margin-bottom: var(--gap-eyebrow-title);
+  margin-bottom: clamp(18px, 2.8vh, 32px);
   will-change: transform, opacity;
 }
 

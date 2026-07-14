@@ -91,7 +91,7 @@
   font-family: var(--font-title); font-weight: var(--title-weight);
   font-size: var(--text-display);
   line-height: var(--leading-tight);
-  color: var(--color-warm-dark); margin: 0; max-width: 18em;
+  color: var(--page-fg, var(--color-warm-dark)); margin: 0; max-width: 18em;
 }
 
 .introBody {

@@ -61,7 +61,7 @@ function PropertyCard({ project }: { project: ResidenceProject }) {
   return (
     <Link
       href={project.href}
-      className={`${styles.card} ${project.featured ? styles.cardFeatured : ''}`}
+      className={`${styles.card} ${project.featured ? styles.cardFeatured : ''} ${soldOut ? styles.cardSold : ''}`}
     >
       <Image
         src={imageUrl(images[idx], 'md')}
