@@ -257,7 +257,7 @@ export function Navbar() {
         </button>
       </header>
 
-      {/* Backdrop — dims + blurs page behind the panel, click to dismiss */}
+      {/* Backdrop — dims + lightly blurs the page behind the panel, click to dismiss */}
       <div
         ref={backdropRef}
         className={`${styles.mobileBackdrop} ${open ? styles.backdropOpen : ''}`}

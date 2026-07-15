@@ -33,7 +33,7 @@ export function CategoriesSection() {
   const darkOverlayRefs = useRef<Record<string, HTMLDivElement | null>>({});
   // Refs to the actual column hover text — measured for pixel-perfect start positions
   const colLabelRefs = useRef<Record<string, HTMLSpanElement | null>>({});
-  const colNameRefs  = useRef<Record<string, HTMLSpanElement | null>>({});
+  const colNameRefs  = useRef<Record<string, HTMLAnchorElement | null>>({});
 
   const expandedRef      = useRef<HTMLDivElement>(null);
   const sectionRef       = useRef<HTMLElement>(null);
@@ -475,9 +475,14 @@ export function CategoriesSection() {
             <span ref={el => { colLabelRefs.current[cat.id] = el; }} className={styles.label}>
               {CAT_KEYS[cat.id] ? t(CAT_KEYS[cat.id].label) : cat.label}
             </span>
-            <span ref={el => { colNameRefs.current[cat.id] = el; }} className={styles.name}>
+            <a
+              ref={el => { colNameRefs.current[cat.id] = el; }}
+              href={cat.href}
+              className={styles.name}
+              onClick={e => e.stopPropagation()}
+            >
               {CAT_KEYS[cat.id] ? t(CAT_KEYS[cat.id].sub) : cat.name}
-            </span>
+            </a>
           </div>
         ))}
       </section>

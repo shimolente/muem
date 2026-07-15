@@ -316,6 +316,6 @@ main {
   transition: filter 0.4s ease;
 }
 body[data-nav-open="true"] main {
-  filter: blur(10px) brightness(0.92);
+  filter: blur(4.9px) brightness(0.92);
   pointer-events: none;
 }
