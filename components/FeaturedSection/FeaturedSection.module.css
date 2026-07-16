@@ -191,11 +191,11 @@
 .dot::before {
   content: '';
   display: block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
   background: rgba(var(--c-warm), 0.22);
-  transition: background 0.25s ease, width 0.25s ease, height 0.25s ease;
+  transition: background 0.25s ease, width 0.25s ease, height 0.25s ease, border-radius 0.25s ease;
   flex-shrink: 0;
 }
 .dot:hover::before {
@@ -204,9 +204,10 @@
   height: 8px;
 }
 .dotActive::before {
+  width: 18px;
+  height: 6px;
+  border-radius: 100px;
   background: var(--color-warm-dark);
-  width: 7px;
-  height: 7px;
 }
 
 /* ── Per-category layout overrides ───────────────────────────────────────── */
@@ -243,7 +244,7 @@
    Native vertical scroll; the section grows with its content (no nested scroll).
 ───────────────────────────────────────────────────────────────────────────── */
 
-.mobileFeed { display: none; }
+.mobileBento { display: none; }
 
 @media (max-width: 768px) {
   .section {
@@ -256,92 +257,43 @@
   /* Hide desktop bento on mobile */
   .grid { display: none; }
 
-  .mobileFeed {
-    display: block;
+  .mobileBento {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 1.5vw, 10px);
     padding: clamp(72px, 11vh, 104px) 14px calc(28px + env(safe-area-inset-bottom));
   }
 
-  .mobileLabel {
-    display: block;
-    text-align: center;
-    font-family: var(--eyebrow-font);
-    font-size: var(--eyebrow-size);
-    font-weight: var(--eyebrow-weight);
-    letter-spacing: var(--eyebrow-tracking);
-    text-transform: uppercase;
-    color: var(--eyebrow-color);
-    line-height: 1;
+  .mobileBentoRow {
+    display: grid;
+    gap: clamp(6px, 1.5vw, 10px);
   }
+  .mobileBentoWide { grid-template-columns: 1fr; }
+  .mobileBentoPair { grid-template-columns: 1fr 1fr; }
 
-  .mobileTabs {
-    display: flex;
-    justify-content: center;
-    gap: 18px;
-    margin: clamp(30px, 6vh, 48px) 0 22px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .mobileTabs::-webkit-scrollbar { display: none; }
-
-  .mobileTab {
-    flex: 0 0 auto;
-    background: none;
-    border: none;
-    padding: 0 0 5px;
-    cursor: pointer;
-    font-family: var(--font-title);
-    font-weight: 700;
-    font-size: clamp(22px, 6vw, 30px);
-    line-height: 1;
-    letter-spacing: -0.03em;
-    color: rgba(var(--c-warm), 0.32);
-    border-bottom: 2px solid transparent;
-    transition: color 0.25s ease, border-color 0.25s ease;
-  }
-  .mobileTabActive {
-    color: var(--color-warm-dark);
-    border-bottom-color: var(--color-warm-dark);
-  }
-
-  .mobileFeedScroll {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    /* full-bleed edge-to-edge scroll, breaking the 14px wrap padding */
-    margin: 0 -14px;
-    padding: 0 14px;
-  }
-  .mobileFeedScroll::-webkit-scrollbar { display: none; }
-
-  .mobileFeedCard {
+  .mobileCard {
     position: relative;
     display: flex;
     align-items: flex-end;
-    flex: 0 0 78vw;
-    scroll-snap-align: center;
-    height: 60svh;
-    min-height: 300px;
-    border-radius: 6px;
     overflow: hidden;
+    border-radius: 6px;
+    text-decoration: none;
     background-size: cover;
     background-position: center;
     background-color: #b5a898;
-    text-decoration: none;
-    padding: 18px;
+    padding: 14px;
   }
+  .mobileCardWide { aspect-ratio: 16 / 10; }
+  .mobileCardSquare { aspect-ratio: 1 / 1; }
 
-  .mobileFeedOverlay {
+  .mobileCardOverlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(var(--overlay-ink), 0.62) 0%, transparent 52%);
+    background: linear-gradient(to top, rgba(var(--overlay-ink), 0.62) 0%, transparent 55%);
     pointer-events: none;
   }
 
-  .mobileFeedMeta {
+  .mobileCardMeta {
     position: relative;
     z-index: 1;
     display: flex;
@@ -349,22 +301,61 @@
     gap: 3px;
   }
 
-  .mobileFeedLocation {
+  .mobileCardLocation {
     font-family: var(--font-body);
     font-size: 10px;
-    font-weight: 400;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.85);
     line-height: 1;
   }
 
-  .mobileFeedTitle {
+  .mobileCardTitle {
     font-family: var(--font-title);
     font-weight: 400;
-    font-size: 22px;
+    font-size: clamp(16px, 4.5vw, 22px);
     line-height: 1.05;
     letter-spacing: -0.02em;
     color: var(--color-white);
+  }
+
+  .mobileStrip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: clamp(14px, 4vh, 26px) 0;
+  }
+
+  .mobileStripTitle {
+    font-family: var(--font-title);
+    font-weight: var(--title-weight);
+    font-size: clamp(28px, 8vw, 44px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--color-warm-dark);
+    text-align: center;
+  }
+
+  .mobileStripDots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobileStripDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 100px;
+    background: rgba(var(--c-warm), 0.22);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: width 0.25s ease, background 0.25s ease;
+  }
+
+  .mobileStripDotActive {
+    width: 18px;
+    background: var(--color-warm-dark);
   }
 }

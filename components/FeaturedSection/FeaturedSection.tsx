@@ -195,41 +195,77 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
 
   const cat = FEATURED[display];
 
+  // ── Mobile bento — per-category layout driven by mobileCat ─────────
+  // variant 0: top = 1 wide, bottom = 2 squares
+  // variant 1: top = 2 squares, bottom = 1 wide
+  // variant 2 (+ any category index beyond): top = 2 squares, bottom = 2 squares
+  const mCat        = FEATURED[mobileCat];
+  const mProjects   = mCat.projects;
+  const mVariant    = mobileCat >= 2 ? 2 : mobileCat;
+  const topIsPair    = mVariant !== 0;
+  const bottomIsPair = mVariant !== 1;
+  const topCount    = topIsPair ? 2 : 1;
+  const topImages    = mProjects.slice(0, topCount).filter(Boolean);
+  const bottomImages = mProjects.slice(topCount, topCount + (bottomIsPair ? 2 : 1)).filter(Boolean);
+
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
 
-      {/* ── Mobile-only: pinned category tabs + vertical card feed ────── */}
-      <div className={styles.mobileFeed}>
-        <span className={styles.mobileLabel}>{tLabel()}</span>
+      {/* ── Mobile-only: per-category bento with title + dot strip ─────── */}
+      <div className={styles.mobileBento}>
 
-        <div className={styles.mobileTabs} role="tablist" aria-label="Browse categories">
-          {FEATURED.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={i === mobileCat}
-              className={`${styles.mobileTab} ${i === mobileCat ? styles.mobileTabActive : ''}`}
-              onClick={() => setMobileCat(i)}
+        <div className={`${styles.mobileBentoRow} ${topIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
+          {topImages.map(p => (
+            <a
+              key={p.id}
+              href={p.href}
+              className={`${styles.mobileCard} ${topIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
+              style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
+              aria-label={`${p.title} — ${p.location}`}
             >
-              {tName(c.id, c.name)}
-            </button>
-          ))}
-        </div>
-
-        <div className={styles.mobileFeedScroll}>
-          {FEATURED[mobileCat].projects.slice(0, 6).map(p => (
-            <a key={p.id} href={p.href} className={styles.mobileFeedCard}
-               style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
-               aria-label={`${p.title} — ${p.location}`}>
-              <div className={styles.mobileFeedOverlay} />
-              <div className={styles.mobileFeedMeta}>
-                <span className={styles.mobileFeedLocation}>{p.location}</span>
-                <span className={styles.mobileFeedTitle}>{p.title}</span>
+              <div className={styles.mobileCardOverlay} />
+              <div className={styles.mobileCardMeta}>
+                <span className={styles.mobileCardLocation}>{p.location}</span>
+                <span className={styles.mobileCardTitle}>{p.title}</span>
               </div>
             </a>
           ))}
         </div>
+
+        <div className={styles.mobileStrip}>
+          <span className={styles.mobileStripTitle}>{tName(mCat.id, mCat.name)}</span>
+          <div className={styles.mobileStripDots} role="tablist" aria-label="Browse categories">
+            {FEATURED.map((c, i) => (
+              <button
+                key={c.id}
+                role="tab"
+                aria-selected={i === mobileCat}
+                aria-label={`Show ${tName(c.id, c.name)}`}
+                className={`${styles.mobileStripDot} ${i === mobileCat ? styles.mobileStripDotActive : ''}`}
+                onClick={() => setMobileCat(i)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className={`${styles.mobileBentoRow} ${bottomIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
+          {bottomImages.map(p => (
+            <a
+              key={p.id}
+              href={p.href}
+              className={`${styles.mobileCard} ${bottomIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
+              style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
+              aria-label={`${p.title} — ${p.location}`}
+            >
+              <div className={styles.mobileCardOverlay} />
+              <div className={styles.mobileCardMeta}>
+                <span className={styles.mobileCardLocation}>{p.location}</span>
+                <span className={styles.mobileCardTitle}>{p.title}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+
       </div>
 
       <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : cat.id === 'residences' ? styles.gridResidences : ''}`}>

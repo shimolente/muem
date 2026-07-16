@@ -438,7 +438,12 @@
     grid-auto-rows: calc((100vw - 3 * var(--grid-gap)) / 2);
   }
   .cardFeatured { grid-column: span 2; }
-  .filterBarWrap { padding: clamp(12px, 2vh, 18px) 20px; }
+  .filterBarWrap {
+    padding: clamp(12px, 2vh, 18px) 20px;
+    /* Pin below the fixed muem logo instead of on the same line — avoids
+       the pills overlapping the mark on phone widths. */
+    top: calc(var(--space-nav-v) + clamp(44px, 12vw, 60px));
+  }
   /* Pills scroll horizontally on mobile (matches Furniture). */
   .filterBar {
     flex-wrap: nowrap;
@@ -447,6 +452,21 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     gap: 8px;
+    scroll-padding-left: 20px;
+    padding-right: 20px;
+  }
+  .filterBar::-webkit-scrollbar { display: none; }
+  .filterPill { flex-shrink: 0; }
+}
+
+/* Tablet/small-desktop tier — never wrap/crop the pill row; always scroll. */
+@media (max-width: 1024px) {
+  .filterBar {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
   .filterBar::-webkit-scrollbar { display: none; }
   .filterPill { flex-shrink: 0; }

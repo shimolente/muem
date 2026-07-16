@@ -288,15 +288,46 @@
   margin-bottom: clamp(10px, 2.2vh, 22px);
   opacity: 0;
   display: block;
+  position: relative;
   text-decoration: none;
   white-space: nowrap;
   transition: opacity 0.2s ease;
 }
 .mobileNavItem:last-child { margin-bottom: 0; }
-.mobileNavItem:hover { opacity: 0.55 !important; }
+.mobileNavItem:hover .mobileNavLabel { opacity: 0.55; }
 /* Extra breathing room above the "Let's Talk" CTA — separates destination
    links from the primary call-to-action. */
 .mobileNavItem:nth-last-child(2) { margin-bottom: clamp(32px, 6vh, 56px); }
+
+.mobileNavLabel {
+  display: block;
+  line-height: 1.25;
+  transition: opacity 0.2s ease;
+}
+
+/* Sub descriptor — hidden by default, fades/slides in beneath the label on
+   hover without shifting the stacked items (absolutely positioned). */
+.mobileNavSub {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  font-family: var(--font-body);
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-3px);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.mobileNavItem:hover .mobileNavSub {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* Panel logo — sits at the top of the panel, aligned with the header logo's
    vertical position so it reads as the logo "moving into" the open panel. */
@@ -309,7 +340,7 @@
   opacity: 0; /* GSAP staggers it in with the menu items */
 }
 .mobileLogo img {
-  height: clamp(128px, 14vw, 192px);
+  height: clamp(90px, 9.8vw, 134px);
   width: auto;
   filter: brightness(0) invert(1); /* white mark on the dark panel */
   /* The source mark sits inside a square viewBox with ~27% transparent

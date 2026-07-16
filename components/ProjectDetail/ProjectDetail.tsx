@@ -7,6 +7,7 @@ import gsap from 'gsap';
 import { type StudioProject } from '@/content/studio';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
+import { ArrowUpRight } from '@/components/icons/ArrowUpRight';
 import styles from './ProjectDetail.module.css';
 
 interface Props {
@@ -72,7 +73,6 @@ export function ProjectDetail({ project, related }: Props) {
         { opacity: 1, y: 0, stagger: 0.12, duration: 1.0, ease: 'power3.out', delay: 0.15 },
       );
       gsap.fromTo(arrowRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.9, ease: 'power3.out' });
-      gsap.to(arrowRef.current, { y: 6, duration: 0.75, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 1.4 });
     }));
   }, []);
 
@@ -98,7 +98,9 @@ export function ProjectDetail({ project, related }: Props) {
         </div>
 
         {/* Scroll-down arrow — identical to CategoryHero */}
-        <div ref={arrowRef} className={styles.arrow} aria-hidden="true">↓</div>
+        <div ref={arrowRef} className={styles.arrow} aria-hidden="true">
+          <span className={styles.arrowTrack}><span className={styles.arrowLine} /></span>
+        </div>
       </section>
 
       {/* ── Project intro ─────────────────────────────────────────────── */}
@@ -117,7 +119,7 @@ export function ProjectDetail({ project, related }: Props) {
         {[
           { label: 'Building Size', value: project.size     },
           { label: 'Location',      value: project.location },
-          { label: 'Typologies',    value: project.topology },
+          { label: 'Typology',      value: project.topology },
           { label: 'Status',        value: project.status ?? String(project.year) },
         ].map(({ label, value }) => (
           <div key={label} className={styles.infoItem}>
@@ -203,7 +205,7 @@ export function ProjectDetail({ project, related }: Props) {
 
           <div className={styles.relatedCta}>
             <Link href="/studio" className={styles.relatedCtaLink}>
-              Explore all works ↗
+              Explore all works<ArrowUpRight />
             </Link>
           </div>
 

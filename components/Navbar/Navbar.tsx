@@ -289,7 +289,8 @@ export function Navbar() {
                 className={styles.mobileNavItem}
                 onClick={() => setOpen(false)}
               >
-                {keys ? t(keys.label) : item.label}
+                <span className={styles.mobileNavLabel}>{keys ? t(keys.label) : item.label}</span>
+                {keys?.sub && <span className={styles.mobileNavSub}>{t(keys.sub)}</span>}
               </Link>
             );
           })}

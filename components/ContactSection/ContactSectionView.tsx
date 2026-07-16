@@ -48,7 +48,6 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
 
   const labelRef    = useRef<HTMLSpanElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
-  const taglineRef  = useRef<HTMLDivElement>(null);
   const statRef     = useRef<HTMLDivElement>(null);
   const numRef      = useRef<HTMLSpanElement>(null);
   const iconRef     = useRef<HTMLImageElement>(null);
@@ -92,7 +91,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
     const el = sectionRef.current;
     if (!el) return;
 
-    const leftEls = [labelRef.current, headlineRef.current, taglineRef.current, statRef.current].filter(Boolean);
+    const leftEls = [labelRef.current, headlineRef.current, statRef.current].filter(Boolean);
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -188,7 +187,6 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
   }, []);
 
   const year = new Date().getFullYear();
-  const taglineParagraphs = t('tagline').split('\n\n');
 
   return (
     <section
@@ -208,11 +206,6 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
           ) : (
             <h2 ref={headlineRef} className={styles.headline}>{t('headline')}</h2>
           )}
-          <div ref={taglineRef} className={styles.tagline}>
-            {taglineParagraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
         </div>
 
         {/* Form */}
@@ -295,7 +288,7 @@ export function ContactSectionView({ isPage = false, socials, coconuts }: Contac
             <textarea
               name="message"
               className={styles.textarea}
-              placeholder="Tell us about your project..."
+              placeholder="Tell us about your project. We’ll bring the coconuts"
               aria-label="Your message"
               rows={3}
               required

@@ -34,6 +34,10 @@ export function CategoriesSection() {
   // Refs to the actual column hover text — measured for pixel-perfect start positions
   const colLabelRefs = useRef<Record<string, HTMLSpanElement | null>>({});
   const colNameRefs  = useRef<Record<string, HTMLAnchorElement | null>>({});
+  // Ref to the background-image div inside each column's imageClip — used for the
+  // mobile scroll-reveal (imageClip itself is forced to translateY(0) !important
+  // on mobile, so we animate this inner element instead)
+  const hoverImageRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const expandedRef      = useRef<HTMLDivElement>(null);
   const sectionRef       = useRef<HTMLElement>(null);
@@ -231,6 +235,56 @@ export function CategoriesSection() {
     cursorObserver.observe(section);
     return () => { navObserver.disconnect(); cursorObserver.disconnect(); };
   }, [setNavTheme, setNavStyle, setNavLogoSrc, setNavHamburgerLight, setNavLogoLight]);
+
+  /* ── Mobile scroll-reveal — name word → image → subtext, plays once ──
+     Desktop is untouched (guarded out via matchMedia — its hover-curtain
+     reveal owns .imageClip / .curtain entirely). On mobile .imageClip is
+     forced to translateY(0) !important, so we animate the inner
+     .hoverImage div instead. */
+  const mobileRevealPlayedRef = useRef(false);
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ids = CATEGORIES.map(c => c.id);
+
+    ids.forEach(id => {
+      const label      = colLabelRefs.current[id];
+      const hoverImage = hoverImageRefs.current[id];
+      const name       = colNameRefs.current[id];
+      if (label)      gsap.set(label,      { opacity: 0, y: 24 });
+      if (hoverImage) gsap.set(hoverImage, { opacity: 0, y: 30 });
+      if (name)       gsap.set(name,       { opacity: 0, y: 14 });
+    });
+
+    const stagger = 0.08;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || mobileRevealPlayedRef.current) return;
+        mobileRevealPlayedRef.current = true;
+
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        ids.forEach((id, i) => {
+          const label      = colLabelRefs.current[id];
+          const hoverImage = hoverImageRefs.current[id];
+          const name       = colNameRefs.current[id];
+          const labelStart = i * stagger;
+          const imageStart = labelStart + 0.35;
+          const nameStart  = imageStart + 0.45;
+
+          if (label)      tl.to(label,      { opacity: 1, y: 0, duration: 0.6 }, labelStart);
+          if (hoverImage) tl.to(hoverImage, { opacity: 1, y: 0, duration: 0.7 }, imageStart);
+          if (name)       tl.to(name,       { opacity: 1, y: 0, duration: 0.5 }, nameStart);
+        });
+
+        observer.disconnect();
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   /* ── Click handler — mobile navigates, desktop expands ─────────────── */
   const handleClick = (cat: Category) => {
@@ -466,6 +520,7 @@ export function CategoriesSection() {
               className={styles.imageClip}
             >
               <div
+                ref={el => { hoverImageRefs.current[cat.id] = el; }}
                 className={styles.hoverImage}
                 style={{ backgroundImage: cat.imageSrc ? `url(${cat.imageSrc})` : undefined }}
               />

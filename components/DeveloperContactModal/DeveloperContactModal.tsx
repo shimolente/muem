@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ArrowUpRight } from '@/components/icons/ArrowUpRight';
 import styles from './DeveloperContactModal.module.css';
 
 interface Props {
@@ -149,7 +150,7 @@ export function DeveloperContactModal({ open, onClose, developerPhone, propertyT
           {error && <p className={styles.error}>{error}</p>}
 
           <button type="submit" className={styles.submit} disabled={!canSubmit}>
-            {canSubmit ? 'Continue on WhatsApp ↗' : 'Developer contact unavailable'}
+            {canSubmit ? <>Continue on WhatsApp<ArrowUpRight /></> : 'Developer contact unavailable'}
           </button>
         </form>
       </div>

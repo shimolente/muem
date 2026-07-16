@@ -80,13 +80,8 @@ export function Preloader() {
   return (
     <div ref={overlayRef} className={styles.overlay} aria-hidden="true">
       <div ref={logoRef} className={styles.logoWrap}>
-        <Image
-          src={LOGO.src}
-          alt=""
-          width={80}
-          height={80}
-          priority
-        />
+        <Image className={styles.mark} src={LOGO.src} alt="" width={160} height={160} priority />
+        <Image className={styles.word} src="/logo-and-brandbook/word-only.svg" alt="" width={160} height={51} priority />
       </div>
     </div>
   );

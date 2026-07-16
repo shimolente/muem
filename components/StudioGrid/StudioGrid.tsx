@@ -11,6 +11,7 @@ import {
 } from '@/content/studio';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
+import { ArrowUpRight } from '@/components/icons/ArrowUpRight';
 import styles from './StudioGrid.module.css';
 
 /* ── Arrow icons ──────────────────────────────────────────────────────────── */
@@ -239,7 +240,7 @@ export function StudioGrid({ projects, categories, initialCategory }: StudioGrid
               className={styles.introCta}
               onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              {STUDIO_INTRO.cta.label} ↗
+              {STUDIO_INTRO.cta.label}<ArrowUpRight />
             </button>
           </div>
         </div>

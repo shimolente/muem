@@ -84,11 +84,11 @@
 .dot::before {
   content: '';
   display: block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
   background: rgba(var(--c-warm), 0.22);
-  transition: background 0.25s ease, width 0.25s ease, height 0.25s ease;
+  transition: background 0.25s ease, width 0.25s ease, height 0.25s ease, border-radius 0.25s ease;
   flex-shrink: 0;
 }
 .dot:hover::before {
@@ -97,9 +97,10 @@
   height: 8px;
 }
 .dotActive::before {
+  width: 18px;
+  height: 6px;
+  border-radius: 100px;
   background: var(--color-warm-dark);
-  width: 7px;
-  height: 7px;
 }
 
 /* Subheading — "Rootedness. Sustainability. Refinement." */
@@ -274,15 +275,17 @@
   }
 
   .mobileDot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 100px;
     background: rgba(var(--c-warm), 0.25);
-    transition: background 0.25s ease, transform 0.25s ease;
+    transition: background 0.25s ease, width 0.25s ease;
   }
 
   .mobileDotActive {
+    width: 15px;
+    height: 5px;
+    border-radius: 100px;
     background: var(--color-warm-dark);
-    transform: scale(1.2);
   }
 }

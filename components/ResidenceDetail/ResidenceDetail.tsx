@@ -9,6 +9,7 @@ import { type ResidenceProject, unitsAvailable, isSoldOut } from '@/content/resi
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
 import { DeveloperContactModal } from '@/components/DeveloperContactModal/DeveloperContactModal';
+import { ArrowUpRight } from '@/components/icons/ArrowUpRight';
 import styles from './ResidenceDetail.module.css';
 
 interface Props {
@@ -69,7 +70,6 @@ export function ResidenceDetail({ project, related }: Props) {
         { opacity: 1, y: 0, stagger: 0.12, duration: 1.0, ease: 'power3.out', delay: 0.15 },
       );
       gsap.fromTo(arrowRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.9, ease: 'power3.out' });
-      gsap.to(arrowRef.current, { y: 6, duration: 0.75, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 1.4 });
     }));
   }, []);
 
@@ -96,7 +96,9 @@ export function ResidenceDetail({ project, related }: Props) {
           <h1 ref={titleRef} className={styles.heroTitle}>{project.title}</h1>
           <span ref={locationRef} className={styles.heroLocation}>{project.location}</span>
         </div>
-        <div ref={arrowRef} className={styles.arrow} aria-hidden="true">↓</div>
+        <div ref={arrowRef} className={styles.arrow} aria-hidden="true">
+          <span className={styles.arrowTrack}><span className={styles.arrowLine} /></span>
+        </div>
       </section>
 
       {/* ── Project intro ─────────────────────────────────────────────── */}
@@ -113,7 +115,7 @@ export function ResidenceDetail({ project, related }: Props) {
           className={styles.introCta}
           onClick={() => setContactOpen(true)}
         >
-          Contact the developer ↗
+          Contact the developer<ArrowUpRight />
         </button>
       </div>
 
@@ -224,7 +226,7 @@ export function ResidenceDetail({ project, related }: Props) {
             className={styles.processCta}
             onClick={() => setContactOpen(true)}
           >
-            Contact the developer ↗
+            Contact the developer<ArrowUpRight />
           </button>
         </div>
       </section>
@@ -291,7 +293,7 @@ export function ResidenceDetail({ project, related }: Props) {
 
           <div className={styles.relatedCta}>
             <Link href="/residences" className={styles.relatedCtaLink}>
-              Browse all properties ↗
+              Browse all properties<ArrowUpRight />
             </Link>
           </div>
 

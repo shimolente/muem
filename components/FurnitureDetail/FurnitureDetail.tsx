@@ -10,6 +10,7 @@ import {
 } from '@/content/furniture';
 import { useUIStore } from '@/store/ui';
 import { imageUrl } from '@/lib/imageUrl';
+import { ArrowUpRight } from '@/components/icons/ArrowUpRight';
 import styles from './FurnitureDetail.module.css';
 
 interface Props {
@@ -160,7 +161,7 @@ export function FurnitureDetail({ item, related }: Props) {
               rel="noopener noreferrer"
               className={styles.ctaPrimary}
             >
-              Enquire about this piece ↗
+              Enquire about this piece<ArrowUpRight />
             </a>
             <Link href="/habitus" className={styles.ctaSecondary}>
               Browse the full collection
@@ -232,7 +233,7 @@ export function FurnitureDetail({ item, related }: Props) {
 
           <div className={styles.relatedCta}>
             <Link href="/habitus" className={styles.relatedCtaLink}>
-              Browse all pieces ↗
+              Browse all pieces<ArrowUpRight />
             </Link>
           </div>
 
