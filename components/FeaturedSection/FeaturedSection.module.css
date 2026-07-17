@@ -315,7 +315,10 @@
     background-color: #b5a898;
     padding: 14px;
   }
-  .mobileCardWide { aspect-ratio: 16 / 10; }
+  /* Wide card height ≈ a square-pair row height, so every category page has the
+     same two equal-height rows (only the 1-vs-2 card split differs) — the strip
+     and whitespace then land identically on every page. */
+  .mobileCardWide { aspect-ratio: 2 / 1; }
   .mobileCardSquare { aspect-ratio: 1 / 1; }
 
   .mobileCardOverlay {

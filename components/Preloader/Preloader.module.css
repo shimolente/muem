@@ -35,9 +35,13 @@
   image-rendering: high-quality;
 }
 
+/* The mark SVG carries ~27% transparent padding on each side, so its visible
+   glyph is only ~46% of its box vs ~64% for the wordmark. Render the mark box
+   wider (221px) so its visible glyph (~102px) matches the wordmark's at 160px —
+   both then read as the same width, stacked and centre-aligned. */
 .mark {
-  width: 160px !important;
-  height: 160px !important;
+  width: 221px !important;
+  height: 221px !important;
 }
 
 .word {
