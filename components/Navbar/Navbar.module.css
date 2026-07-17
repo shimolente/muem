@@ -312,7 +312,7 @@
    on hover without shifting the stacked items (absolutely positioned). */
 .mobileNavSub {
   position: absolute;
-  left: calc(100% + 14px);
+  left: calc(100% + 28px);
   top: 50%;
   transform: translateY(-50%) translateX(-8px);
   text-align: left;

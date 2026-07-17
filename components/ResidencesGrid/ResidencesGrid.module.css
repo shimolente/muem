@@ -63,6 +63,16 @@
 
 .listWrap { position: relative; }
 
+/* Marks the bar's resting position — leaves the top band once the bar sticks. */
+.filterSentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 /* ── Filter bar — 2 FilterDropdown columns, same style as StudioGrid ─────── */
 .filterBarWrap {
   position: sticky;

@@ -118,12 +118,15 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
+  const filterWrapRef = useRef<HTMLDivElement>(null);
+  const sentinelRef  = useRef<HTMLDivElement>(null);
   const hasEntered = useRef(false);
   const processEntered = useRef(false);
 
   const [availFilter, setAvailFilter] = useState<string[]>([]);
   const [topoFilter,  setTopoFilter]  = useState<string[]>([]);
   const [limit,       setLimit]       = useState(9);
+  const [stuck,       setStuck]       = useState(false);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);
   const setNavStyle  = useUIStore(s => s.setNavStyle);
@@ -199,6 +202,20 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
   /* Reset limit when filters change */
   useEffect(() => { setLimit(9); }, [availFilter, topoFilter]);
 
+  /* Detect when the filter bar is pinned to the top */
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const wrap     = filterWrapRef.current;
+    if (!sentinel || !wrap) return;
+    const stickyTop = parseFloat(getComputedStyle(wrap).top) || 28;
+    const obs = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { rootMargin: `-${stickyTop + 1}px 0px 0px 0px`, threshold: 0 },
+    );
+    obs.observe(sentinel);
+    return () => obs.disconnect();
+  }, []);
+
   /* ── Process section reveal — fires when scrolled into view ───────────── */
   useEffect(() => {
     const el = processRef.current;
@@ -252,8 +269,11 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
       </div>
 
       <div className={styles.listWrap}>
+        {/* Sentinel marks the filter bar's resting position (for stuck detection). */}
+        <div ref={sentinelRef} className={styles.filterSentinel} aria-hidden="true" />
+
         {/* ── Filter bar — 2 columns matching Studio style ─────────────────── */}
-        <div className={styles.filterBarWrap}>
+        <div ref={filterWrapRef} className={styles.filterBarWrap}>
           <div className={styles.filterBar}>
             <FilterDropdown
               label="Availability"
@@ -262,6 +282,7 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
               values={availFilter}
               onChange={setAvailFilter}
               filled
+              stuck={stuck}
             />
             <FilterDropdown
               label="Property type"
@@ -270,6 +291,7 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
               values={topoFilter}
               onChange={setTopoFilter}
               filled
+              stuck={stuck}
             />
           </div>
         </div>

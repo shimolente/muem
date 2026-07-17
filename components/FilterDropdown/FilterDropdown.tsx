@@ -23,6 +23,7 @@ interface FilterDropdownProps {
   compact?: boolean;    /* pill variant — used for compact Location / Year filters */
   filled?:  boolean;    /* filled block variant — used for the 3 category filters */
   single?:  boolean;    /* single-select: picking an option replaces selection + closes */
+  stuck?:   boolean;    /* whether the filter bar is sticky (stuck to top) */
 }
 
 /* ── Trigger display label ─────────────────────────────────────────────────── */
@@ -70,7 +71,7 @@ function Checkbox({ checked }: { checked: boolean }) {
 
 /* ── Component ─────────────────────────────────────────────────────────────── */
 export function FilterDropdown({
-  label, allValue, options, values, onChange, compact = false, filled = false, single = false,
+  label, allValue, options, values, onChange, compact = false, filled = false, single = false, stuck = false,
 }: FilterDropdownProps) {
   const [open, setOpen]  = useState(false);
   const containerRef     = useRef<HTMLDivElement>(null);
@@ -109,7 +110,7 @@ export function FilterDropdown({
   return (
     <div
       ref={containerRef}
-      className={`${compact ? styles.triggerCompact : filled ? styles.triggerFilled : styles.trigger} ${open ? styles.triggerOpen : ''} ${isFiltered ? styles.triggerFiltered : ''}`}
+      className={`${compact ? styles.triggerCompact : filled ? styles.triggerFilled : styles.trigger} ${open ? styles.triggerOpen : ''} ${isFiltered ? styles.triggerFiltered : ''} ${stuck ? styles.triggerStuck : ''}`}
       onClick={() => setOpen(v => !v)}
       role="button"
       aria-haspopup="listbox"

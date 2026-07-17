@@ -201,23 +201,51 @@
 .triggerFilled.triggerOpen {
   background: rgba(53, 50, 47, 0.16);
 }
-/* Frosted pill sits over a dark-ish blurred backdrop — text reads white here,
-   same as the Studio pills, regardless of selection state. */
+/* Default state — dark text, similar to Studio pills when unstuck */
 .triggerFilled .triggerLabel {
-  color: rgba(245, 242, 238, 0.6);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.6);
 }
 .triggerFilled .triggerValue {
-  color: var(--color-off-white);
+  color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.9);
 }
 .triggerFilled .chevron {
-  border-color: rgba(245, 242, 238, 0.8);
+  border-left-color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.6);
+  border-bottom-color: rgba(var(--page-fg-rgb, 58, 52, 47), 0.6);
 }
-/* Selected → solid warm-dark tint, bolder white text, like the active Studio pill. */
+
+/* Stuck state — white text over darker frosted background */
+.triggerFilled.triggerStuck {
+  background: rgba(var(--overlay-ink, 40, 36, 32), 0.42);
+}
+.triggerFilled.triggerStuck:hover,
+.triggerFilled.triggerStuck.triggerOpen {
+  background: rgba(var(--overlay-ink, 40, 36, 32), 0.58);
+}
+.triggerFilled.triggerStuck .triggerLabel {
+  color: rgba(245, 242, 238, 0.6);
+}
+.triggerFilled.triggerStuck .triggerValue {
+  color: var(--color-off-white);
+}
+.triggerFilled.triggerStuck .chevron {
+  border-left-color: rgba(245, 242, 238, 0.8);
+  border-bottom-color: rgba(245, 242, 238, 0.8);
+}
+
+/* Selected state (Filtered) — solid warm-dark background, white text */
 .triggerFilled.triggerFiltered {
-  background: var(--color-warm-dark);
+  background: var(--page-button-bg, var(--color-warm-dark));
+}
+.triggerFilled.triggerFiltered .triggerLabel {
+  color: rgba(255, 255, 255, 0.6);
 }
 .triggerFilled.triggerFiltered .triggerValue {
+  color: var(--color-off-white);
   font-weight: 500;
+}
+.triggerFilled.triggerFiltered .chevron {
+  border-left-color: rgba(255, 255, 255, 0.8);
+  border-bottom-color: rgba(255, 255, 255, 0.8);
 }
 
 /* ── Compact pill variant (Location / Year in the new filter bar) ─────────── */
