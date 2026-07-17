@@ -66,7 +66,9 @@
 /* ── Filter bar — 2 FilterDropdown columns, same style as StudioGrid ─────── */
 .filterBarWrap {
   position: sticky;
-  top: var(--space-nav-v);
+  /* Pin below the fixed muem logo (its full-bleed 2-col row would otherwise sit
+     under the logo). clamp clears the logo height on both phone and desktop. */
+  top: calc(var(--space-nav-v) + clamp(44px, 5vw, 60px));
   z-index: calc(var(--z-nav) + 2);
   padding: clamp(12px, 2vh, 22px) var(--space-nav-h);
   margin-bottom: clamp(40px, 6vh, 72px);
@@ -481,7 +483,6 @@
   .intro { grid-template-columns: 1fr; gap: 24px; }
   .introLeft, .introRight { grid-column: 1 / -1; }
   .filterBarWrap {
-    top: calc(var(--space-nav-v) + clamp(44px, 12vw, 60px));
     padding: clamp(12px, 2vh, 18px) 20px;
   }
   .filterBar {

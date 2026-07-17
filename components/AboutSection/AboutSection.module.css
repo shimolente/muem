@@ -114,17 +114,11 @@
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
   pointer-events: none;
 }
 
-.stat:hover .statTags {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* Each tag hidden by default; on hover they fade in one-by-one (staggered
+   transition-delay) instead of all at once. Space is always reserved. */
 .statTag {
   font-family: var(--font-body);
   font-size: clamp(11px, 0.75vw, 13px);
@@ -132,7 +126,16 @@
   letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1.4;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
+
+.stat:hover .statTag { opacity: 1; transform: none; }
+.stat:hover .statTag:nth-child(2) { transition-delay: 0.08s; }
+.stat:hover .statTag:nth-child(3) { transition-delay: 0.16s; }
+.stat:hover .statTag:nth-child(4) { transition-delay: 0.24s; }
+.stat:hover .statTag:nth-child(5) { transition-delay: 0.32s; }
 
 /* ── Mobile — restore centered layout ───────────────────────────────────── */
 @media (max-width: 768px) {
@@ -158,7 +161,9 @@
   .statValueWrap { justify-content: center; }
   .statValue     { left: 50%; transform: translateX(-50%); }
   /* No hover on touch devices — always show tags on mobile */
-  .statTags      { align-items: center; opacity: 1; transform: none; }
+  .statTags      { align-items: center; }
+  /* No hover on touch — always show tags on mobile */
+  .statTag       { opacity: 1; transform: none; transition: none; }
 }
 
 @media (max-width: 480px) {

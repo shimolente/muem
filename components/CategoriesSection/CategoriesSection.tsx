@@ -258,7 +258,7 @@ export function CategoriesSection() {
       if (name)       gsap.set(name,       { opacity: 0, y: 14 });
     });
 
-    const stagger = 0.08;
+    const stagger = 0.22; // clear one-by-one offset between the three columns
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting || mobileRevealPlayedRef.current) return;

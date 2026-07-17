@@ -288,6 +288,9 @@
   margin-bottom: clamp(10px, 2.2vh, 22px);
   opacity: 0;
   display: block;
+  /* Shrink to the label's text width so the sub (left: 100% + gap) sits a fixed
+     gap after each item's OWN text, not on a shared vertical line. */
+  width: fit-content;
   position: relative;
   text-decoration: none;
   white-space: nowrap;
