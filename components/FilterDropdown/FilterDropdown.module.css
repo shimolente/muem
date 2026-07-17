@@ -201,17 +201,23 @@
 .triggerFilled.triggerOpen {
   background: rgba(53, 50, 47, 0.16);
 }
-/* Selected → solid warm-dark tint + light text, like the active Studio pill. */
+/* Frosted pill sits over a dark-ish blurred backdrop — text reads white here,
+   same as the Studio pills, regardless of selection state. */
+.triggerFilled .triggerLabel {
+  color: rgba(245, 242, 238, 0.6);
+}
+.triggerFilled .triggerValue {
+  color: var(--color-off-white);
+}
+.triggerFilled .chevron {
+  border-color: rgba(245, 242, 238, 0.8);
+}
+/* Selected → solid warm-dark tint, bolder white text, like the active Studio pill. */
 .triggerFilled.triggerFiltered {
   background: var(--color-warm-dark);
 }
-.triggerFilled.triggerFiltered .triggerLabel,
 .triggerFilled.triggerFiltered .triggerValue {
-  color: var(--color-off-white);
   font-weight: 500;
-}
-.triggerFilled.triggerFiltered .chevron {
-  border-color: var(--color-off-white);
 }
 
 /* ── Compact pill variant (Location / Year in the new filter bar) ─────────── */
