@@ -240,36 +240,68 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MOBILE — pinned category tabs + vertical full-bleed card feed.
-   Native vertical scroll; the section grows with its content (no nested scroll).
+   MOBILE — horizontal swipe carousel, one full-height page per category.
+   No Lenis on this page — native overflow-x + scroll-snap handles the swipe.
 ───────────────────────────────────────────────────────────────────────────── */
 
 .mobileBento { display: none; }
 
 @media (max-width: 768px) {
   .section {
-    height: auto;
-    min-height: unset;
+    height: 100svh;
+    min-height: 100svh;
     display: block;
-    overflow: visible;
+    overflow: hidden;
     padding: 0;
   }
-  /* Hide desktop bento on mobile */
   .grid { display: none; }
 
+  /* Horizontal swipe carousel — one page per category */
   .mobileBento {
+    display: flex;
+    flex-direction: row;
+    height: 100svh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .mobileBento::-webkit-scrollbar { display: none; }
+
+  .mobilePage {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    scroll-snap-align: center;
     display: flex;
     flex-direction: column;
     gap: clamp(6px, 1.5vw, 10px);
-    padding: clamp(72px, 11vh, 104px) 14px calc(28px + env(safe-area-inset-bottom));
+    padding: clamp(72px, 11vh, 100px) 14px calc(20px + env(safe-area-inset-bottom));
   }
 
   .mobileBentoRow {
     display: grid;
     gap: clamp(6px, 1.5vw, 10px);
+    flex: 0 0 auto;
   }
   .mobileBentoWide { grid-template-columns: 1fr; }
   .mobileBentoPair { grid-template-columns: 1fr 1fr; }
+
+  /* Strip grows to fill leftover space → every page is the same 100svh height
+     regardless of whether a row has 1 wide card or 2 square cards. */
+  .mobileStrip {
+    flex: 1 1 auto;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 0;
+  }
 
   .mobileCard {
     position: relative;
@@ -317,14 +349,6 @@
     line-height: 1.05;
     letter-spacing: -0.02em;
     color: var(--color-white);
-  }
-
-  .mobileStrip {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: clamp(14px, 4vh, 26px) 0;
   }
 
   .mobileStripTitle {

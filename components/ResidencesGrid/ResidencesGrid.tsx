@@ -251,50 +251,52 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
         </div>
       </div>
 
-      {/* ── Filter bar — 2 columns matching Studio style ─────────────────── */}
-      <div className={styles.filterBarWrap}>
-        <div className={styles.filterBar}>
-          <FilterDropdown
-            label="Availability"
-            allValue="All Availability"
-            options={AVAIL_OPTIONS}
-            values={availFilter}
-            onChange={setAvailFilter}
-            filled
-          />
-          <FilterDropdown
-            label="Property type"
-            allValue="All Types"
-            options={topoOptions}
-            values={topoFilter}
-            onChange={setTopoFilter}
-            filled
-          />
+      <div className={styles.listWrap}>
+        {/* ── Filter bar — 2 columns matching Studio style ─────────────────── */}
+        <div className={styles.filterBarWrap}>
+          <div className={styles.filterBar}>
+            <FilterDropdown
+              label="Availability"
+              allValue="All Availability"
+              options={AVAIL_OPTIONS}
+              values={availFilter}
+              onChange={setAvailFilter}
+              filled
+            />
+            <FilterDropdown
+              label="Property type"
+              allValue="All Types"
+              options={topoOptions}
+              values={topoFilter}
+              onChange={setTopoFilter}
+              filled
+            />
+          </div>
         </div>
-      </div>
 
-      {/* ── Card grid ────────────────────────────────────────────────────── */}
-      <div ref={gridRef} className={styles.grid}>
-        {visible.length > 0 ? (
-          <>
-            {visible.map(project => (
-              <PropertyCard key={project.id} project={project} />
-            ))}
-            {hasMore && (
-              <button
-                type="button"
-                className={styles.loadMoreCard}
-                onClick={() => setLimit(l => l + 3)}
-                aria-label="Load more properties"
-              >
-                <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
-                <span className={styles.loadMoreLabel}>Load more</span>
-              </button>
-            )}
-          </>
-        ) : (
-          <p className={styles.empty}>No properties match the selected filters.</p>
-        )}
+        {/* ── Card grid ────────────────────────────────────────────────────── */}
+        <div ref={gridRef} className={styles.grid}>
+          {visible.length > 0 ? (
+            <>
+              {visible.map(project => (
+                <PropertyCard key={project.id} project={project} />
+              ))}
+              {hasMore && (
+                <button
+                  type="button"
+                  className={styles.loadMoreCard}
+                  onClick={() => setLimit(l => l + 3)}
+                  aria-label="Load more properties"
+                >
+                  <span className={styles.loadMoreArrow} aria-hidden="true">+</span>
+                  <span className={styles.loadMoreLabel}>Load more</span>
+                </button>
+              )}
+            </>
+          ) : (
+            <p className={styles.empty}>No properties match the selected filters.</p>
+          )}
+        </div>
       </div>
 
       {/* ── How it works ─────────────────────────────────────────────────── */}

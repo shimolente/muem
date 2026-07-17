@@ -41,12 +41,12 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const tLabel = () => t('label');
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
-  const [mobileCat, setMobileCat] = useState(0); // mobile tab selection — independent of desktop bento
   const isAnimating               = useRef(false);
   const catIdxRef             = useRef(0);   // mirrors catIdx — avoids stale closure in autoplay
   const autoTimerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
   const cardRefs              = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef            = useRef<HTMLElement>(null);
+  const carouselRef           = useRef<HTMLDivElement>(null);
 
   // Text cell element refs — animated independently of cards
   const textLabelRef = useRef<HTMLSpanElement>(null);
@@ -195,77 +195,71 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
 
   const cat = FEATURED[display];
 
-  // ── Mobile bento — per-category layout driven by mobileCat ─────────
-  // variant 0: top = 1 wide, bottom = 2 squares
-  // variant 1: top = 2 squares, bottom = 1 wide
-  // variant 2 (+ any category index beyond): top = 2 squares, bottom = 2 squares
-  const mCat        = FEATURED[mobileCat];
-  const mProjects   = mCat.projects;
-  const mVariant    = mobileCat >= 2 ? 2 : mobileCat;
-  const topIsPair    = mVariant !== 0;
-  const bottomIsPair = mVariant !== 1;
-  const topCount    = topIsPair ? 2 : 1;
-  const topImages    = mProjects.slice(0, topCount).filter(Boolean);
-  const bottomImages = mProjects.slice(topCount, topCount + (bottomIsPair ? 2 : 1)).filter(Boolean);
+  const scrollToPage = (i: number) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+  };
 
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
 
-      {/* ── Mobile-only: per-category bento with title + dot strip ─────── */}
-      <div className={styles.mobileBento}>
-
-        <div className={`${styles.mobileBentoRow} ${topIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
-          {topImages.map(p => (
-            <a
-              key={p.id}
-              href={p.href}
-              className={`${styles.mobileCard} ${topIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
-              style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
-              aria-label={`${p.title} — ${p.location}`}
-            >
-              <div className={styles.mobileCardOverlay} />
-              <div className={styles.mobileCardMeta}>
-                <span className={styles.mobileCardLocation}>{p.location}</span>
-                <span className={styles.mobileCardTitle}>{p.title}</span>
+      {/* ── Mobile-only: full-height swipe carousel, one page per category ── */}
+      <div ref={carouselRef} className={styles.mobileBento}>
+        {FEATURED.map((c, i) => {
+          const variant      = i >= 2 ? 2 : i;           // 0: 1+2 · 1: 2+1 · 2: 2+2
+          const topIsPair    = variant !== 0;
+          const bottomIsPair = variant !== 1;
+          const topCount     = topIsPair ? 2 : 1;
+          const projs        = c.projects;
+          const topImages    = projs.slice(0, topCount).filter(Boolean);
+          const bottomImages = projs.slice(topCount, topCount + (bottomIsPair ? 2 : 1)).filter(Boolean);
+          return (
+            <div key={c.id} className={styles.mobilePage}>
+              <div className={`${styles.mobileBentoRow} ${topIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
+                {topImages.map(p => (
+                  <a key={p.id} href={p.href}
+                     className={`${styles.mobileCard} ${topIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
+                     style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
+                     aria-label={`${p.title} — ${p.location}`}>
+                    <div className={styles.mobileCardOverlay} />
+                    <div className={styles.mobileCardMeta}>
+                      <span className={styles.mobileCardLocation}>{p.location}</span>
+                      <span className={styles.mobileCardTitle}>{p.title}</span>
+                    </div>
+                  </a>
+                ))}
               </div>
-            </a>
-          ))}
-        </div>
 
-        <div className={styles.mobileStrip}>
-          <span className={styles.mobileStripTitle}>{tName(mCat.id, mCat.name)}</span>
-          <div className={styles.mobileStripDots} role="tablist" aria-label="Browse categories">
-            {FEATURED.map((c, i) => (
-              <button
-                key={c.id}
-                role="tab"
-                aria-selected={i === mobileCat}
-                aria-label={`Show ${tName(c.id, c.name)}`}
-                className={`${styles.mobileStripDot} ${i === mobileCat ? styles.mobileStripDotActive : ''}`}
-                onClick={() => setMobileCat(i)}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className={`${styles.mobileBentoRow} ${bottomIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
-          {bottomImages.map(p => (
-            <a
-              key={p.id}
-              href={p.href}
-              className={`${styles.mobileCard} ${bottomIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
-              style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
-              aria-label={`${p.title} — ${p.location}`}
-            >
-              <div className={styles.mobileCardOverlay} />
-              <div className={styles.mobileCardMeta}>
-                <span className={styles.mobileCardLocation}>{p.location}</span>
-                <span className={styles.mobileCardTitle}>{p.title}</span>
+              <div className={styles.mobileStrip}>
+                <span className={styles.mobileStripTitle}>{tName(c.id, c.name)}</span>
+                <div className={styles.mobileStripDots} role="tablist" aria-label="Browse categories">
+                  {FEATURED.map((cc, j) => (
+                    <button key={cc.id} type="button" role="tab" aria-selected={j === i}
+                      aria-label={`Show ${tName(cc.id, cc.name)}`}
+                      className={`${styles.mobileStripDot} ${j === i ? styles.mobileStripDotActive : ''}`}
+                      onClick={() => scrollToPage(j)} />
+                  ))}
+                </div>
               </div>
-            </a>
-          ))}
-        </div>
 
+              <div className={`${styles.mobileBentoRow} ${bottomIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
+                {bottomImages.map(p => (
+                  <a key={p.id} href={p.href}
+                     className={`${styles.mobileCard} ${bottomIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
+                     style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
+                     aria-label={`${p.title} — ${p.location}`}>
+                    <div className={styles.mobileCardOverlay} />
+                    <div className={styles.mobileCardMeta}>
+                      <span className={styles.mobileCardLocation}>{p.location}</span>
+                      <span className={styles.mobileCardTitle}>{p.title}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : cat.id === 'residences' ? styles.gridResidences : ''}`}>

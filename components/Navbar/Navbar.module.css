@@ -309,9 +309,10 @@
    hover without shifting the stacked items (absolutely positioned). */
 .mobileNavSub {
   position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 2px;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  text-align: right;
   font-family: var(--font-body);
   font-size: clamp(11px, 0.9vw, 13px);
   font-weight: 400;
@@ -320,13 +321,12 @@
   color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
   opacity: 0;
-  transform: translateY(-3px);
   pointer-events: none;
   transition: opacity 0.28s ease, transform 0.28s ease;
 }
 .mobileNavItem:hover .mobileNavSub {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(-50%) translateX(0);
 }
 
 /* Panel logo — sits at the top of the panel, aligned with the header logo's
