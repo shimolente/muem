@@ -41,6 +41,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const tLabel = () => t('label');
   const [catIdx, setCatIdx]       = useState(0);
   const [display, setDisplay]     = useState(0); // rendered data — lags catIdx during exit transition
+  const [activePage, setActivePage] = useState(0); // mobile carousel page (for the fixed dot strip)
   const isAnimating               = useRef(false);
   const catIdxRef             = useRef(0);   // mirrors catIdx — avoids stale closure in autoplay
   const autoTimerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -201,13 +202,30 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
   };
 
+  const onCarouselScroll = () => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const w = el.clientWidth;
+    // A clone of page 0 sits after the last real page. Once the swipe settles on
+    // it, jump instantly back to real page 0 → seamless loop (3rd → 1st).
+    if (el.scrollLeft >= FEATURED.length * w - 2) {
+      el.scrollLeft = 0;
+      setActivePage(0);
+      return;
+    }
+    setActivePage(Math.round(el.scrollLeft / w) % FEATURED.length);
+  };
+
   return (
     <section ref={sectionRef} data-snap-section="featured" className={styles.section}>
 
-      {/* ── Mobile-only: full-height swipe carousel, one page per category ── */}
-      <div ref={carouselRef} className={styles.mobileBento}>
-        {FEATURED.map((c, i) => {
-          const variant      = i >= 2 ? 2 : i;           // 0: 1+2 · 1: 2+1 · 2: 2+2
+      {/* ── Mobile-only: full-height swipe carousel — boxes + title swipe; the
+           dot strip below is a FIXED overlay that only updates its active dot.
+           A trailing clone of page 0 makes the swipe loop 3rd → 1st. ───────── */}
+      <div ref={carouselRef} className={styles.mobileBento} onScroll={onCarouselScroll}>
+        {[...FEATURED, FEATURED[0]].map((c, i) => {
+          const realIdx      = i % FEATURED.length;
+          const variant      = realIdx >= 2 ? 2 : realIdx; // 0: 1+2 · 1: 2+1 · 2: 2+2
           const topIsPair    = variant !== 0;
           const bottomIsPair = variant !== 1;
           const topCount     = topIsPair ? 2 : 1;
@@ -215,7 +233,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
           const topImages    = projs.slice(0, topCount).filter(Boolean);
           const bottomImages = projs.slice(topCount, topCount + (bottomIsPair ? 2 : 1)).filter(Boolean);
           return (
-            <div key={c.id} className={styles.mobilePage}>
+            <div key={i} className={styles.mobilePage}>
               <div className={`${styles.mobileBentoRow} ${topIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
                 {topImages.map(p => (
                   <a key={p.id} href={p.href}
@@ -233,14 +251,6 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
 
               <div className={styles.mobileStrip}>
                 <span className={styles.mobileStripTitle}>{tName(c.id, c.name)}</span>
-                <div className={styles.mobileStripDots} role="tablist" aria-label="Browse categories">
-                  {FEATURED.map((cc, j) => (
-                    <button key={cc.id} type="button" role="tab" aria-selected={j === i}
-                      aria-label={`Show ${tName(cc.id, cc.name)}`}
-                      className={`${styles.mobileStripDot} ${j === i ? styles.mobileStripDotActive : ''}`}
-                      onClick={() => scrollToPage(j)} />
-                  ))}
-                </div>
               </div>
 
               <div className={`${styles.mobileBentoRow} ${bottomIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
@@ -260,6 +270,16 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
             </div>
           );
         })}
+      </div>
+
+      {/* Fixed dot strip — stays put while pages swipe; only the active dot moves */}
+      <div className={styles.mobileDotsFixed} role="tablist" aria-label="Browse categories">
+        {FEATURED.map((c, i) => (
+          <button key={c.id} type="button" role="tab" aria-selected={i === activePage}
+            aria-label={`Show ${tName(c.id, c.name)}`}
+            className={`${styles.mobileDotFixed} ${i === activePage ? styles.mobileDotFixedActive : ''}`}
+            onClick={() => scrollToPage(i)} />
+        ))}
       </div>
 
       <div className={`${styles.grid} ${cat.id === 'studio' ? styles.gridStudio : cat.id === 'habitus' ? styles.gridHabitus : cat.id === 'residences' ? styles.gridResidences : ''}`}>

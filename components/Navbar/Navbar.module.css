@@ -305,14 +305,14 @@
   transition: opacity 0.2s ease;
 }
 
-/* Sub descriptor — hidden by default, fades/slides in beneath the label on
-   hover without shifting the stacked items (absolutely positioned). */
+/* Sub descriptor — hidden by default, fades/slides in to the RIGHT of the label
+   on hover without shifting the stacked items (absolutely positioned). */
 .mobileNavSub {
   position: absolute;
-  right: calc(100% + 14px);
+  left: calc(100% + 14px);
   top: 50%;
-  transform: translateY(-50%) translateX(8px);
-  text-align: right;
+  transform: translateY(-50%) translateX(-8px);
+  text-align: left;
   font-family: var(--font-body);
   font-size: clamp(11px, 0.9vw, 13px);
   font-weight: 400;

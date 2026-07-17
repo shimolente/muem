@@ -19,7 +19,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(4px, 0.8vh, 8px);
+  gap: 0;
 
   /* Start hidden — GSAP fades in */
   opacity: 0;
@@ -44,7 +44,11 @@
   height: 221px !important;
 }
 
+/* The mark box has ~67px of transparent padding below its glyph and the word
+   box ~15px above its glyph. Pull the word up so the glyphs "meet", then leave
+   a gap of ~50% of the wordmark's visible height (~9.7px): -(67+15)+9.7 ≈ -72px. */
 .word {
   width: 160px !important;
   height: auto !important;
+  margin-top: -72px;
 }

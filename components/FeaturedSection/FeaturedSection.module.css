@@ -364,25 +364,37 @@
     text-align: center;
   }
 
-  .mobileStripDots {
+  /* Fixed dot strip — absolute overlay that does NOT scroll with the carousel.
+     Anchored just under the (centred) strip title: the strip centre sits at
+     50svh + topPad/2 - botPad/2, and the rows cancel out of the maths, so this
+     position holds on every page and screen size. Only the active dot changes. */
+  .mobileDotsFixed {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(50svh + clamp(36px, 5.5vh, 50px) + 20px);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    z-index: 3;
+    pointer-events: none;
   }
 
-  .mobileStripDot {
+  .mobileDotFixed {
     width: 6px;
     height: 6px;
     border-radius: 100px;
-    background: rgba(var(--c-warm), 0.22);
+    background: rgba(var(--c-warm), 0.28);
     border: none;
     padding: 0;
     cursor: pointer;
-    transition: width 0.25s ease, background 0.25s ease;
+    pointer-events: auto;
+    transition: width 0.3s var(--ease-out-expo), background 0.3s ease;
   }
 
-  .mobileStripDotActive {
-    width: 18px;
+  .mobileDotFixedActive {
+    width: 20px;
     background: var(--color-warm-dark);
   }
 }
