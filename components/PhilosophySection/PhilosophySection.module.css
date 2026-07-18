@@ -69,6 +69,7 @@
   margin-bottom: clamp(36px, 5vh, 56px);
 }
 .dot {
+  position: relative;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -96,11 +97,36 @@
   width: 8px;
   height: 8px;
 }
+/* Active pill — ::before is the faint track, ::after fills it left→right like a
+   loading bar over the autoplay duration (7000ms in PhilosophySection.tsx). */
 .dotActive::before {
   width: 18px;
   height: 6px;
   border-radius: 100px;
+  background: rgba(var(--c-warm), 0.22);
+}
+.dot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 6px;
+  margin-left: -9px;
+  margin-top: -3px;
+  border-radius: 100px;
   background: var(--color-warm-dark);
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+}
+.dotActive::after {
+  opacity: 1;
+  animation: dotFill 7s linear forwards; /* must match the 7000ms autoplay interval */
+}
+@keyframes dotFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 /* Subheading — "Rootedness. Sustainability. Refinement." */
@@ -275,17 +301,36 @@
   }
 
   .mobileDot {
+    position: relative;
     width: 5px;
     height: 5px;
     border-radius: 100px;
     background: rgba(var(--c-warm), 0.25);
-    transition: background 0.25s ease, width 0.25s ease;
+    transition: width 0.25s ease, height 0.25s ease;
+    overflow: hidden;
   }
 
   .mobileDotActive {
     width: 15px;
     height: 5px;
+  }
+
+  /* Fill grows left→right like a loading bar over the mobile autoplay glide
+     interval (7000ms in PhilosophySection.tsx). */
+  .mobileDot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
     border-radius: 100px;
     background: var(--color-warm-dark);
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+  .mobileDotActive::after {
+    animation: mobileDotFill 7s linear forwards;
+  }
+  @keyframes mobileDotFill {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
   }
 }

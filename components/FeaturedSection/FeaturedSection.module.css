@@ -175,6 +175,7 @@
 }
 /* Each button is 24×24 transparent — large hit area */
 .dot {
+  position: relative;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -203,11 +204,36 @@
   width: 8px;
   height: 8px;
 }
+/* Active pill — ::before is the faint track, ::after fills it left→right like a
+   loading bar over the autoplay duration (AUTOPLAY_MS in FeaturedSection.tsx). */
 .dotActive::before {
   width: 18px;
   height: 6px;
   border-radius: 100px;
+  background: rgba(var(--c-warm), 0.22);
+}
+.dot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 6px;
+  margin-left: -9px;
+  margin-top: -3px;
+  border-radius: 100px;
   background: var(--color-warm-dark);
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+}
+.dotActive::after {
+  opacity: 1;
+  animation: dotFill 9s linear forwards; /* must match AUTOPLAY_MS = 9000 */
+}
+@keyframes dotFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 /* ── Per-category layout overrides ───────────────────────────────────────── */
@@ -299,7 +325,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 8px;
     padding: 0;
   }
 
@@ -383,7 +409,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(50svh + clamp(36px, 5.5vh, 50px) + 20px);
+    top: calc(50svh + clamp(36px, 5.5vh, 50px) + 32px);
     display: flex;
     align-items: center;
     justify-content: center;
