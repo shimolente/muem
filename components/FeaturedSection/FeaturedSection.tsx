@@ -51,6 +51,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const carouselRef           = useRef<HTMLDivElement>(null);
   const mobileFirstPageRef    = useRef<HTMLDivElement>(null);
   const mobileDotsRef         = useRef<HTMLDivElement>(null);
+  const isAutoScrollingRef    = useRef(false);
 
   // Text cell element refs — animated independently of cards
   const textLabelRef = useRef<HTMLSpanElement>(null);
@@ -238,6 +239,56 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     );
   }, [display]);
 
+  /* ── Mobile autoplay — advance the carousel every AUTOPLAY_MS ────────────
+        Native scrollTo({behavior:'smooth'}) is suppressed page-wide (Lenis)
+        and gsap treats `scrollLeft` as CSS (no-op). Direct scrollLeft
+        assignment is the only thing that moves it — glide it with a
+        timer-stepped tween (mirrors PhilosophySection's mobile autoplay).
+        isAutoScrollingRef tells onCarouselScroll to leave the clone→real
+        wrap-reset to glideTo's own completion below — otherwise the mid-glide
+        scroll event's reset (scrollLeft = 0) fights the still-running tween
+        (whose next tick overwrites it back toward the clone), and the
+        carousel freezes right at the wrap boundary. */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const sc = carouselRef.current;
+    if (!sc) return;
+
+    let stepId: ReturnType<typeof setInterval> | null = null;
+    const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    const glideTo = (to: number) => {
+      if (stepId) clearInterval(stepId);
+      isAutoScrollingRef.current = true;
+      const from = sc.scrollLeft;
+      const dist = to - from;
+      const dur = 600;
+      const t0 = performance.now();
+      stepId = setInterval(() => {
+        const k = Math.min(1, (performance.now() - t0) / dur);
+        sc.scrollLeft = from + dist * easeInOutQuad(k);
+        if (k >= 1 && stepId) {
+          clearInterval(stepId);
+          stepId = null;
+          if (sc.scrollLeft >= FEATURED.length * sc.clientWidth - 2) {
+            sc.scrollLeft = 0;
+            setActivePage(0);
+          }
+          isAutoScrollingRef.current = false;
+        }
+      }, 16);
+    };
+
+    const id = setInterval(() => {
+      const cur = Math.round(sc.scrollLeft / sc.clientWidth) % FEATURED.length;
+      // Always advance forward — past the last real page we glide onto the
+      // clone, then glideTo's completion snaps back to page 0 (seamless wrap).
+      glideTo((cur + 1) * sc.clientWidth);
+    }, AUTOPLAY_MS);
+
+    return () => { clearInterval(id); if (stepId) clearInterval(stepId); };
+  }, [FEATURED.length]);
+
   const cat = FEATURED[display];
 
   const scrollToPage = (i: number) => {
@@ -250,6 +301,12 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     const el = carouselRef.current;
     if (!el) return;
     const w = el.clientWidth;
+    // While autoplay is gliding, its own completion handles the clone→real
+    // wrap (see the mobile-autoplay effect) — just track the active dot here.
+    if (isAutoScrollingRef.current) {
+      setActivePage(Math.round(el.scrollLeft / w) % FEATURED.length);
+      return;
+    }
     // A clone of page 0 sits after the last real page. Once the swipe settles on
     // it, jump instantly back to real page 0 → seamless loop (3rd → 1st).
     if (el.scrollLeft >= FEATURED.length * w - 2) {

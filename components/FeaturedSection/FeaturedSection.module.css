@@ -419,6 +419,7 @@
   }
 
   .mobileDotFixed {
+    position: relative;
     width: 6px;
     height: 6px;
     border-radius: 100px;
@@ -427,11 +428,31 @@
     padding: 0;
     cursor: pointer;
     pointer-events: auto;
+    overflow: hidden;
     transition: width 0.3s var(--ease-out-expo), background 0.3s ease;
   }
 
   .mobileDotFixedActive {
     width: 20px;
+    background: rgba(var(--c-warm), 0.28);
+  }
+
+  /* Fill grows left→right like a loading bar over the mobile autoplay glide
+     interval (AUTOPLAY_MS = 9000ms in FeaturedSection.tsx). */
+  .mobileDotFixed::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 100px;
     background: var(--color-warm-dark);
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+  .mobileDotFixedActive::after {
+    animation: mobileDotFixedFill 9s linear forwards;
+  }
+  @keyframes mobileDotFixedFill {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
   }
 }
