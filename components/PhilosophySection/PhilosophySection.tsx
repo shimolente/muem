@@ -31,10 +31,16 @@ export function PhilosophySection() {
   const setNavLogoLight      = useUIStore(s => s.setNavLogoLight);
 
   /* ── Pillar navigation ────────────────────────────────────────────────── */
-  const navigate = useCallback((next: number) => {
+  // lastDirRef carries the travel direction to the separate [pillarIdx] enter
+  // effect below — reading it there is what actually makes the enter tween
+  // slide (see that effect's comment for why the old approach never did).
+  const lastDirRef = useRef<1 | -1>(1);
+
+  const navigate = useCallback((next: number, forcedDir?: 1 | -1) => {
     if (isAnimating.current || next === pillarIdxRef.current) return;
 
-    const dir = next > pillarIdxRef.current ? 1 : -1;
+    const dir = forcedDir ?? (next > pillarIdxRef.current ? 1 : -1);
+    lastDirRef.current = dir;
     isAnimating.current = true;
     pillarIdxRef.current = next;
 
@@ -44,19 +50,21 @@ export function PhilosophySection() {
       bodyRef.current,
     ].filter(Boolean);
 
+    // Slide out — text and image travel together in one direction, so the
+    // whole pillar reads as a single sliding block rather than a fade-in-place.
     gsap.to(textEls, {
-      opacity: 0, x: dir * 40, stagger: 0.03, duration: 0.22, ease: 'power2.in',
+      opacity: 0, x: dir * -70, stagger: 0.02, duration: 0.35, ease: 'power2.in',
     });
-    gsap.to(imageRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in' });
+    gsap.to(imageRef.current, { opacity: 0, x: dir * -40, duration: 0.35, ease: 'power2.in' });
 
-    gsap.delayedCall(0.32, () => { setPillarIdx(next); });
+    gsap.delayedCall(0.35, () => { setPillarIdx(next); });
   }, []);
 
   const startAutoplay = useCallback(() => {
     if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     autoTimerRef.current = setInterval(() => {
       const next = (pillarIdxRef.current + 1) % PHILOSOPHY.length;
-      navigate(next);
+      navigate(next, 1); // autoplay always advances forward, even across the wrap
     }, 7000);
   }, [navigate]);
 
@@ -130,7 +138,11 @@ export function PhilosophySection() {
   useEffect(() => {
     if (!hasEntered.current) return;
 
-    const dir = pillarIdxRef.current > pillarIdx ? -1 : pillarIdxRef.current < pillarIdx ? 1 : 0;
+    // Read the direction navigate() recorded — pillarIdxRef.current is already
+    // equal to the new pillarIdx by the time this runs (navigate sets it
+    // synchronously before the state update), so comparing the two here would
+    // always give 0 and the enter tween would never actually slide.
+    const dir = lastDirRef.current;
 
     const textEls = [
       headingRef.current,
@@ -138,16 +150,22 @@ export function PhilosophySection() {
       bodyRef.current,
     ].filter(Boolean);
 
+    // Slide in from the same side the outgoing pillar slid out to, so text and
+    // image arrive together as one continuous motion instead of fading in place.
     gsap.fromTo(
       textEls,
-      { opacity: 0, x: dir * -40 },
+      { opacity: 0, x: dir * 70 },
       {
         opacity: 1, x: 0,
-        stagger: 0.05, duration: 0.6, ease: 'power3.out',
+        stagger: 0.05, duration: 0.55, ease: 'power3.out',
         onComplete: () => { isAnimating.current = false; },
       },
     );
-    gsap.to(imageRef.current, { opacity: 1, duration: 0.65, ease: 'power2.out' });
+    gsap.fromTo(
+      imageRef.current,
+      { opacity: 0, x: dir * 40 },
+      { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out' },
+    );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pillarIdx]);
 

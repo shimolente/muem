@@ -62,23 +62,30 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const setNavLogoSrc = useUIStore(s => s.setNavLogoSrc);
 
   /* ── Category switch — reads catIdxRef, no stale closure ─────────── */
-  const switchCategory = useCallback((idx: number) => {
+  // lastCatDirRef carries the travel direction to the [display] slide-in
+  // effect below, so the whole category swaps as one continuous slide.
+  const lastCatDirRef = useRef<1 | -1>(1);
+
+  const switchCategory = useCallback((idx: number, forcedDir?: 1 | -1) => {
     if (idx === catIdxRef.current || isAnimating.current) return;
     isAnimating.current = true;
+    const dir = forcedDir ?? (idx > catIdxRef.current ? 1 : -1);
+    lastCatDirRef.current = dir;
     catIdxRef.current = idx;
 
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
 
-    // Exit: cards fade out, text fades out
+    // Slide out — cards and text travel together in one direction, so the
+    // whole category reads as a single sliding block rather than a fade.
     gsap.to(cards, {
-      opacity: 0, y: -12, stagger: 0.04, duration: 0.28, ease: 'power2.in',
+      opacity: 0, x: dir * -70, stagger: 0.03, duration: 0.32, ease: 'power2.in',
       onComplete: () => {
         setDisplay(idx);
         setCatIdx(idx);
       },
     });
-    gsap.to(textEls, { opacity: 0, y: -6, duration: 0.2, stagger: 0.03, ease: 'power2.in' });
+    gsap.to(textEls, { opacity: 0, x: dir * -40, duration: 0.28, stagger: 0.02, ease: 'power2.in' });
   }, []);
 
   /* ── Autoplay — advances every AUTOPLAY_MS, loops back to 0 ─────── */
@@ -86,7 +93,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     autoTimerRef.current = setInterval(() => {
       const next = (catIdxRef.current + 1) % FEATURED.length;
-      switchCategory(next);
+      switchCategory(next, 1); // autoplay always advances forward, even across the wrap
     }, AUTOPLAY_MS);
   }, [switchCategory]);
 
@@ -214,28 +221,27 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     return () => obs.disconnect();
   }, []);
 
-  /* ── Stagger back in whenever displayed category changes ─────────── */
+  /* ── Slide back in whenever displayed category changes ───────────────────
+        Slides in from the same side the outgoing category slid out to, so
+        cards and text arrive as one continuous block. The random-cardinal
+        fly-in stays reserved for the section's own scroll-into-view reveal
+        above (a different, first-impression moment). ────────────────────── */
   useEffect(() => {
     const cards   = cardRefs.current.filter(Boolean);
     const textEls = [textLabelRef.current, textTitleRef.current].filter(Boolean);
+    const dir = lastCatDirRef.current;
 
-    // Directional entrance — random cardinal directions per card, rounded → sharp
-    const dirs = getRandomDirs(cards.length);
-    cards.forEach((card, i) => {
-      const d = dirs[i] ?? { x: 0, y: 20 };
-      gsap.set(card, { x: d.x, y: d.y, opacity: 1, borderRadius: CARD_RADIUS });
-    });
-
+    gsap.set(cards, { x: dir * 70, y: 0, opacity: 0, borderRadius: CARD_RADIUS });
     gsap.to(cards, {
-      x: 0, y: 0, opacity: 1, borderRadius: 0,
-      stagger: 0.09, duration: 0.85, ease: 'power3.out',
+      x: 0, opacity: 1, borderRadius: 0,
+      stagger: 0.05, duration: 0.6, ease: 'power3.out',
       onComplete: () => { isAnimating.current = false; },
     });
 
     gsap.fromTo(
       textEls,
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, stagger: 0.1, duration: 0.55, ease: 'power3.out', delay: 0.15 },
+      { opacity: 0, x: dir * 40 },
+      { opacity: 1, x: 0, stagger: 0.08, duration: 0.5, ease: 'power3.out', delay: 0.1 },
     );
   }, [display]);
 
