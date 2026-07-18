@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { PHILOSOPHY } from '@/content/philosophy';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './PhilosophySection.module.css';
 
 export function PhilosophySection() {
@@ -173,6 +174,54 @@ export function PhilosophySection() {
   // Mobile scroll-snap pagination
   const mobileScrollerRef = useRef<HTMLDivElement>(null);
   const [mobileIdx, setMobileIdx] = useState(0);
+
+  // Mobile entrance refs — first slide's image/text + the fixed dots overlay
+  const mobileImageRef   = useRef<HTMLDivElement>(null);
+  const mobileLabelRef   = useRef<HTMLSpanElement>(null);
+  const mobileHeadingRef = useRef<HTMLHeadingElement>(null);
+  const mobileSubRef     = useRef<HTMLParagraphElement>(null);
+  const mobileBodyRef    = useRef<HTMLParagraphElement>(null);
+  const mobileDotsRef    = useRef<HTMLDivElement>(null);
+
+  /* ── Mobile entrance — image slides in, text slides in, dots slide up.
+        Plays once when the section enters view. Desktop owns its own reveal
+        (the two-column layout is hidden on mobile). ─────────────────────── */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    if (prefersReducedMotion()) return;
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const image   = mobileImageRef.current;
+    const textEls = [
+      mobileLabelRef.current,
+      mobileHeadingRef.current,
+      mobileSubRef.current,
+      mobileBodyRef.current,
+    ].filter(Boolean);
+    const dots = mobileDotsRef.current;
+
+    if (image) gsap.set(image, { opacity: 0, x: 48 });
+    gsap.set(textEls, { opacity: 0, x: -32 });
+    if (dots) gsap.set(dots, { opacity: 0, y: 14 });
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        if (image) gsap.to(image, { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out' });
+        gsap.to(textEls, {
+          opacity: 1, x: 0,
+          stagger: 0.1, duration: 0.7, ease: 'power3.out', delay: 0.15,
+        });
+        if (dots) gsap.to(dots, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.5 });
+        obs.disconnect();
+      },
+      { threshold: 0.25 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
   const onMobileScroll = useCallback(() => {
     const el = mobileScrollerRef.current;
     if (!el) return;
@@ -239,17 +288,18 @@ export function PhilosophySection() {
           return (
             <div key={i} className={styles.mobilePage}>
               <div
+                ref={i === 0 ? mobileImageRef : undefined}
                 className={styles.mobileImage}
                 style={{ backgroundImage: tp.imageSrc ? `url(${tp.imageSrc})` : undefined }}
               />
               <div className={styles.mobileText}>
                 <div className={styles.mobileTop}>
-                  <span className={styles.mobileLabel}>{t('label')}</span>
-                  <h2 className={styles.mobileHeading}>{tp.heading}</h2>
+                  <span ref={i === 0 ? mobileLabelRef : undefined} className={styles.mobileLabel}>{t('label')}</span>
+                  <h2 ref={i === 0 ? mobileHeadingRef : undefined} className={styles.mobileHeading}>{tp.heading}</h2>
                 </div>
                 <div className={styles.mobileBottom}>
-                  <p className={styles.mobileSubheading}>{tp.subheading}</p>
-                  <p className={styles.mobileBody}>{tp.body}</p>
+                  <p ref={i === 0 ? mobileSubRef : undefined} className={styles.mobileSubheading}>{tp.subheading}</p>
+                  <p ref={i === 0 ? mobileBodyRef : undefined} className={styles.mobileBody}>{tp.body}</p>
                 </div>
               </div>
             </div>
@@ -258,7 +308,7 @@ export function PhilosophySection() {
       </div>
 
       {/* Mobile-only fixed dots — overlay outside scroller, anchored under title */}
-      <div className={styles.mobileDotsFixed} aria-hidden="true">
+      <div ref={mobileDotsRef} className={styles.mobileDotsFixed} aria-hidden="true">
         {PHILOSOPHY.map((_, i) => (
           <span
             key={i}

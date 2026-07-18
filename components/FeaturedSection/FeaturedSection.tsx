@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import type { FeaturedCategory } from '@/content/featured';
 import { useUIStore } from '@/store/ui';
 import { scheduleNavUpdate } from '@/lib/navDelay';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './FeaturedSection.module.css';
 
 // Category id (from query) → tab-name translation key.
@@ -48,6 +49,8 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
   const cardRefs              = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef            = useRef<HTMLElement>(null);
   const carouselRef           = useRef<HTMLDivElement>(null);
+  const mobileFirstPageRef    = useRef<HTMLDivElement>(null);
+  const mobileDotsRef         = useRef<HTMLDivElement>(null);
 
   // Text cell element refs — animated independently of cards
   const textLabelRef = useRef<HTMLSpanElement>(null);
@@ -169,6 +172,47 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     return () => obs.disconnect();
   }, [startAutoplay]);
 
+  /* ── Mobile entrance — first carousel page: cards enter rounded→sharp
+        (staggered), the category strip + dots slide in. Plays once when the
+        section enters view. Desktop bento owns its own reveal above. ────── */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    if (prefersReducedMotion()) return;
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const page  = mobileFirstPageRef.current;
+    const cards = page ? Array.from(page.querySelectorAll<HTMLElement>(`.${styles.mobileCard}`)) : [];
+    const strip = page ? [
+      page.querySelector<HTMLElement>(`.${styles.mobileStripLabel}`),
+      page.querySelector<HTMLElement>(`.${styles.mobileStripTitle}`),
+    ].filter((el): el is HTMLElement => Boolean(el)) : [];
+    const dots  = mobileDotsRef.current;
+
+    if (cards.length) gsap.set(cards, { opacity: 0, y: 40, borderRadius: 40 });
+    if (strip.length) gsap.set(strip, { opacity: 0, y: 16 });
+    if (dots)  gsap.set(dots,  { opacity: 0, y: 12 });
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        if (cards.length) gsap.to(cards, {
+          opacity: 1, y: 0, borderRadius: 0,
+          stagger: 0.1, duration: 0.8, ease: 'power3.out',
+        });
+        if (strip.length) gsap.to(strip, {
+          opacity: 1, y: 0, stagger: 0.08, duration: 0.6, ease: 'power3.out', delay: 0.25,
+        });
+        if (dots)  gsap.to(dots,  { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.5 });
+        obs.disconnect();
+      },
+      { threshold: 0.25 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   /* ── Stagger back in whenever displayed category changes ─────────── */
   useEffect(() => {
     const cards   = cardRefs.current.filter(Boolean);
@@ -233,7 +277,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
           const topImages    = projs.slice(0, topCount).filter(Boolean);
           const bottomImages = projs.slice(topCount, topCount + (bottomIsPair ? 2 : 1)).filter(Boolean);
           return (
-            <div key={i} className={styles.mobilePage}>
+            <div key={i} ref={i === 0 ? mobileFirstPageRef : undefined} className={styles.mobilePage}>
               <div className={`${styles.mobileBentoRow} ${topIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
                 {topImages.map(p => (
                   <a key={p.id} href={p.href}
@@ -250,6 +294,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
               </div>
 
               <div className={styles.mobileStrip}>
+                <span className={styles.mobileStripLabel}>{tLabel()}</span>
                 <span className={styles.mobileStripTitle}>{tName(c.id, c.name)}</span>
               </div>
 
@@ -273,7 +318,7 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
       </div>
 
       {/* Fixed dot strip — stays put while pages swipe; only the active dot moves */}
-      <div className={styles.mobileDotsFixed} role="tablist" aria-label="Browse categories">
+      <div ref={mobileDotsRef} className={styles.mobileDotsFixed} role="tablist" aria-label="Browse categories">
         {FEATURED.map((c, i) => (
           <button key={c.id} type="button" role="tab" aria-selected={i === activePage}
             aria-label={`Show ${tName(c.id, c.name)}`}

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { SERVICES } from '@/content/services';
 import { useUIStore } from '@/store/ui';
+import { prefersReducedMotion } from '@/lib/animation';
 import styles from './ServicesSection.module.css';
 
 const N      = SERVICES.length;  // 6
@@ -15,6 +16,8 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
 
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef   = useRef<HTMLDivElement>(null);
+  const mobileFirstItemRef = useRef<HTMLDivElement>(null);
+  const mobileDotsRef      = useRef<HTMLDivElement>(null);
 
   const setNavTheme  = useUIStore(s => s.setNavTheme);
   const setNavStyle  = useUIStore(s => s.setNavStyle);
@@ -76,6 +79,39 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* ── Mobile entrance — first scroller item (phase/name/image/desc) slides
+        up staggered, dots fade in. Plays once when the section enters view.
+        Desktop uses the scroll-scrubbed track above. ────────────────────── */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    if (prefersReducedMotion()) return;
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const item = mobileFirstItemRef.current;
+    const els  = item ? Array.from(item.children) as HTMLElement[] : [];
+    const dots = mobileDotsRef.current;
+
+    if (els.length) gsap.set(els, { opacity: 0, y: 30 });
+    if (dots) gsap.set(dots, { opacity: 0, y: 12 });
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        if (els.length) gsap.to(els, {
+          opacity: 1, y: 0,
+          stagger: 0.12, duration: 0.7, ease: 'power3.out',
+        });
+        if (dots) gsap.to(dots, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.5 });
+        obs.disconnect();
+      },
+      { threshold: 0.25 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
   const active = SERVICES[activeIdx];
@@ -154,7 +190,7 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
           }}
         >
           {SERVICES.map((s, i) => (
-            <div key={s.id} className={styles.mobileItem}>
+            <div key={s.id} ref={i === 0 ? mobileFirstItemRef : undefined} className={styles.mobileItem}>
               <span className={styles.mobilePhase}>
                 Phase {String(i + 1).padStart(2, '0')}
               </span>
@@ -172,7 +208,7 @@ export function ServicesSection({ navStyle = 'full' }: { navStyle?: 'full' | 'mi
             </div>
           ))}
         </div>
-        <div className={styles.mobileDots} aria-hidden="true">
+        <div ref={mobileDotsRef} className={styles.mobileDots} aria-hidden="true">
           {SERVICES.map((_, i) => (
             <span
               key={i}

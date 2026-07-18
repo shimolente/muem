@@ -354,6 +354,17 @@
     color: var(--color-white);
   }
 
+  .mobileStripLabel {
+    font-family: var(--eyebrow-font);
+    font-size: var(--eyebrow-size);
+    font-weight: var(--eyebrow-weight);
+    letter-spacing: var(--eyebrow-tracking);
+    text-transform: uppercase;
+    color: var(--eyebrow-color);
+    text-align: center;
+    line-height: 1;
+  }
+
   .mobileStripTitle {
     font-family: var(--font-title);
     font-weight: var(--title-weight);

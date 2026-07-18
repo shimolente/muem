@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { revealUp, prefersReducedMotion } from '@/lib/animation';
+import { revealUp, setHidden, prefersReducedMotion } from '@/lib/animation';
 import {
   RESIDENCES_INTRO,
   unitsAvailable, isSoldOut,
@@ -120,7 +120,7 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
   const processRef = useRef<HTMLDivElement>(null);
   const filterWrapRef = useRef<HTMLDivElement>(null);
   const sentinelRef  = useRef<HTMLDivElement>(null);
-  const hasEntered = useRef(false);
+  const cardObserverRef = useRef<IntersectionObserver | null>(null);
   const processEntered = useRef(false);
 
   const [availFilter, setAvailFilter] = useState<string[]>([]);
@@ -169,35 +169,46 @@ export function ResidencesGrid({ projects, categories }: { projects: ResidencePr
 
   const visible = allFiltered.slice(0, limit);
   const hasMore = allFiltered.length > limit;
+  const visibleKey = visible.map(p => p.id).join(',');
 
-  /* ── Entrance + filter animation ─────────────────────────────────────── */
-  const animateCards = useCallback(() => {
-    const cards = gridRef.current?.querySelectorAll<HTMLElement>(`.${styles.card}`);
-    if (!cards || cards.length === 0) return;
-    revealUp(Array.from(cards), { stagger: 0.06, clearProps: 'borderRadius' });
+  /* ── Per-card entrance — each card reveals independently the moment IT
+        scrolls into view, not all together when the grid/section appears.
+        One long-lived observer; a second effect registers newly-rendered
+        cards (initial render, filter change, "Load more") for it. ────────── */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          revealUp(el, { clearProps: 'borderRadius' });
+          observer.unobserve(el);
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -10% 0px' },
+    );
+    cardObserverRef.current = observer;
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasEntered.current) {
-          hasEntered.current = true;
-          requestAnimationFrame(() => requestAnimationFrame(animateCards));
-          obs.disconnect();
-        }
-      },
-      { threshold: 0.1 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [animateCards]);
+    const grid = gridRef.current;
+    const observer = cardObserverRef.current;
+    if (!grid || !observer) return;
 
-  useEffect(() => {
-    if (!hasEntered.current) return;
-    requestAnimationFrame(() => requestAnimationFrame(animateCards));
-  }, [visible.length, animateCards]);
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.card}`))
+      .filter((c) => !c.dataset.observed);
+    if (cards.length === 0) return;
+    cards.forEach((c) => { c.dataset.observed = '1'; });
+
+    if (prefersReducedMotion()) {
+      gsap.set(cards, { opacity: 1, y: 0, borderRadius: '0px' });
+      return;
+    }
+
+    setHidden(cards);
+    cards.forEach((c) => observer.observe(c));
+  }, [visibleKey]);
 
   /* Reset limit when filters change */
   useEffect(() => { setLimit(9); }, [availFilter, topoFilter]);
