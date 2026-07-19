@@ -205,8 +205,11 @@
   height: 8px;
 }
 /* Active pill — ::before is the faint track, ::after fills it left→right like a
-   loading bar over the autoplay duration (AUTOPLAY_MS in FeaturedSection.tsx). */
-.dotActive::before {
+   loading bar over the autoplay duration (AUTOPLAY_MS in FeaturedSection.tsx).
+   Chained ".dot.dotActive" so this outranks ".dot:hover::before" — otherwise
+   hovering the active dot reverts it to the small hover circle, breaking the
+   pill/fill on desktop where a resting cursor triggers :hover constantly. */
+.dot.dotActive::before {
   width: 18px;
   height: 6px;
   border-radius: 100px;
@@ -227,7 +230,7 @@
   transform: scaleX(0);
   opacity: 0;
 }
-.dotActive::after {
+.dot.dotActive::after {
   opacity: 1;
   animation: dotFill 9s linear forwards; /* must match AUTOPLAY_MS = 9000 */
 }
