@@ -137,18 +137,21 @@
 .stat:hover .statTag:nth-child(4) { transition-delay: 0.24s; }
 .stat:hover .statTag:nth-child(5) { transition-delay: 0.32s; }
 
-/* ── Mobile — restore centered layout ───────────────────────────────────── */
+/* ── Mobile — headline dead-centred, snapshots pinned to the bottom ──────── */
 @media (max-width: 768px) {
-  .section { padding: 0 24px; justify-content: center; gap: clamp(24px, 4vh, 40px); }
+  .section { padding: 0 24px; }
 
   .headline { font-size: clamp(38px, 10vw, 72px); }
 
+  /* Stats stay absolutely pinned to the bottom edge (base behaviour) so the
+     headline is the only in-flow child and lands dead-centre. Wrap into a
+     2×2 grid on narrow screens. */
   .stats {
-    position: static;
-    justify-content: center;
+    bottom: calc(clamp(20px, 4vh, 40px) + env(safe-area-inset-bottom));
+    left: 24px;
+    right: 24px;
     flex-wrap: wrap;
     gap: clamp(20px, 5vw, 32px) clamp(16px, 8vw, 40px);
-    padding: 0;
   }
 
   .stat {
@@ -160,10 +163,9 @@
 
   .statValueWrap { justify-content: center; }
   .statValue     { left: 50%; transform: translateX(-50%); }
-  /* No hover on touch devices — always show tags on mobile */
-  .statTags      { align-items: center; }
-  /* No hover on touch — always show tags on mobile */
-  .statTag       { opacity: 1; transform: none; transition: none; }
+
+  /* Subpoints not shown on mobile — snapshots stay to number + label only. */
+  .statTags { display: none; }
 }
 
 @media (max-width: 480px) {

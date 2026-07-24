@@ -19,6 +19,15 @@ const FEATURED_NAME_KEY: Record<string, string> = {
 
 const CARD_RADIUS = 80;
 
+// Mobile: three bento rows per category page. Numbers are cards-per-row
+// (1 = wide, 2 = square pair). Rhythm differs per category so adjacent pages
+// don't repeat. Index = category order (0 Residential · 1 Hospitality · 2 Commercial).
+const MOBILE_ROW_LAYOUTS: number[][] = [
+  [1, 2, 1], // Residential
+  [2, 1, 2], // Hospitality
+  [1, 1, 2], // Commercial
+];
+
 const AUTOPLAY_MS = 9000;
 
 // Four cardinal directions — no diagonals.
@@ -221,6 +230,67 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
     return () => obs.disconnect();
   }, []);
 
+  /* ── Mobile: reveal each carousel page's cards + strip once, the first
+        time it becomes active (swipe or autoplay) — gives every category its
+        own arrival flourish, mirroring the desktop bento's per-switch slide.
+        Page 0 stays owned by the entrance effect above (revealedPagesRef is
+        pre-seeded with it) so the two never touch the same elements. This
+        only ever animates opacity/scale/borderRadius — never scrollLeft — so
+        it can't race the autoplay glide/wrap logic the way that bug did. ─── */
+  const revealedPagesRef = useRef<Set<number>>(new Set([0]));
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    // Pre-hide every real page except page 0 (owned above) and the trailing
+    // clone (always identical to page 0, which is already revealed by then —
+    // hiding it too would risk a blank flash right at the wrap moment).
+    const pages = Array.from(carousel.querySelectorAll<HTMLElement>(`.${styles.mobilePage}`));
+    const realPages = pages.slice(0, FEATURED.length);
+
+    if (prefersReducedMotion()) return;
+
+    realPages.slice(1).forEach((page) => {
+      const cards = Array.from(page.querySelectorAll<HTMLElement>(`.${styles.mobileCard}`));
+      const strip = [
+        page.querySelector<HTMLElement>(`.${styles.mobileStripLabel}`),
+        page.querySelector<HTMLElement>(`.${styles.mobileStripTitle}`),
+      ].filter((el): el is HTMLElement => Boolean(el));
+      if (cards.length) gsap.set(cards, { opacity: 0, scale: 0.92, borderRadius: 40 });
+      if (strip.length) gsap.set(strip, { opacity: 0, y: 12 });
+    });
+  }, [FEATURED.length]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    if (revealedPagesRef.current.has(activePage)) return;
+    revealedPagesRef.current.add(activePage);
+    if (prefersReducedMotion()) return;
+
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const page = carousel.querySelectorAll<HTMLElement>(`.${styles.mobilePage}`)[activePage];
+    if (!page) return;
+
+    const cards = Array.from(page.querySelectorAll<HTMLElement>(`.${styles.mobileCard}`));
+    const strip = [
+      page.querySelector<HTMLElement>(`.${styles.mobileStripLabel}`),
+      page.querySelector<HTMLElement>(`.${styles.mobileStripTitle}`),
+    ].filter((el): el is HTMLElement => Boolean(el));
+
+    if (cards.length) gsap.to(cards, {
+      opacity: 1, scale: 1, borderRadius: 0,
+      stagger: 0.06, duration: 0.5, ease: 'power3.out',
+    });
+    if (strip.length) gsap.to(strip, {
+      opacity: 1, y: 0, stagger: 0.06, duration: 0.5, ease: 'power3.out', delay: 0.1,
+    });
+  }, [activePage]);
+
   /* ── Slide back in whenever displayed category changes ───────────────────
         Slides in from the same side the outgoing category slid out to, so
         cards and text arrive as one continuous block. The random-cardinal
@@ -331,50 +401,41 @@ export function FeaturedSection({ categories: FEATURED }: { categories: Featured
            A trailing clone of page 0 makes the swipe loop 3rd → 1st. ───────── */}
       <div ref={carouselRef} className={styles.mobileBento} onScroll={onCarouselScroll}>
         {[...FEATURED, FEATURED[0]].map((c, i) => {
-          const realIdx      = i % FEATURED.length;
-          const variant      = realIdx >= 2 ? 2 : realIdx; // 0: 1+2 · 1: 2+1 · 2: 2+2
-          const topIsPair    = variant !== 0;
-          const bottomIsPair = variant !== 1;
-          const topCount     = topIsPair ? 2 : 1;
-          const projs        = c.projects;
-          const topImages    = projs.slice(0, topCount).filter(Boolean);
-          const bottomImages = projs.slice(topCount, topCount + (bottomIsPair ? 2 : 1)).filter(Boolean);
+          const realIdx = i % FEATURED.length;
+          // Three rows per page. Each entry = that row's card count (1 = wide,
+          // 2 = square pair). Bento rhythm alternates per category so no two
+          // adjacent pages read the same. Cards fill sequentially from projects.
+          const layout = MOBILE_ROW_LAYOUTS[realIdx] ?? MOBILE_ROW_LAYOUTS[0];
+          const projs  = c.projects;
+          let cursor   = 0;
+          const rows   = layout.map(count => {
+            const imgs = projs.slice(cursor, cursor + count).filter(Boolean);
+            cursor += count;
+            return { isPair: count === 2, imgs };
+          });
           return (
             <div key={i} ref={i === 0 ? mobileFirstPageRef : undefined} className={styles.mobilePage}>
-              <div className={`${styles.mobileBentoRow} ${topIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
-                {topImages.map(p => (
-                  <a key={p.id} href={p.href}
-                     className={`${styles.mobileCard} ${topIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
-                     style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
-                     aria-label={`${p.title} — ${p.location}`}>
-                    <div className={styles.mobileCardOverlay} />
-                    <div className={styles.mobileCardMeta}>
-                      <span className={styles.mobileCardLocation}>{p.location}</span>
-                      <span className={styles.mobileCardTitle}>{p.title}</span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-
               <div className={styles.mobileStrip}>
                 <span className={styles.mobileStripLabel}>{tLabel()}</span>
                 <span className={styles.mobileStripTitle}>{tName(c.id, c.name)}</span>
               </div>
 
-              <div className={`${styles.mobileBentoRow} ${bottomIsPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
-                {bottomImages.map(p => (
-                  <a key={p.id} href={p.href}
-                     className={`${styles.mobileCard} ${bottomIsPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
-                     style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
-                     aria-label={`${p.title} — ${p.location}`}>
-                    <div className={styles.mobileCardOverlay} />
-                    <div className={styles.mobileCardMeta}>
-                      <span className={styles.mobileCardLocation}>{p.location}</span>
-                      <span className={styles.mobileCardTitle}>{p.title}</span>
-                    </div>
-                  </a>
-                ))}
-              </div>
+              {rows.map((row, r) => (
+                <div key={r} className={`${styles.mobileBentoRow} ${row.isPair ? styles.mobileBentoPair : styles.mobileBentoWide}`}>
+                  {row.imgs.map(p => (
+                    <a key={p.id} href={p.href}
+                       className={`${styles.mobileCard} ${row.isPair ? styles.mobileCardSquare : styles.mobileCardWide}`}
+                       style={{ backgroundImage: p.imageSrc ? `url(${p.imageSrc})` : undefined }}
+                       aria-label={`${p.title} — ${p.location}`}>
+                      <div className={styles.mobileCardOverlay} />
+                      <div className={styles.mobileCardMeta}>
+                        <span className={styles.mobileCardLocation}>{p.location}</span>
+                        <span className={styles.mobileCardTitle}>{p.title}</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ))}
             </div>
           );
         })}

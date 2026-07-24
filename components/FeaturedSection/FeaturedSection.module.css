@@ -300,6 +300,9 @@
   .mobileBento::-webkit-scrollbar { display: none; }
 
   .mobilePage {
+    /* One spacing token drives every margin: card gaps, row gaps, and the
+       page's left/right/bottom padding are all --m → equal margins throughout. */
+    --m: 14px;
     flex: 0 0 100%;
     width: 100%;
     height: 100%;
@@ -307,29 +310,30 @@
     scroll-snap-align: center;
     display: flex;
     flex-direction: column;
-    gap: clamp(6px, 1.5vw, 10px);
-    padding: clamp(72px, 11vh, 100px) 14px calc(20px + env(safe-area-inset-bottom));
+    gap: var(--m);
+    padding: clamp(72px, 11vh, 100px) var(--m) calc(var(--m) + env(safe-area-inset-bottom));
   }
 
   .mobileBentoRow {
     display: grid;
-    gap: clamp(6px, 1.5vw, 10px);
+    gap: var(--m);
     flex: 0 0 auto;
   }
   .mobileBentoWide { grid-template-columns: 1fr; }
   .mobileBentoPair { grid-template-columns: 1fr 1fr; }
 
-  /* Strip grows to fill leftover space → every page is the same 100svh height
-     regardless of whether a row has 1 wide card or 2 square cards. */
+  /* Title block — pinned to the top, centred, above the bento rows.
+     Compact (auto height); the three rows follow directly beneath it. */
   .mobileStrip {
-    flex: 1 1 auto;
-    min-height: 96px;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 6px;
     padding: 0;
+    /* leaves room under the title for the fixed dot strip overlay */
+    margin-bottom: 22px;
   }
 
   .mobileCard {
@@ -394,10 +398,12 @@
     line-height: 1;
   }
 
+  /* Title font + weight from the type system; size matched to the Categories
+     section's mobile title so the section headings read consistently. */
   .mobileStripTitle {
     font-family: var(--font-title);
     font-weight: var(--title-weight);
-    font-size: clamp(28px, 8vw, 44px);
+    font-size: clamp(38px, 10vw, 72px);
     line-height: 1;
     letter-spacing: -0.01em;
     color: var(--color-warm-dark);
@@ -405,14 +411,14 @@
   }
 
   /* Fixed dot strip — absolute overlay that does NOT scroll with the carousel.
-     Anchored just under the (centred) strip title: the strip centre sits at
-     50svh + topPad/2 - botPad/2, and the rows cancel out of the maths, so this
-     position holds on every page and screen size. Only the active dot changes. */
+     Anchored just under the top-left title: top = page padding-top + eyebrow
+     line + gap + title line. The title block has the same layout on every page,
+     so this offset holds across categories. Only the active dot changes. */
   .mobileDotsFixed {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(50svh + clamp(36px, 5.5vh, 50px) + 32px);
+    top: calc(clamp(72px, 11vh, 100px) + var(--eyebrow-size) + 6px + clamp(38px, 12vw, 72px) + 10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -458,4 +464,9 @@
     from { transform: scaleX(0); }
     to   { transform: scaleX(1); }
   }
+}
+
+/* Narrow phones — matches Categories section's title step-down. */
+@media (max-width: 480px) {
+  .mobileStripTitle { font-size: clamp(34px, 12vw, 56px); }
 }
