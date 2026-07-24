@@ -137,29 +137,39 @@
 .stat:hover .statTag:nth-child(4) { transition-delay: 0.24s; }
 .stat:hover .statTag:nth-child(5) { transition-delay: 0.32s; }
 
-/* ── Mobile — headline dead-centred, snapshots pinned to the bottom ──────── */
+/* ── Mobile — two snapshots up, headline, two snapshots below ────────────── */
 @media (max-width: 768px) {
-  .section { padding: 0 24px; }
+  /* Section becomes a 2-col grid: row 1 = top pair · row 2 = headline ·
+     row 3 = bottom pair. Rows are auto and the whole group is centred
+     vertically (align-content) so the three bands sit close together
+     rather than being pushed to the top/bottom edges. */
+  .section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+    align-content: center;
+    gap: clamp(36px, 8vh, 72px) clamp(16px, 8vw, 40px);
+    padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
+  }
 
   .headline { font-size: clamp(38px, 10vw, 72px); }
 
-  /* Stats stay absolutely pinned to the bottom edge (base behaviour) so the
-     headline is the only in-flow child and lands dead-centre. Wrap into a
-     2×2 grid on narrow screens. */
-  .stats {
-    bottom: calc(clamp(20px, 4vh, 40px) + env(safe-area-inset-bottom));
-    left: 24px;
-    right: 24px;
-    flex-wrap: wrap;
-    gap: clamp(20px, 5vw, 32px) clamp(16px, 8vw, 40px);
-  }
+  .content { grid-column: 1 / -1; grid-row: 2; }
+
+  /* Stats box dissolves so its four cards flow directly into the section
+     grid — two above the headline, two below. */
+  .stats { display: contents; }
 
   .stat {
     align-items: center;
     text-align: center;
     min-width: 110px;
-    flex: 0 0 40%;
   }
+  .stat:nth-child(1) { grid-row: 1; grid-column: 1; }
+  .stat:nth-child(2) { grid-row: 1; grid-column: 2; }
+  .stat:nth-child(3) { grid-row: 3; grid-column: 1; }
+  .stat:nth-child(4) { grid-row: 3; grid-column: 2; }
 
   .statValueWrap { justify-content: center; }
   .statValue     { left: 50%; transform: translateX(-50%); }
